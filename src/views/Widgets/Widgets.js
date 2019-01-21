@@ -5,7 +5,7 @@ import Widget02 from './Widget02';
 import Widget03 from './Widget03';
 import Widget04 from './Widget04';
 import { Line } from 'react-chartjs-2';
-
+import { CustomTooltips } from '@coreui/coreui-plugin-chartjs-custom-tooltips';
 
 // Brand Card Chart
 const makeSocialBoxData = (dataSetNo) => {
@@ -34,6 +34,10 @@ const makeSocialBoxData = (dataSetNo) => {
 };
 
 const socialChartOpts = {
+  tooltips: {
+    enabled: false,
+    custom: CustomTooltips
+  },
   responsive: true,
   maintainAspectRatio: false,
   legend: {

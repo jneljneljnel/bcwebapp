@@ -52,24 +52,19 @@ export default {
           icon: 'icon-puzzle',
         },
         {
-          name: 'Carousels',
+          name: 'Carousel',
           url: '/base/carousels',
           icon: 'icon-puzzle',
         },
         {
-          name: 'Collapses',
+          name: 'Collapse',
           url: '/base/collapses',
           icon: 'icon-puzzle',
         },
         {
           name: 'Dropdowns',
           url: '/base/dropdowns',
-          icon: 'icon-puzzle',
-        },
-        {
-          name: 'Forms',
-          url: '/base/forms',
-          icon: 'icon-puzzle',
+          icon: 'icon-puzzle'
         },
         {
           name: 'Jumbotrons',
@@ -77,7 +72,7 @@ export default {
           icon: 'icon-puzzle',
         },
         {
-          name: 'List groups',
+          name: 'List group',
           url: '/base/list-groups',
           icon: 'icon-puzzle',
         },
@@ -104,12 +99,7 @@ export default {
         {
           name: 'Switches',
           url: '/base/switches',
-          icon: 'icon-puzzle',
-        },
-        {
-          name: 'Tables',
-          url: '/base/tables',
-          icon: 'icon-puzzle',
+          icon: 'icon-puzzle'
         },
         {
           name: 'Tabs',
@@ -134,8 +124,8 @@ export default {
           icon: 'icon-cursor',
         },
         {
-          name: 'Button dropdowns',
-          url: '/buttons/button-dropdowns',
+          name: 'Brand Buttons',
+          url: '/buttons/brand-buttons',
           icon: 'icon-cursor',
         },
         {
@@ -144,16 +134,89 @@ export default {
           icon: 'icon-cursor',
         },
         {
-          name: 'Brand Buttons',
-          url: '/buttons/brand-buttons',
+          name: 'Dropdowns',
+          url: '/buttons/button-dropdowns',
           icon: 'icon-cursor',
+        },
+        {
+          name: 'Loading Buttons',
+          url: '/buttons/loading-buttons',
+          icon: 'icon-cursor',
+          badge: {
+            variant: 'danger',
+            text: 'PRO',
+          },
         },
       ],
     },
     {
       name: 'Charts',
       url: '/charts',
-      icon: 'icon-pie-chart',
+      icon: 'icon-pie-chart'
+    },
+    {
+      name: 'Editors',
+      url: '/editors',
+      icon: 'fa fa-code',
+      children: [
+        {
+          name: 'Code Editors',
+          url: '/editors/code-editors',
+          icon: 'fa fa-code',
+          badge: {
+            variant: 'danger',
+            text: 'PRO',
+          },
+        },
+        {
+          name: 'Text Editors',
+          url: '/editors/text-editors',
+          icon: 'icon-note',
+          badge: {
+            variant: 'danger',
+            text: 'PRO',
+          },
+        }
+      ]
+    },
+    {
+      name: 'Forms',
+      url: '/forms',
+      icon: 'icon-note',
+      children: [
+        {
+          name: 'Basic Forms',
+          url: '/forms/basic-forms',
+          icon: 'icon-note'
+        },
+        {
+          name: 'Advanced Forms',
+          url: '/forms/advanced-forms',
+          icon: 'icon-note',
+          badge: {
+            variant: 'danger',
+            text: 'PRO'
+          }
+        },
+        {
+          name: 'Validation',
+          url: '/forms/validation-forms',
+          icon: 'icon-note',
+          badge: {
+            variant: 'danger',
+            text: 'PRO'
+          }
+        }
+      ]
+    },
+    {
+      name: 'Google Maps',
+      url: '/google-maps',
+      icon: 'icon-map',
+      badge: {
+        variant: 'danger',
+        text: 'PRO'
+      }
     },
     {
       name: 'Icons',
@@ -208,9 +271,73 @@ export default {
         {
           name: 'Modals',
           url: '/notifications/modals',
-          icon: 'icon-bell',
+          icon: 'icon-bell'
         },
-      ],
+        {
+          name: 'Toastr',
+          url: '/notifications/toastr',
+          icon: 'icon-bell',
+          badge: {
+            variant: 'danger',
+            text: 'PRO'
+          }
+        }
+      ]
+    },
+    {
+      name: 'Plugins',
+      url: '/plugins',
+      icon: 'icon-energy',
+      children: [
+        {
+          name: 'Calendar',
+          url: '/plugins/calendar',
+          icon: 'icon-calendar',
+          badge: {
+            variant: 'danger',
+            text: 'PRO'
+          }
+        },
+        {
+          name: 'Draggable',
+          url: '/plugins/draggable',
+          icon: 'icon-cursor-move',
+          badge: {
+            variant: 'danger',
+            text: 'PRO'
+          }
+        },
+        {
+          name: 'Spinners',
+          url: '/plugins/spinners',
+          icon: 'fa fa-spinner',
+          badge: {
+            variant: 'danger',
+            text: 'PRO'
+          }
+        }
+      ]
+        },
+    {
+      name: 'Tables',
+      url: '/tables',
+      icon: 'icon-list',
+      children: [
+        {
+          name: 'Data Table',
+          url: '/tables/data-table',
+          icon: 'icon-list',
+          badge: {
+            variant: 'danger',
+            text: 'PRO'
+          }
+        },
+        {
+          name: 'Tables',
+          url: '/tables/tables',
+          icon: 'icon-list'
+        }
+      ]
     },
     {
       name: 'Widgets',
@@ -259,22 +386,100 @@ export default {
       name: 'Disabled',
       url: '/dashboard',
       icon: 'icon-ban',
+      badge: {
+        variant: 'secondary',
+        text: 'NEW',
+      },
       attributes: { disabled: true },
     },
     {
-      name: 'Download CoreUI',
-      url: 'https://coreui.io/react/',
-      icon: 'icon-cloud-download',
-      class: 'mt-auto',
-      variant: 'success',
-      attributes: { target: '_blank', rel: "noopener" },
+      name: 'Apps',
+      url: '/apps',
+      icon: 'icon-layers',
+      children: [
+        {
+          name: 'Invoicing',
+          url: '/apps/invoicing',
+          icon: 'icon-speech',
+          children: [
+            {
+              name: 'Invoice',
+              url: '/apps/invoicing/invoice',
+              icon: 'icon-speech',
+              badge: {
+                variant: 'danger',
+                text: 'PRO'
+              }
+            }
+          ]
+        },
+        {
+          name: 'Email',
+          url: '/apps/email',
+          icon: 'icon-speech',
+          children: [
+            {
+              name: 'Inbox',
+              url: '/apps/email/inbox',
+              icon: 'icon-speech',
+              badge: {
+                variant: 'danger',
+                text: 'PRO',
+              },
+            },
+            {
+              name: 'Message',
+              url: '/apps/email/message',
+              icon: 'icon-speech',
+              badge: {
+                variant: 'danger',
+                text: 'PRO',
+              },
+            },
+            {
+              name: 'Compose',
+              url: '/apps/email/compose',
+              icon: 'icon-speech',
+              badge: {
+                variant: 'danger',
+                text: 'PRO',
+              },
+            },
+          ],
+        },
+      ]
     },
     {
-      name: 'Try CoreUI PRO',
-      url: 'https://coreui.io/pro/react/',
-      icon: 'icon-layers',
-      variant: 'danger',
-      attributes: { target: '_blank', rel: "noopener" },
+      divider: true,
+      class: 'm-2'
     },
-  ],
+    {
+      title: true,
+      name: 'Labels'
+    },
+    {
+      name: 'Label danger',
+      url: '',
+      icon: 'fa fa-circle',
+      label: {
+        variant: 'danger'
+      },
+    },
+    {
+      name: 'Label info',
+      url: '',
+      icon: 'fa fa-circle',
+      label: {
+        variant: 'info'
+      }
+    },
+    {
+      name: 'Label warning',
+      url: '',
+      icon: 'fa fa-circle',
+      label: {
+        variant: 'warning'
+      }
+    },
+  ]
 };

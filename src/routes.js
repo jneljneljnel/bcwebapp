@@ -1,12 +1,33 @@
 import React from 'react';
 import DefaultLayout from './containers/DefaultLayout';
 
+// import CodeEditors from './views/Editors/CodeEditors'
+const CodeEditors = React.lazy(() => import('./views/Editors/CodeEditors'));
+const TextEditors = React.lazy(() => import('./views/Editors/TextEditors'));
+
+const Compose = React.lazy(() => import('./views/Apps/Email/Compose'));
+const Inbox = React.lazy(() => import('./views/Apps/Email/Inbox'));
+const Message = React.lazy(() => import('./views/Apps/Email/Message'));
+const Invoice = React.lazy(() => import('./views/Apps/Invoicing/Invoice'));
+
+const AdvancedForms = React.lazy(() => import('./views/Forms/AdvancedForms'));
+const BasicForms = React.lazy(() => import('./views/Forms/BasicForms'));
+const ValidationForms = React.lazy(() => import('./views/Forms/ValidationForms'));
+const GoogleMaps = React.lazy(() => import('./views/GoogleMaps'));
+const Toastr = React.lazy(() => import('./views/Notifications/Toastr'));
+const Calendar = React.lazy(() => import('./views/Plugins/Calendar'));
+const Draggable = React.lazy(() => import('./views/Plugins/Draggable'));
+const Spinners = React.lazy(() => import('./views/Plugins/Spinners'));
+const DataTable = React.lazy(() => import('./views/Tables/DataTable'));
+const Tables = React.lazy(() => import('./views/Tables/Tables'));
+const LoadingButtons = React.lazy(() => import('./views/Buttons/LoadingButtons'));
+
 const Breadcrumbs = React.lazy(() => import('./views/Base/Breadcrumbs'));
 const Cards = React.lazy(() => import('./views/Base/Cards'));
 const Carousels = React.lazy(() => import('./views/Base/Carousels'));
 const Collapses = React.lazy(() => import('./views/Base/Collapses'));
 const Dropdowns = React.lazy(() => import('./views/Base/Dropdowns'));
-const Forms = React.lazy(() => import('./views/Base/Forms'));
+
 const Jumbotrons = React.lazy(() => import('./views/Base/Jumbotrons'));
 const ListGroups = React.lazy(() => import('./views/Base/ListGroups'));
 const Navbars = React.lazy(() => import('./views/Base/Navbars'));
@@ -15,7 +36,7 @@ const Paginations = React.lazy(() => import('./views/Base/Paginations'));
 const Popovers = React.lazy(() => import('./views/Base/Popovers'));
 const ProgressBar = React.lazy(() => import('./views/Base/ProgressBar'));
 const Switches = React.lazy(() => import('./views/Base/Switches'));
-const Tables = React.lazy(() => import('./views/Base/Tables'));
+
 const Tabs = React.lazy(() => import('./views/Base/Tabs'));
 const Tooltips = React.lazy(() => import('./views/Base/Tooltips'));
 const BrandButtons = React.lazy(() => import('./views/Buttons/BrandButtons'));
@@ -36,21 +57,26 @@ const Typography = React.lazy(() => import('./views/Theme/Typography'));
 const Widgets = React.lazy(() => import('./views/Widgets/Widgets'));
 const Users = React.lazy(() => import('./views/Users/Users'));
 const User = React.lazy(() => import('./views/Users/User'));
+const Create = React.lazy(() => import('./views/Create/Create'));
+const Open = React.lazy(() => import('./views/Jobs/Open'));
+const Completed = React.lazy(() => import('./views/Jobs/Completed'));
+const Job = React.lazy(() => import('./views/Jobs/Job'));
 
 // https://github.com/ReactTraining/react-router/tree/master/packages/react-router-config
 const routes = [
-  { path: '/', exact: true, name: 'Home', component: DefaultLayout },
+  { path: '/', name: 'Home', component: DefaultLayout, exact: true },
   { path: '/dashboard', name: 'Dashboard', component: Dashboard },
-  { path: '/theme', exact: true, name: 'Theme', component: Colors },
+  { path: '/create', name: 'Create', component: Create },
+  { path: '/open', name: 'Open', component: Open },
+  { path: '/Completed', name: 'Completed', component: Completed },
+  { path: '/jobs', exact: true, name: 'Job', component: Job },
+  { path: '/jobs/:id', exact: true, name: 'Job', component: Job },
+  { path: '/theme', name: 'Theme', component: Colors, exact: true },
   { path: '/theme/colors', name: 'Colors', component: Colors },
   { path: '/theme/typography', name: 'Typography', component: Typography },
-  { path: '/base', exact: true, name: 'Base', component: Cards },
-  { path: '/base/cards', name: 'Cards', component: Cards },
-  { path: '/base/forms', name: 'Forms', component: Forms },
-  { path: '/base/switches', name: 'Switches', component: Switches },
-  { path: '/base/tables', name: 'Tables', component: Tables },
-  { path: '/base/tabs', name: 'Tabs', component: Tabs },
+  { path: '/base', name: 'Base', component: Cards, exact: true },
   { path: '/base/breadcrumbs', name: 'Breadcrumbs', component: Breadcrumbs },
+  { path: '/base/cards', name: 'Cards', component: Cards },
   { path: '/base/carousels', name: 'Carousel', component: Carousels },
   { path: '/base/collapses', name: 'Collapse', component: Collapses },
   { path: '/base/dropdowns', name: 'Dropdowns', component: Dropdowns },
@@ -61,25 +87,51 @@ const routes = [
   { path: '/base/paginations', name: 'Paginations', component: Paginations },
   { path: '/base/popovers', name: 'Popovers', component: Popovers },
   { path: '/base/progress-bar', name: 'Progress Bar', component: ProgressBar },
+  { path: '/base/switches', name: 'Switches', component: Switches },
+  { path: '/base/tabs', name: 'Tabs', component: Tabs },
   { path: '/base/tooltips', name: 'Tooltips', component: Tooltips },
-  { path: '/buttons', exact: true, name: 'Buttons', component: Buttons },
+  { path: '/buttons', name: 'Buttons', component: Buttons, exact: true },
   { path: '/buttons/buttons', name: 'Buttons', component: Buttons },
-  { path: '/buttons/button-dropdowns', name: 'Button Dropdowns', component: ButtonDropdowns },
+  { path: '/buttons/button-dropdowns', name: 'Dropdowns', component: ButtonDropdowns },
   { path: '/buttons/button-groups', name: 'Button Groups', component: ButtonGroups },
   { path: '/buttons/brand-buttons', name: 'Brand Buttons', component: BrandButtons },
+  { path: '/buttons/loading-buttons', name: 'Loading Buttons', component: LoadingButtons },
+  { path: '/charts', name: 'Charts', component: Charts },
+  { path: '/editors', name: 'Editors', component: CodeEditors, exact: true },
+  { path: '/editors/code-editors', name: 'Code Editors', component: CodeEditors },
+  { path: '/editors/text-editors', name: 'Text Editors', component: TextEditors },
+  { path: '/forms', name: 'Forms', component: BasicForms, exact: true },
+  { path: '/forms/advanced-forms', name: 'Advanced Forms', component: AdvancedForms },
+  { path: '/forms/basic-forms', name: 'Basic Forms', component: BasicForms },
+  { path: '/forms/validation-forms', name: 'Form Validation', component: ValidationForms },
+  { path: '/google-maps', name: 'Google Maps', component: GoogleMaps },
   { path: '/icons', exact: true, name: 'Icons', component: CoreUIIcons },
   { path: '/icons/coreui-icons', name: 'CoreUI Icons', component: CoreUIIcons },
   { path: '/icons/flags', name: 'Flags', component: Flags },
   { path: '/icons/font-awesome', name: 'Font Awesome', component: FontAwesome },
   { path: '/icons/simple-line-icons', name: 'Simple Line Icons', component: SimpleLineIcons },
-  { path: '/notifications', exact: true, name: 'Notifications', component: Alerts },
+  { path: '/notifications', name: 'Notifications', component: Alerts, exact: true },
   { path: '/notifications/alerts', name: 'Alerts', component: Alerts },
   { path: '/notifications/badges', name: 'Badges', component: Badges },
   { path: '/notifications/modals', name: 'Modals', component: Modals },
+  { path: '/notifications/toastr', name: 'Toastr', component: Toastr },
+  { path: '/plugins', name: 'Plugins', component: Calendar, exact: true },
+  { path: '/plugins/calendar', name: 'Calendar', component: Calendar },
+  { path: '/plugins/draggable', name: 'Draggable Cards', component: Draggable },
+  { path: '/plugins/spinners', name: 'Spinners', component: Spinners },
+  { path: '/tables', name: 'Tables', component: Tables, exact: true },
+  { path: '/tables/data-table', name: 'Data Table', component: DataTable },
+  { path: '/tables/tables', name: 'Tables', component: Tables },
   { path: '/widgets', name: 'Widgets', component: Widgets },
-  { path: '/charts', name: 'Charts', component: Charts },
+  { path: '/apps', name: 'Apps', component: Compose, exact: true },
+  { path: '/apps/email', name: 'Email', component: Compose, exact: true },
+  { path: '/apps/email/compose', name: 'Compose', component: Compose },
+  { path: '/apps/email/inbox', name: 'Inbox', component: Inbox },
+  { path: '/apps/email/message', name: 'Message', component: Message },
+  { path: '/apps/invoicing', name: 'Invoice', component: Invoice, exact: true },
+  { path: '/apps/invoicing/invoice', name: 'Invoice', component: Invoice },
   { path: '/users', exact: true,  name: 'Users', component: Users },
-  { path: '/users/:id', exact: true, name: 'User Details', component: User },
+  { path: '/users/:id', exact: true, name: 'User Details', component: User }
 ];
 
 export default routes;

@@ -23,9 +23,9 @@ class User extends Component {
                   <Table responsive striped hover>
                     <tbody>
                       {
-                        userDetails.map(([key, value]) => {
+                        userDetails.map(([key, value], index) => {
                           return (
-                            <tr key={key}>
+                            <tr key={index.toString()}>
                               <td>{`${key}:`}</td>
                               <td><strong>{value}</strong></td>
                             </tr>

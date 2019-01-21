@@ -1,24 +1,19 @@
 ## [CoreUI](https://coreui.io/) for [react](./REACT.md) changelog
 
-##### `v2.1.3`
-- fix(Collapse): add `mb-0` to accordion cards
-- fix(ButtonGroups): misplaced dropdownOpen
-- chore: update `@coreui/coreui` to `^2.1.5`
-- chore: update `@coreui/react` to `^2.1.3`
-- chore: update `bootstrap` to `^4.2.1`
-- chore: update `core-js` to `^2.6.1`
-- chore: update `enzyme` to `^3.8.0`
-- chore: update `enzyme-adapter-react-16` to `^1.7.1`
-- chore: update `node-sass` to `^4.11.0`
-- chore: update `react` to `^16.7.0`
-- chore: update `react-app-polyfill` to `^0.2.0`
-- chore: update `react-chartjs-2` to `^2.7.4`
-- chore: update `react-dom` to `^16.7.0`
-- chore: update `react-test-renderer` to `^16.7.0`
-- chore: update `reactstrap` to `^7.0.2`
-- chore: update `react-scripts` to `2.1.3`
-
 ##### `v2.1.2`
+- feat:(lazy): add spinner to `loading()`   
+- refactor(Spinners): tweaks & color for dark template
+- refactor(Draggable): `Reset Layout` moved to card header
+- refactor(DefaultHeader): add router link to `Users`
+- refactor(Invoice): add margin to Save, Print buttons
+- test(DefaultHeader): add MemoryRouter
+- test(CodeEditors): add window.focus = jest.fn();
+- test: fixing for Login, Users, TextEditors
+- test: add missing devDependencies: mutationobserver-shim@0.3.2
+- test: add coverage script
+- chore: update `codemirror` to `^5.42.0`
+- chore: update `formik` to `^1.3.2`
+- chore: update `react-toastify` to `^4.4.3`
 - fix(scss): floating footer ie11 issue
 - chore: update `@coreui/react` to `^2.1.1`
 
@@ -30,19 +25,19 @@
 - refactor(Login): add router link to `Register` button 
 - refactor(Register): add margins to social-media buttons  
 - chore: disable eslint warning for href="#" attribute
-- chore: update `@coreui/coreui` to `^2.1.1`
+- chore: update `@coreui/coreui-pro` to `^2.1.1`
 - chore: update `enzyme-adapter-react-16` to `1.7.0`
 - chore: update `react` to `16.6.3`
 - chore: update `react-dom` to `16.6.3`
 - chore: update `react-test-renderer` to `16.6.3`
-
+ 
 ##### `v2.1.0` 
 - feat(SidebarNav): navLink `attributes` - optional JS object with valid JS API naming:
   - valid attributes: `rel`, `target`, `hidden`, `disabled`, etc...  
-  - starting with `@coreui/coreui`, `@coreui/react` version `2.1.0` and up
+  - starting with `@coreui/coreui-pro`, `@coreui/react` version `2.1.0` and up
   - closes #106 
   - item example(`./src/_nav.js`):
-      ```js
+      ```
       {
         name: 'Disabled',
         url: '/disabled',
@@ -57,82 +52,58 @@
         attributes: { target: '_blank', rel: "noopener" },
       },
       ```
+- refactor(Draggables): breakpoints and layouts consistency with bootstrap 4
 - fix(Cards): `card-header-actions` added to `CardHeader` for `rtl` support
 - feat(Dashboard): new `Suspense` example with Widget03
-- chore: update `@coreui/coreui` to `2.1.0`
+fixing some issues with `rtl`, `ie11`, `sidebar-minimized` behaviour and `aside` responsiveness
+- fix(DefaultAside): `ListGroup` with `tag="div"` works better with `rtl` 
+- fix(DefaultLayout): `AppAside` remove deprecated `hidden` prop 
+---
+- chore: update `@coreui/coreui-pro` to `2.1.0`
 - chore: update `@coreui/react` to `2.1.0`
-- chore: update `node-sass` to `4.10.0`
+- chore: update `react-text-mask-hoc` to `0.11.0`
+- chore: update `react-dates` to `18.2.2`
+- chore: update `react-quill` to `1.3.2`
+- chore: update `codemirror` to `5.41.0`
+- chore: update `formik` to `1.3.1`
+- chore: update `reactstrap` to `6.5.0`
+- chore: update `yup` to `0.26.6`
+- chore: update `react-toastify` to `4.4.1`
+- chore: update `chart.js` to `2.7.3`
+- chore: update `flag-icon-css` to `3.2.1`
+- chore: remove unused `src/scss/vendors/charts.js/` directory
+---
+##### Migration to [Create React App 2.0](https://reactjs.org/blog/2018/10/01/create-react-app-v2.html) :  
+- chore: update `react-scripts` to `^2.1.1`
+- chore: add `node-sass v4.10.0`
 - chore: update `react` to `16.6.1`
 - chore: update `react-dom` to `16.6.1`
 - chore: update `react-test-renderer` to `16.6.1`
-
-##### `v2.0.14` 
-- chore: update `@coreui/coreui` to `2.0.25`
-- chore: update `chart.js` to `2.7.3`
-- chore: update `flag-icon-css` to `3.2.1`
-- chore: update `node-sass` to `4.9.4`
-- chore: update `react` to `16.6.0`
-- chore: update `react-dom` to `16.6.0`
+- chore: add `react-app-polyfill v0.1.3` 
 - chore: update `react-router-config` to `4.4.0-beta.6`
-- chore: update `react-test-renderer` to `16.6.0`
-- chore: update `react-scripts` to `2.1.1`
-
-##### `v2.0.13` 
-- refactor: migration to [Create React App 2.0](https://reactjs.org/blog/2018/10/01/create-react-app-v2.html) cleanup 
-  - cleanup `package.json` scripts
-  - remove `babel-jest` dependency
-  - remove `node-sass-chokidar` dependency
-  - remove `npm-run-all` dependency
-  - move `App.js` import styles to `App.scss` 
-  - replace imports from `node_modules/` with `~` prefix
-- chore: remove unused `src/scss/vendors/charts.js/` directory
-- chore: update `@coreui/coreui` to `^2.0.15`
-- chore: update `@coreui/react` to `^2.0.9`
-
-##### `v2.0.12` 
-fixes some issues with `rtl`, `ie11`, `sidebar-minimized` behaviour and `aside` responsiveness
-- fix(DefaultAside): `ListGroup` with `tag="div"` works better with `rtl` 
-- fix(DefaultLayout): `AppAside` remove deprecated `hidden` prop 
-- chore: update `@coreui/react` to `^2.0.8`
 - chore: update `reactsrtrap` to `^6.5.0`
-- chore: update `react-scripts` to `^2.0.4`
 - chore: `enzyme` to `3.7.0`
-- chore: `enzyme-adapter-react-16` to `1.6.0`
-  
-##### `v2.0.11`
-- chore: update `@coreui/react` to `^2.0.7`
-- chore: migration to [Create React App 2.0](https://reactjs.org/blog/2018/10/01/create-react-app-v2.html)
-  - chore: update `react-scripts` to `^2.0.3`
-  - chore: update `node-sass-chokidar` to `^1.3.3`
-  - chore: add `node-sass v4.9.3`
-  - chore: add `react-app-polyfill v0.1.3` 
-  - chore: add `eslintConfig` in `package.json` 
-  - chore: add `browserslist` in `package.json` 
-  - chore: update `manifest.json`
-  - refactor(index.js): add `react-app-polyfill` for `ie9-11` support
-  - refactor(index.js): migration to `serviceWorker.js`
-
-###### Migrating from CRA 1.x to 2.x:
+- chore: `enzyme-adapter-react-16` to `1.7.0`
+- chore: add `eslintConfig` in `package.json` 
+- chore: add `browserslist` in `package.json` 
+- chore: update `manifest.json`
+- refactor(index.js): add `react-app-polyfill` for `ie11` support
+- refactor(index.js): migration to `serviceWorker.js`
+- cleanup `package.json` scripts
+- remove `babel-jest` dependency
+- remove `node-sass-chokidar` dependency
+- remove `npm-run-all` dependency
+- move `App.js` import styles to `App.scss` 
+- replace imports from `node_modules/` with `~` prefix
+---  
+##### Migrating from CRA 1.x to 2.x:
 affected files: 
 - `package.json` -> dependencies update  
-- `src/index.js` -> move to `serviceWorker`, add `react-app-polyfill` for `ie9-11` support when needed
+- `src/index.js` -> move to `serviceWorker`, add `react-app-polyfill` for `ie11` support when needed
 
 In most cases bumping the `react-scripts` version in `package.json` and running `npm install` in this folder should be enough, but it’s good to consult the [changelog](https://github.com/facebook/create-react-app/blob/master/CHANGELOG.md#migrating-from-1x-to-203) for potential breaking changes.  
 
 ---
-
-##### `v2.0.10`
-- chore: update `@coreui/coreui` to `^2.0.14`
-- chore: update `@coreui/react` to `^2.0.6`
-- chore: update `enzyme` to `^3.6.0`
-- chore: update `enzyme-adapter-react-16` to `^1.5.0`
-- chore: update `flag-icon-css` to `^3.2.0`
-- chore: update `react` to `^16.5.2`
-- chore: update `react-dom` to `^16.5.2`
-- chore: update `react-router-config` to `^4.4.0-beta.1`
-- chore: update `react-test-renderer` to `^16.5.2`
-- chore: update `babel-jest` to `^23.6.0`
-
 ##### `v2.0.9`
 - chore: update `@coreui/icons` to `0.3.0`
 - refactor(CoreUIIcons): move to `@coreui/icons v0.3.0`
@@ -141,17 +112,41 @@ In most cases bumping the `react-scripts` version in `package.json` and running 
 - chore: update `react-loadable` to `5.5.0`
 - chore: update `reactstrap` to `6.4.0`
 - chore: update `react-scripts` to `1.1.5`
-
-##### `v2.0.8`
 - fix(User): add missing unique key prop
 - fix(Login): add missing form and autoComplete
 - fix(Register): add missing form and autoComplete
-- chore: update `@coreui/react` to `2.0.5`
-- chore: update `bootstrap` to `4.1.3`
-- chore: update `reactstrap` to `6.3.1`
-- chore: update `babel-jest` to `23.4.2`
+- chore: update `codemirror` to `5.40.0`
+- chore: update `formik` to `1.1.1`
+- chore: update `react-dates` to `17.2.0`
+- chore: update `react-toastify` to `4.2.3`
+- chore: update `yup` to `0.26.3`
 
-##### `v2.0.5`
+##### `v2.0.8`
+- feat(Forms): Form Validation _**pro**_  
+- chore: add dependency `formik v1.0.2`
+- chore: add dependency `yup v0.26.0`
+- chore: update `@coreui/coreui-pro` to `^2.0.6`,
+- chore: update `@coreui/react` to `^2.0.5`  
+- chore: update `bootstrap` to `^4.1.3`  
+- chore: update `codemirror` to `5.39.2`
+- chore: update `react` to `^16.4.2`  
+- chore: update `react-dom` to `^16.4.2`,
+- chore: update `react-test-renderer` to `^16.4.2`,
+- chore: update `react-chartjs-2` to `^2.7.4`  
+- chore: update `react-dates` to `17.1.1`  
+- chore: update `react-quill` to `1.3.1`  
+- chore: update `react-select` to `^1.3.0`  
+- chore: update `reactstrap` to `^6.3.1`  
+- chore: update `babel-jest` to `^23.4.2`  
+- chore: update `node-sass-chokidar` to `^1.3.3`  
+
+##### `v2.0.7`
+- feat(Plugins): Draggable Cards _**pro**_
+- chore: add dependency `react-grid-layout v0.16.6`
+- chore: update `coreui/coreui-pro` to `^2.0.5`,
+- chore: update `react-big-calendar` to `0.19.2`,
+
+##### `v2.0.6`
 - feat(router): Users/User Breadcrumb example with `/users/:id`
 - chore: update `@coreui/react` to `2.0.4`,
 - chore: update `prop-types` to `15.6.2`
@@ -160,18 +155,33 @@ In most cases bumping the `react-scripts` version in `package.json` and running 
 - chore: update `react-test-renderer` to `16.4.1`
 - chore: update `npm-run-all` to `4.1.3`
 - chore: add `.env` file
+- chore: update `codemirror` to `5.39.0`
+- chore: update `react-dates` to `17.0.0`
+- chore: update `react-quill` to `1.3.0`
+- refactor(Compose): add `autoComplete` prop to `Input type="email"`
+
+##### `v2.0.5`
+chore: update `@coreui/coreui-pro` to `^2.0.4`  
+chore: update `@coreui/react` to `^2.0.3`  
+chore: update `prop-types` to `^15.6.2`  
+chore: update `react` to `^16.4.1`  
+chore: update `react-dom` to `^16.4.1`  
+chore: update `react-test-renderer` to `^16.4.1`  
 
 ##### `v2.0.4`
+- feat(scss): dark theme layout `coreui-dark` _**pro**_
+- chore: update `@coreui/coreui-pro` to `2.0.3`,
 - feat(Forms): FormFeedback valid, toggleFade
 - refactor(Cards): toggleFade
-- chore: update `@coreui/coreui` to `2.0.2`,
 - chore: update `@coreui/react` to `2.0.1`,
 - chore: update `classnames` to `2.2.6`,
 - chore: update `core-js` to `2.5.7`,
 - chore: update `react` to `16.4.0`,
 - chore: update `react-dom` to `16.4.0`,
+- chore: update `react-codemirror2` to `5.0.4`,
 - chore: update `react-router-dom` to `4.3.1`,
 - chore: update `react-test-renderer` to `16.4.0`,
+- chore: update `react-toastify` to `4.1.0`,
 - chore: update `reactstrap` to `6.1.0`,
 - chore: update `babel-jest` to `23.0.1`,
 
@@ -179,10 +189,14 @@ In most cases bumping the `react-scripts` version in `package.json` and running 
 - refactor: disable `ServiceWorker` by default
 - fix(routes): mismatched `SimpleLineIcons` dynamic import
 - refactor: CoreUI Icons `v0.2.0`
-- chore: update`babel-jest` to `v22.4.4`
+- chore: update `babel-jest` to `v22.4.4`
+- chore: update `@coreui/react` to `v2.0.0`,
+- chore: update `codemirror` to `v5.38.0`
+- chore: update `react-dates` to `v16.7.0`
 
 ##### `v2.0.2`
-- chore: update `@coreui/react` to `v2.0.0`,
+fix: node-sass-chokidar mistyped version
+fix: update BrandButtons component name in package.json
 
 ##### `v2.0.1`
 - refactor: code splitting via dynamic import

@@ -210,7 +210,8 @@ class Buttons extends Component {
         </Card>
         <Card>
           <CardHeader>
-            <strong>Ghost Buttons</strong>
+            <strong>Ghost Buttons</strong>{' '}
+            <a href="https://coreui.io/pro/react/" className="badge badge-danger">CoreUI Pro Component</a>
           </CardHeader>
           <CardBody>
             <p>
@@ -311,7 +312,8 @@ class Buttons extends Component {
         </Card>
         <Card>
           <CardHeader>
-            <strong>Square Buttons</strong>
+            <strong>Square Buttons</strong>{' '}
+            <a href="https://coreui.io/pro/react/" className="badge badge-danger">CoreUI Pro Component</a>
           </CardHeader>
           <CardBody>
             <p>
@@ -418,7 +420,8 @@ class Buttons extends Component {
         </Card>
         <Card>
           <CardHeader>
-            <strong>Pill Buttons</strong>
+            <strong>Pill Buttons</strong>{' '}
+            <a href="https://coreui.io/pro/react/" className="badge badge-danger">CoreUI Pro Component</a>
           </CardHeader>
           <CardBody>
             <p>

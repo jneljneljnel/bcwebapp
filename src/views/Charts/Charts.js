@@ -160,7 +160,7 @@ class Charts extends Component {
             <CardHeader>
               Line Chart
               <div className="card-header-actions">
-                <a href="http://www.chartjs.org" className="card-header-action">
+                <a href="http://www.chartjs.org" rel="noopener noreferrer" target="_blank" className="card-header-action">
                   <small className="text-muted">docs</small>
                 </a>
               </div>

@@ -6,7 +6,6 @@ class Switches extends Component {
   render() {
     return (
       <div className="animated fadeIn">
-
         <Row>
           <Col xs="12" md="6">
             <Card>
@@ -82,7 +81,6 @@ class Switches extends Component {
               </CardBody>
             </Card>
           </Col>
-
           <Col xs="12" md="6">
             <Card>
               <CardHeader>
@@ -216,7 +214,6 @@ class Switches extends Component {
               </CardBody>
             </Card>
           </Col>
-
           <Col xs="12" md="6">
             <Card>
               <CardHeader>
@@ -236,7 +233,6 @@ class Switches extends Component {
               </CardBody>
             </Card>
           </Col>
-
           <Col xs="12" md="6">
             <Card>
               <CardHeader>
@@ -351,7 +347,6 @@ class Switches extends Component {
               </CardBody>
             </Card>
           </Col>
-
           <Col xs="12" md="6">
             <Card>
               <CardHeader>
@@ -429,7 +424,6 @@ class Switches extends Component {
               </CardBody>
             </Card>
           </Col>
-
           <Col xs="12">
             <Card>
               <CardHeader>
@@ -483,10 +477,8 @@ class Switches extends Component {
               </CardBody>
             </Card>
           </Col>
-
         </Row>
       </div>
-
     );
   }
 }

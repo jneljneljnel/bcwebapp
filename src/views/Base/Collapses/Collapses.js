@@ -103,8 +103,7 @@ class Collapses extends Component {
                 </CardBody>
               </Collapse>
               <CardFooter>
-                <Button color="primary" onClick={this.toggle} className={'mb-1'} id="toggleCollapse1">Toggle</Button>
-                <hr/>
+                <Button color="primary" onClick={this.toggle} style={{ marginBottom: '1rem' }}>Toggle</Button>
                 <h5>Current state: {this.state.status}</h5>
               </CardFooter>
             </Card>
@@ -123,7 +122,7 @@ class Collapses extends Component {
                 </Fade>
               </CardBody>
               <CardFooter>
-                <Button color="primary" onClick={this.toggleFade} id="toggleFade1">Toggle Fade</Button>
+                <Button color="primary" onClick={this.toggleFade}>Toggle Fade</Button>
               </CardFooter>
             </Card>
           </Col>
@@ -137,7 +136,7 @@ class Collapses extends Component {
               </CardHeader>
               <CardBody>
                 <div id="accordion">
-                  <Card className="mb-0">
+                  <Card>
                     <CardHeader id="headingOne">
                       <Button block color="link" className="text-left m-0 p-0" onClick={() => this.toggleAccordion(0)} aria-expanded={this.state.accordion[0]} aria-controls="collapseOne">
                         <h5 className="m-0 p-0">Collapsible Group Item #1</h5>
@@ -153,7 +152,7 @@ class Collapses extends Component {
                       </CardBody>
                     </Collapse>
                   </Card>
-                  <Card className="mb-0">
+                  <Card>
                     <CardHeader id="headingTwo">
                       <Button block color="link" className="text-left m-0 p-0" onClick={() => this.toggleAccordion(1)} aria-expanded={this.state.accordion[1]} aria-controls="collapseTwo">
                         <h5 className="m-0 p-0">Collapsible Group Item #2</h5>
@@ -169,7 +168,7 @@ class Collapses extends Component {
                       </CardBody>
                     </Collapse>
                   </Card>
-                  <Card className="mb-0">
+                  <Card>
                     <CardHeader id="headingThree">
                       <Button block color="link" className="text-left m-0 p-0" onClick={() => this.toggleAccordion(2)} aria-expanded={this.state.accordion[2]} aria-controls="collapseThree">
                         <h5 className="m-0 p-0">Collapsible Group Item #3</h5>
