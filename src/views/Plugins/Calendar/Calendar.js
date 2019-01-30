@@ -3,6 +3,9 @@ import { Card, CardBody, CardHeader } from 'reactstrap';
 import BigCalendar from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { createBrowserHistory } from 'history';
+import { Route , withRouter} from 'react-router-dom';
+const history = createBrowserHistory();
 
 // Setup the localizer by providing the moment (or globalize) Object
 // to the correct localizer.
@@ -108,7 +111,6 @@ const events = [
 // todo: reactive custom calendar toolbar component
 
 class Calendar extends Component {
-
   render() {
 
     return (
@@ -123,19 +125,24 @@ class Calendar extends Component {
               </a>
             </div>
           </CardHeader>
+            {console.log('PROP', this.props.events)}
           <CardBody style={{ height: '40em' }}>
             <BigCalendar className="d-sm-down-none"
                          {...this.props}
-                         events={events}
+                         events={ this.props.events || events}
                          views={['month', 'week', 'day']}
                          step={30}
                          defaultDate={new Date(currYear, currMonth, 1)}
                          defaultView='month'
                          toolbar={true}
+                         onSelectEvent={(e)=>{
+                           console.log('SELECTED',e)
+                           this.props.history.push('/jobs/'+e.jobId)
+                         }}
             />
             <BigCalendar className="d-md-none"
                          {...this.props}
-                         events={events}
+                         events={ this.props.events|| events}
                          views={['day']}
                          step={30}
                          defaultDate={new Date(currYear, currMonth, 1)}
@@ -149,4 +156,4 @@ class Calendar extends Component {
   }
 }
 
-export default Calendar;
+export default withRouter(Calendar);

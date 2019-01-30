@@ -61,6 +61,9 @@ const Create = React.lazy(() => import('./views/Create/Create'));
 const Open = React.lazy(() => import('./views/Jobs/Open'));
 const Completed = React.lazy(() => import('./views/Jobs/Completed'));
 const Job = React.lazy(() => import('./views/Jobs/Job'));
+const Clients= React.lazy(() => import('./views/Clients/Clients'));
+const Client= React.lazy(() => import('./views/Clients/Client'));
+const CreateClient= React.lazy(() => import('./views/Clients/CreateClient'));
 
 // https://github.com/ReactTraining/react-router/tree/master/packages/react-router-config
 const routes = [
@@ -131,7 +134,10 @@ const routes = [
   { path: '/apps/invoicing', name: 'Invoice', component: Invoice, exact: true },
   { path: '/apps/invoicing/invoice', name: 'Invoice', component: Invoice },
   { path: '/users', exact: true,  name: 'Users', component: Users },
-  { path: '/users/:id', exact: true, name: 'User Details', component: User }
+  { path: '/users/:id', exact: true, name: 'User Details', component: User },
+  { path: '/clients', exact: true,  name: 'Users', component: Clients },
+  { path: '/clients/:id', exact: true, name: 'User Details', component: Client },
+  { path: '/CreateClients', exact: true, name: 'User Details', component: CreateClient }
 ];
 
 export default routes;

@@ -24,33 +24,64 @@ import {
   Label,
   Row,
 } from 'reactstrap';
+var axios = require('axios')
 
 class Create extends Component {
   constructor(props) {
     super(props);
-
     this.toggle = this.toggle.bind(this);
     this.toggleFade = this.toggleFade.bind(this);
+    this.getClients = this.getClients.bind(this);
+    this.post = this.post.bind(this);
     this.state = {
       collapse: true,
       fadeIn: true,
       timeout: 300,
-      projectNumber: '',
       projectName: '',
       recievedDate: '',
       inspectionDate: '',
       actionLevel: '',
-      Cost: '',
+      cost: '',
       clientName: '',
       phone: '',
       address: '',
       comments: '',
-
+      dbClients: []
     };
+  }
+  componentDidMount(){
+    this.getClients()
   }
 
   toggle() {
     this.setState({ collapse: !this.state.collapse });
+  }
+
+  post(){
+    axios.post('/api/jobs/new', {
+      name: this.state.projectName,
+      recievedDate: this.state.recievedDate,
+      inspectionDate: this.state.inspectionDate,
+      cost: this.state.cost,
+      actionLevel: this.state.actionLevel,
+      clientId: this.state.clientName,
+      phone: this.state.phone,
+      address: this.state.address,
+      comments: this.state.comments,
+    })
+    .then(function (response) {
+      console.log(response);
+      alert('sucessfully added new Job!')
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
+
+  getClients(){
+    axios.get('/api/clients/all').then( res => {
+      this.setState({dbClients:res.data})
+    })
   }
 
   toggleFade() {
@@ -68,21 +99,12 @@ class Create extends Component {
               </CardHeader>
               <CardBody>
                 <Form action="" method="post" encType="multipart/form-data" className="form-horizontal">
-
-                  <FormGroup row>
-                    <Col md="3">
-                      <Label htmlFor="text-input">Project Number</Label>
-                    </Col>
-                    <Col xs="12" md="9">
-                      <Input type="text" id="text-input" name="text-input" onChange={(text)=>this.setState({projectNumber:text})} />
-                    </Col>
-                  </FormGroup>
                   <FormGroup row>
                     <Col md="3">
                       <Label htmlFor="text-input">Project Name</Label>
                     </Col>
                     <Col xs="12" md="9">
-                      <Input type="text" id="text-input" name="text-input"  onChange={(text)=>this.setState({projectName:text})}/>
+                      <Input type="text" id="text-input" name="text-input"  onChange={(e)=>this.setState({projectName:e.target.value})}/>
                     </Col>
                   </FormGroup>
                   <FormGroup row>
@@ -90,7 +112,7 @@ class Create extends Component {
                       <Label htmlFor="date-input">Date Recieved</Label>
                     </Col>
                     <Col xs="12" md="9">
-                      <Input type="date" id="date-input" name="date-input" placeholder="date" onChange={(text)=>this.setState({recievedDate:text})}/>
+                      <Input type="date" id="date-input" name="date-input" placeholder="date" onChange={(e)=>this.setState({recievedDate:e.target.value})}/>
                     </Col>
                   </FormGroup>
                   <FormGroup row>
@@ -98,7 +120,7 @@ class Create extends Component {
                       <Label htmlFor="date-input">Inspection Date</Label>
                     </Col>
                     <Col xs="12" md="9">
-                      <Input type="date" id="date-input" name="date-input" placeholder="date" onChange={(text)=>this.setState({inspectionDate:text})}/>
+                      <Input type="date" id="date-input" name="date-input" placeholder="date" onChange={(e)=>this.setState({inspectionDate:e.target.value})}/>
                     </Col>
                   </FormGroup>
 
@@ -107,7 +129,7 @@ class Create extends Component {
                       <Label htmlFor="text-input">Lead Action Level</Label>
                     </Col>
                     <Col xs="12" md="9">
-                      <Input type="text" id="text-input" name="text-input" onChange={(text)=>this.setState({actionLevel:text})}/>
+                      <Input type="text" id="text-input" name="text-input" onChange={(e)=>this.setState({actionLevel:e.target.value})}/>
                     </Col>
                   </FormGroup>
 
@@ -116,24 +138,28 @@ class Create extends Component {
                       <Label htmlFor="text-input">Cost</Label>
                     </Col>
                     <Col xs="12" md="9">
-                      <Input type="number" id="text-input" name="text-input" onChange={(text)=>this.setState({cost:text})}/>
+                      <Input type="number" id="text-input" name="text-input" onChange={(e)=>this.setState({cost:e.target.value})}/>
                     </Col>
                   </FormGroup>
                   <FormGroup row>
                     <Col md="3">
-                      <Label htmlFor="text-input">Client Name</Label>
+                      <Label htmlFor="select">Select</Label>
                     </Col>
                     <Col xs="12" md="9">
-                      <Input type="text" id="text-input" name="text-input" onChange={(text)=>this.setState({clientName:text})} />
+                      <Input type="select" name="select" id="select" onChange={(e)=>this.setState({clientName:e.target.value})}>
+                        <option value='0'>Please select client</option>
+                        {this.state.dbClients.map( c => {
+                          return <option value={c.id}>{c.name}</option>
+                        })}
+                      </Input>
                     </Col>
                   </FormGroup>
-
                   <FormGroup row>
                     <Col md="3">
                       <Label htmlFor="text-input">Phone Number</Label>
                     </Col>
                     <Col xs="12" md="9">
-                      <Input type="text" id="text-input" name="text-input" onChange={(text)=>this.setState({phone:text})} />
+                      <Input type="text" id="text-input" name="text-input" onChange={(e)=>this.setState({phone:e.target.value})} />
                     </Col>
                   </FormGroup>
 
@@ -142,7 +168,7 @@ class Create extends Component {
                       <Label htmlFor="text-input">Client Address</Label>
                     </Col>
                     <Col xs="12" md="9">
-                      <Input type="text" id="text-input" name="text-input" onChange={(text)=>this.setState({address:text})} />
+                      <Input type="text" id="text-input" name="text-input" onChange={(e)=>this.setState({address:e.target.value})} />
                     </Col>
                   </FormGroup>
                   <FormGroup row>
@@ -151,13 +177,13 @@ class Create extends Component {
                     </Col>
                     <Col xs="12" md="9">
                       <Input type="textarea" name="textarea-input" id="textarea-input" rows="9"
-                             placeholder="Content..." onChange={(text)=>this.setState({comments:text})}/>
+                             placeholder="Content..." onChange={(e)=>this.setState({comments:e.target.value})}/>
                     </Col>
                   </FormGroup>
                   </Form>
               </CardBody>
               <CardFooter>
-                <Button type="submit" size="sm" color="primary"><i className="fa fa-dot-circle-o"></i> Submit</Button>
+                <Button onClick={()=> this.post()}  type="submit" size="sm" color="primary"><i className="fa fa-dot-circle-o"></i> Submit</Button>
               </CardFooter>
             </Card>
           </Col>
