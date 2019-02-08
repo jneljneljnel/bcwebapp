@@ -104,24 +104,24 @@ class Client extends Component {
             <CardBody>
               <FormGroup>
                 <Label htmlFor="company">Client Name</Label>
-                <Input type="text" id="company" placeholder="Enter your company name" value={this.state.clientName}  onChange={(e) => this.setState({clientName:e.target.value})}/>
+                <Input type="text" id="company"  value={this.state.clientName}  onChange={(e) => this.setState({clientName:e.target.value})}/>
               </FormGroup>
               <FormGroup>
                 <Label htmlFor="company">Company Name</Label>
-                <Input type="text" id="company" placeholder="Enter your company name"   onChange={(e)=>this.setState({companyName:e.target.value})}/>
+                <Input type="text" id="company"    onChange={(e)=>this.setState({companyName:e.target.value})}/>
               </FormGroup>
 
               <FormGroup>
                 <Label htmlFor="company">Primary Phone</Label>
-                <Input type="text" id="company" placeholder="Enter your company name"   onChange={(e)=>this.setState({phone1:e.target.value})}/>
+                <Input type="text" id="company"    onChange={(e)=>this.setState({phone1:e.target.value})}/>
               </FormGroup>
               <FormGroup>
                 <Label htmlFor="company">Secondary Phone</Label>
-                <Input type="text" id="company" placeholder="Enter your company name"   onChange={(e)=>this.setState({phone2:e.target.value})}/>
+                <Input type="text" id="company"    onChange={(e)=>this.setState({phone2:e.target.value})}/>
               </FormGroup>
               <FormGroup>
                 <Label htmlFor="company">Email Name</Label>
-                <Input type="text" id="company" placeholder="Enter your company name" value={this.state.email} onChange={(e)=>this.setState({email:e.target.value})}/>
+                <Input type="text" id="company"  value={this.state.email} onChange={(e)=>this.setState({email:e.target.value})}/>
               </FormGroup>
 
               <FormGroup>

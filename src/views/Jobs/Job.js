@@ -36,7 +36,7 @@ const Insrow = (props) => {
   return(<tr>
       <td>{props.sampleId|| "0"}</td>
       <td>{props.side|| "n/a"}</td>
-      <td>{props.material+ ' ' + props.item}</td>
+      <td>{(props.material ? props.material: '') + ' ' + props.item}</td>
       <td>{props.room}</td>
       <td>{props.reading || '0'}</td>
       <td>{props.result || 'n/a'}</td>
