@@ -187,12 +187,9 @@ class Dashboard extends Component {
       <div className="animated fadeIn">
 
         <Row>
-        <Col xs="12" sm="12" lg="2">
-          <Button block color="primary"><Link style={{color:'white'}} to="/create">Create New</Link></Button>
-          <Button block color="primary"><Link style={{color:'white'}} to="/open">Open Jobs</Link></Button>
-          <Button block color="primary"><Link style={{color:'white'}} to="/completed">Completed</Link></Button>
-          <Button block color="primary"><Link style={{color:'white'}} to="/CreateClients">Create Client</Link></Button>
-        </Col>
+         <Col xs="12" sm="12" lg="2">
+
+         </Col>
           <Col xs="12" sm="12" lg="10">
             <Card>
               <Calendar events={this.state.calData}/>

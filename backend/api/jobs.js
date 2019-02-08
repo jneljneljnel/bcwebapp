@@ -57,6 +57,23 @@ router.get('/open', (req, res, next) => {
   });
 })
 
+router.post('/get', (req, res, next) => {
+  db.getConnection((error, connection) => {
+    if (error) console.log('err', error);
+    let sql = "SELECT * From bandc.jobs WHERE id="+req.body.id
+    console.log(sql)
+    connection.query(sql, (err, rows) => {
+      if (err) {
+        return res.status(500).send(err);
+      } else {
+        res.send(rows);
+      }
+      connection.release();
+    });
+  });
+})
+
+
 router.get('/test', (req, res, next) => {
     db.getConnection((err, connection) => {
       if (err) {

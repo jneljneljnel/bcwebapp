@@ -45,6 +45,7 @@ const ButtonGroups = React.lazy(() => import('./views/Buttons/ButtonGroups'));
 const Buttons = React.lazy(() => import('./views/Buttons/Buttons'));
 const Charts = React.lazy(() => import('./views/Charts'));
 const Dashboard = React.lazy(() => import('./views/Dashboard'));
+const Dashboard2 = React.lazy(() => import('./views/Dashboard'));
 const CoreUIIcons = React.lazy(() => import('./views/Icons/CoreUIIcons'));
 const Flags = React.lazy(() => import('./views/Icons/Flags'));
 const FontAwesome = React.lazy(() => import('./views/Icons/FontAwesome'));
@@ -69,6 +70,7 @@ const CreateClient= React.lazy(() => import('./views/Clients/CreateClient'));
 const routes = [
   { path: '/', name: 'Home', component: DefaultLayout, exact: true },
   { path: '/dashboard', name: 'Dashboard', component: Dashboard },
+  { path: '/dashboard2', name: 'Dashboard2', component: Dashboard2 },
   { path: '/create', name: 'Create', component: Create },
   { path: '/open', name: 'Open', component: Open },
   { path: '/Completed', name: 'Completed', component: Completed },

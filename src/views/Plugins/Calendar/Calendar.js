@@ -118,12 +118,6 @@ class Calendar extends Component {
         <Card>
           <CardHeader>
             <i className="icon-calendar"></i>Calendar{' '}
-            <a href="https://coreui.io/pro/react/" className="badge badge-danger">CoreUI Pro Component</a>
-            <div className="card-header-actions">
-              <a href="https://github.com/intljusticemission/react-big-calendar" rel="noopener noreferrer" target="_blank" className="card-header-action">
-                <small className="text-muted">docs</small>
-              </a>
-            </div>
           </CardHeader>
             {console.log('PROP', this.props.events)}
           <CardBody style={{ height: '40em' }}>
