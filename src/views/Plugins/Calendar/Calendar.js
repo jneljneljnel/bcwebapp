@@ -124,6 +124,11 @@ class Calendar extends Component {
             <BigCalendar className="d-sm-down-none"
                          {...this.props}
                          events={ this.props.events || events}
+                          eventPropGetter={event => ({
+                            style: {
+                            backgroundColor: event.color,
+                            },
+                          })}
                          views={['month', 'week', 'day']}
                          step={30}
                          defaultDate={new Date(currYear, currMonth, 1)}

@@ -1,12 +1,9 @@
 {
   "name": "@coreui/coreui-pro-react-admin-template",
   "version": "2.1.2",
-  "description": "CoreUI Pro React Admin Template",
+  "description": "Webbapp paid for by Dan n, for use by Barr and Clark. not for public use",
   "author": {
-    "name": "Łukasz Holeczek",
-    "url": "http://holeczek.pl",
-    "github": "https://github.com/mrholek",
-    "twitter": "https://twitter.com/lukaszholeczek"
+    "name": "Jeremy Nelson"
   },
   "contributors": [
     {
@@ -33,14 +30,20 @@
     "classnames": "^2.2.6",
     "codemirror": "^5.42.0",
     "core-js": "^2.5.7",
+    "docx": "^4.7.1",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.7.0",
+    "fetch-base64": "^2.1.2",
+    "file-saver": "^2.0.1",
     "flag-icon-css": "^3.2.1",
     "font-awesome": "^4.7.0",
     "formik": "^1.3.2",
+    "google-maps-react": "^2.0.2",
+    "image-to-base64": "^2.0.1",
+    "moment": "^2.24.0",
     "node-sass": "^4.10.0",
     "prop-types": "^15.6.2",
-    "react": "^16.6.3",
+    "react": "^16.8.4",
     "react-app-polyfill": "^0.1.3",
     "react-big-calendar": "0.19.2",
     "react-bootstrap-table": "4.3.1",
@@ -48,6 +51,8 @@
     "react-codemirror2": "^5.1.0",
     "react-dates": "^18.2.2",
     "react-dom": "^16.6.3",
+    "react-easy-print": "^0.6.0",
+    "react-file-base64": "^1.0.3",
     "react-google-maps": "9.4.5",
     "react-grid-layout": "^0.16.6",
     "react-ladda": "6.0.0",
@@ -60,11 +65,17 @@
     "react-text-mask-hoc": "^0.11.0",
     "react-toastify": "^4.4.3",
     "reactstrap": "^6.5.0",
+    "redocx": "^1.1.4",
     "simple-line-icons": "^2.4.1",
     "spinkit": "1.2.5",
     "yup": "^0.26.6"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
     "mutationobserver-shim": "^0.3.2",
     "react-scripts": "^2.1.1"
   },

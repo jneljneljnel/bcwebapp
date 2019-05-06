@@ -24,7 +24,8 @@ import {
   Label,
   Row,
 } from 'reactstrap';
-import DataTable from '../Tables/DataTable/DataTable';
+import CompletedJobs from '../Tables/Completed/DataTable';
+const axios = require('axios')
 
 class Completed extends Component {
   constructor(props) {
@@ -33,6 +34,7 @@ class Completed extends Component {
     this.toggle = this.toggle.bind(this);
     this.toggleFade = this.toggleFade.bind(this);
     this.state = {
+      data: [],
       collapse: true,
       fadeIn: true,
       timeout: 300
@@ -47,12 +49,24 @@ class Completed extends Component {
     this.setState((prevState) => { return { fadeIn: !prevState }});
   }
 
+  componentDidMount(){
+    this.getDoneJobs()
+    console.log(this.state)
+  }
+  getDoneJobs(){
+    console.log('getdone')
+    axios.get('/api/jobs/done').then( res => {
+      console.log(res.data)
+      this.setState({data:res.data})
+    })
+  }
+
   render() {
     return (
       <div className="animated fadeIn">
         <Row>
           <Col xs="12" md="12">
-            <DataTable name='Completed Jobs' />
+            <CompletedJobs name='Completed Jobs' data={this.state.data}/>
           </Col>
         </Row>
       </div>

@@ -6,8 +6,20 @@ export default {
       icon: 'icon-speedometer',
     },
     {
+      name: 'Create Client',
+      url: '/client',
+    },
+    {
+      name: 'All Clients',
+      url: '/clients',
+    },
+    {
+      name: 'Create New Job',
+      url: '/create',
+    },
+    {
       title: true,
-      name: 'Actions',
+      name: 'Jobs',
       wrapper: {            // optional wrapper object
         element: '',        // required valid HTML5 element tag
         attributes: {}        // optional valid JS object with JS API naming ex: { className: "my-class", style: { fontFamily: "Verdana" }, id: "my-id"}
@@ -15,16 +27,16 @@ export default {
       class: ''             // optional class names space delimited list for title item ex: "text-center"
     },
     {
-      name: 'Create Client',
-      url: '/CreateClients',
+      name: 'Pending Jobs',
+      url: '/pending',
     },
     {
-      name: 'Create New Job',
-      url: '/create',
+      name: 'Scheduled Jobs',
+      url: '/scheduled',
     },
     {
-      name: 'Open Jobs',
-      url: '/open',
+      name: 'Inspected Jobs',
+      url: '/inspected',
     },
     {
       name: 'Completed Jobs',

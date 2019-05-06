@@ -15,6 +15,22 @@ router.get('/test', (req, res, next) => {
     })
 })
 
+router.post('/get', (req, res, next) => {
+  db.getConnection((error, connection) => {
+    if (error) console.log('err', error);
+    let sql = "SELECT * From bandc.clients Where id="+req.body.id
+    console.log(sql)
+    connection.query(sql, (err, rows) => {
+      if (err) {
+        return res.status(500).send(err);
+      } else {
+        res.json(rows);
+      }
+      connection.release();
+    });
+});
+})
+
 router.get('/all', (req, res, next) => {
   db.getConnection((error, connection) => {
     if (error) console.log('err', error);

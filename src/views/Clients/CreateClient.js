@@ -26,7 +26,10 @@ import {
   Row,
 } from 'reactstrap';
 import DataTable from '../Tables/DataTable/DataTable';
-var axios = require('axios')
+import { createBrowserHistory } from 'history';
+import { Route , withRouter} from 'react-router-dom';
+const axios = require('axios')
+const history = createBrowserHistory();
 
 class Client extends Component {
   constructor(props) {
@@ -34,12 +37,53 @@ class Client extends Component {
     this.toggle = this.toggle.bind(this);
     this.toggleFade = this.toggleFade.bind(this);
     this.post = this.post.bind(this);
+    this.getClientInfo = this.getClientInfo.bind(this);
     this.clearInputs = this.clearInputs.bind(this);
     this.state = {
       collapse: true,
       fadeIn: true,
       timeout: 300
     };
+  }
+  componentDidMount(){
+    if(this.props.match.params.id){
+      this.getClientInfo()
+    }
+  }
+
+  getClientInfo(){
+    axios(
+      {
+        url: '/api/clients/get',
+        method: 'post',
+        data: {
+         id: this.props.match.params.id
+        }
+      })
+      .then( res => {
+        let client = res.data[0]
+        console.log(client)
+        this.setState({
+          name:client.name,
+          companyName:client.companyName,
+          phone1:client.phone1,
+          phone2:client.phone2,
+          email:client.email,
+          street:client.street,
+          city:client.city,
+          state:client.state,
+          postal:client.postal,
+          country:client.country,
+          phone1:client.phone1,
+          phone2:client.phone2,
+          email:client.email,
+          street:client.street,
+          city:client.city,
+          state:client.state,
+          postal:client.postal,
+          country:client.country
+        })
+      })
   }
 
   toggle() {
@@ -55,6 +99,7 @@ class Client extends Component {
       email:'',
       street:'',
       city:'',
+      state:'',
       postal:'',
       country:''
     })
@@ -63,7 +108,27 @@ class Client extends Component {
 
   post() {
     console.log('submit')
-    if(this.state.clientName && this.state.email)
+    if(this.props.match.params.id){
+     axios.post('/api/clients/update', {
+       id:this.props.match.params.id,
+       name: this.state.clientName,
+       company: this.state.companyName,
+       phone1: this.state.phone1,
+       phone2: this.state.phone2,
+       email: this.state.email,
+       street: this.state.street,
+       city: this.state.city,
+       postal: this.state.postal,
+       country: this.state.country,
+     }).then(function (response) {
+         console.log(response);
+         alert('sucessfully updated!')
+       })
+       .catch(function (error) {
+         console.log(error);
+       });
+    }
+    if(this.state.clientName && this.state.email && this.state.phone1 && this.state.street && this.state.city)
     {
       axios.post('/api/clients/new', {
         name: this.state.clientName,
@@ -104,47 +169,49 @@ class Client extends Component {
             <CardBody>
               <FormGroup>
                 <Label htmlFor="company">Client Name</Label>
-                <Input type="text" id="company"  value={this.state.clientName}  onChange={(e) => this.setState({clientName:e.target.value})}/>
+                <Input type="text" id="company"  value={this.state.name}  onChange={(e) => this.setState({name:e.target.value})}/>
               </FormGroup>
               <FormGroup>
                 <Label htmlFor="company">Company Name</Label>
-                <Input type="text" id="company"    onChange={(e)=>this.setState({companyName:e.target.value})}/>
+                <Input type="text" id="company"  value={this.state.companyName} onChange={(e)=>this.setState({companyName:e.target.value})}/>
               </FormGroup>
 
               <FormGroup>
                 <Label htmlFor="company">Primary Phone</Label>
-                <Input type="text" id="company"    onChange={(e)=>this.setState({phone1:e.target.value})}/>
+                <Input type="text" id="company"  value={this.state.phone1}  onChange={(e)=>this.setState({phone1:e.target.value})}/>
               </FormGroup>
               <FormGroup>
                 <Label htmlFor="company">Secondary Phone</Label>
-                <Input type="text" id="company"    onChange={(e)=>this.setState({phone2:e.target.value})}/>
+                <Input type="text" id="company"  value={this.state.phone2}   onChange={(e)=>this.setState({phone2:e.target.value})}/>
               </FormGroup>
               <FormGroup>
-                <Label htmlFor="company">Email Name</Label>
+                <Label htmlFor="company">Email</Label>
                 <Input type="text" id="company"  value={this.state.email} onChange={(e)=>this.setState({email:e.target.value})}/>
               </FormGroup>
 
               <FormGroup>
                 <Label htmlFor="street">Street</Label>
-                <Input type="text" id="street" placeholder="Enter street name" onChange={(e)=>this.setState({street:e.target.value})}/>
+                <Input type="text" id="street" placeholder="Enter street name" value={this.state.street} onChange={(e)=>this.setState({street:e.target.value})}/>
               </FormGroup>
               <FormGroup row className="my-0">
-                <Col xs="8">
-                  <FormGroup>
-                    <Label htmlFor="city">City</Label>
-                    <Input type="text" id="city" placeholder="Enter your city" onChange={(e)=>this.setState({city:e.target.value})} />
-                  </FormGroup>
-                </Col>
                 <Col xs="4">
                   <FormGroup>
-                    <Label htmlFor="postal-code">Postal Code</Label>
-                    <Input type="text" id="postal-code" placeholder="Postal Code" onChange={(e)=>this.setState({postal:e.target.value})} />
+                    <Label htmlFor="city">City</Label>
+                    <Input type="text" id="city" placeholder="Enter your city" value={this.state.city} onChange={(e)=>this.setState({city:e.target.value})} />
                   </FormGroup>
                 </Col>
-              </FormGroup>
-              <FormGroup>
-                <Label htmlFor="country">Country</Label>
-                <Input type="text" id="country" placeholder="Country name" onChange={(e)=>this.setState({country:e.target.value})}/>
+                <Col xs="3">
+                  <FormGroup>
+                    <Label htmlFor="state">State</Label>
+                    <Input type="text" id="state" placeholder="Enter state" value={this.state.state}  onChange={(e)=>this.setState({state:e.target.value})} />
+                  </FormGroup>
+                </Col>
+                <Col xs="3">
+                  <FormGroup>
+                    <Label htmlFor="postal-code">Postal Code</Label>
+                    <Input type="text" id="postal-code" placeholder="Postal Code" value={this.state.postal} onChange={(e)=>this.setState({postal:e.target.value})} />
+                  </FormGroup>
+                </Col>
               </FormGroup>
             </CardBody>
             <CardFooter>
@@ -158,4 +225,4 @@ class Client extends Component {
   }
 }
 
-export default Client;
+export default withRouter(Client);

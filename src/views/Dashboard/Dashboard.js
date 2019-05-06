@@ -24,7 +24,7 @@ import { Link } from 'react-router-dom';
 import { CustomTooltips } from '@coreui/coreui-plugin-chartjs-custom-tooltips';
 import { getStyle, hexToRgba } from '@coreui/coreui-pro/dist/js/coreui-utilities'
 import Calendar from '../Plugins/Calendar/Calendar';
-import DataTable from '../Tables/DataTable/DataTable';
+import InspectionsToday from '../Tables/InspectionsToday/DataTable';
 
 const Widget03 = lazy(() => import('../../views/Widgets/Widget03'));
 
@@ -34,6 +34,8 @@ const brandInfo = getStyle('--info')
 const brandWarning = getStyle('--warning')
 const brandDanger = getStyle('--danger')
 const axios = require('axios')
+var moment = require('moment');
+
 
 // Main Chart
 
@@ -136,6 +138,7 @@ class Dashboard extends Component {
     this.onRadioBtnClick = this.onRadioBtnClick.bind(this);
     this.getJobs = this.getJobs.bind(this);
     this.formatEvents = this.formatEvents.bind(this);
+    this.getInspectionsToday = this.getInspectionsToday.bind(this)
 
     this.state = {
       dropdownOpen: false,
@@ -145,6 +148,7 @@ class Dashboard extends Component {
 
   componentDidMount(){
     this.getJobs()
+    this.getInspectionsToday()
   }
 
   toggle() {
@@ -152,15 +156,30 @@ class Dashboard extends Component {
       dropdownOpen: !this.state.dropdownOpen,
     });
   }
+  getInspectionsToday(){
+    axios.get('/api/jobs/today').then( res => {
+        this.setState({data:res.data})
+    })
+  }
 
   formatEvents(d){
     let events = d.map( data => {
+      let color = '#4dbd74';
+      if(data.inspector == 2){
+        color = '#f86c6b'
+      }
+      if(data.inspector == 3){
+        color = '#20a8d8'
+      }
+      console.log('test',data.inspectionDate);
+      console.log('DATE', moment(data.inspectionDate).format())
       return {
         title: data.name || 'inspection',
         jobId: data.id,
+        color:color,
         allDay: true,
-        start: new Date(data.inspectionDate),
-        end: new Date(data.inspectionDate),
+        start: moment(data.inspectionDate),
+        end: moment(data.inspectionDate),
       }
     })
     this.setState({calData:events})
@@ -200,7 +219,7 @@ class Dashboard extends Component {
 
         <Row>
           <Col>
-          <DataTable name='Inspections Today'/>
+          <InspectionsToday name='Inspections Today' data={this.state.data}/>
           </Col>
         </Row>
       </div>

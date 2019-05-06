@@ -59,20 +59,28 @@ const Widgets = React.lazy(() => import('./views/Widgets/Widgets'));
 const Users = React.lazy(() => import('./views/Users/Users'));
 const User = React.lazy(() => import('./views/Users/User'));
 const Create = React.lazy(() => import('./views/Create/Create'));
-const Open = React.lazy(() => import('./views/Jobs/Open'));
+const Inspected = React.lazy(() => import('./views/Jobs/Inspected'));
+const Pending = React.lazy(() => import('./views/Jobs/Pending'));
+const Scheduled = React.lazy(() => import('./views/Jobs/Scheduled'));
 const Completed = React.lazy(() => import('./views/Jobs/Completed'));
 const Job = React.lazy(() => import('./views/Jobs/Job'));
 const Clients= React.lazy(() => import('./views/Clients/Clients'));
 const Client= React.lazy(() => import('./views/Clients/Client'));
 const CreateClient= React.lazy(() => import('./views/Clients/CreateClient'));
+const Login= React.lazy(() => import('./views/Pages/Login/Login'));
+const Report= React.lazy(() => import('./views/Report/Report'));
 
 // https://github.com/ReactTraining/react-router/tree/master/packages/react-router-config
 const routes = [
   { path: '/', name: 'Home', component: DefaultLayout, exact: true },
   { path: '/dashboard', name: 'Dashboard', component: Dashboard },
+  { path: '/login', name: 'Dashboard', component: Login },
   { path: '/dashboard2', name: 'Dashboard2', component: Dashboard2 },
-  { path: '/create', name: 'Create', component: Create },
-  { path: '/open', name: 'Open', component: Open },
+  { path: '/create', exact: true, name: 'Create', component: Create },
+  { path: '/create/:id', exact: true, name: 'Create', component: Create },
+  { path: '/pending', name: 'Pending', component: Pending },
+  { path: '/scheduled', name: 'Scheduled', component: Scheduled },
+  { path: '/inspected', name: 'Inspected', component: Inspected },
   { path: '/Completed', name: 'Completed', component: Completed },
   { path: '/jobs', exact: true, name: 'Job', component: Job },
   { path: '/jobs/:id', exact: true, name: 'Job', component: Job },
@@ -139,7 +147,9 @@ const routes = [
   { path: '/users/:id', exact: true, name: 'User Details', component: User },
   { path: '/clients', exact: true,  name: 'Users', component: Clients },
   { path: '/clients/:id', exact: true, name: 'User Details', component: Client },
-  { path: '/CreateClients', exact: true, name: 'User Details', component: CreateClient }
+  { path: '/client', exact: true, name: 'User Details', component: CreateClient },
+  { path: '/client/:id', exact: true, name: 'User Details', component: CreateClient },
+  { path: '/report/:id', exact: true, name: 'Report', component: Report}
 ];
 
 export default routes;
