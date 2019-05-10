@@ -58,6 +58,12 @@ class Create extends Component {
       phone: '',
       address: '',
       comments: '',
+      sqft: '',
+      numbeds: '',
+      numbaths: '',
+      early: false,
+      dogs: false,
+      goodogs: '',
       dbClients: [],
       inspectors:[]
     };
@@ -96,7 +102,13 @@ class Create extends Component {
         inspectorId: this.state.inspectorId,
         comments: this.state.comments,
         actionLevel: this.state.actionLevel,
-        cost: this.state.cost
+        cost: this.state.cost,
+        numbeds: this.state.numbeds,
+        numbaths: this.state.numbaths,
+        sqft: this.state.sqft,
+        early: this.state.early,
+        dogs: this.state.dogs,
+        gooddogs: this.state.gooddogs,
       })
       .then(function (response) {
         console.log(response);
@@ -124,9 +136,13 @@ class Create extends Component {
         inspectorId: this.state.inspectorId,
         comments: this.state.comments,
         actionLevel: this.state.actionLevel,
-        cost: this.state.cost
-
-
+        cost: this.state.cost,
+        numbeds: this.state.numbeds,
+        numbaths: this.state.numbaths,
+        sqft: this.state.sqft,
+        early: this.state.early,
+        dogs: this.state.dogs,
+        gooddogs: this.state.gooddogs,
       })
       .then(function (response) {
         console.log(response);
@@ -179,6 +195,12 @@ class Create extends Component {
           this.setState({actionLevel:res.data[0].actionLevel})
           this.setState({comments:res.data[0].comments})
           this.setState({cost:res.data[0].cost})
+          this.setState({numbaths:res.data[0].numbaths})
+          this.setState({numbeds:res.data[0].numbeds})
+          this.setState({sqft:res.data[0].sqft})
+          this.setState({early:res.data[0].early})
+          this.setState({dogs:res.data[0].dogs})
+          this.setState({gooddogs:res.data[0].gooddogs})
             console.log('job', this.state.jobInfo)
         })
     }
@@ -346,6 +368,54 @@ class Create extends Component {
                     </Col>
                     <Col xs="12" md="9">
                       <Input type="number" id="text-input" name="text-input" value={this.state.cost} onChange={(e)=>this.setState({cost:e.target.value})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="text-input">Number of Beds</Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="text" id="text-input" name="text-input" value={this.state.numbeds} onChange={(e)=>this.setState({numbeds:e.target.value})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="text-input">Number of Baths</Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="text" id="text-input" name="text-input" value={this.state.numbaths} onChange={(e)=>this.setState({numbaths:e.target.value})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="text-input">Square Footage </Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="text" id="text-input" name="text-input" value={this.state.sqft} onChange={(e)=>this.setState({sqft:e.target.value})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="text-input">Arrive early?</Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="checkbox" id="text-input" name="text-input" value={this.state.early} onChange={(e)=>this.setState({early:e.target.value})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="text-input">Are dogs present?</Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="checkbox" id="text-input" name="text-input" value={this.state.dogs} onChange={(e)=>this.setState({dogs:e.target.value})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="text-input">If yes, are they friendly?</Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="text" id="text-input" name="text-input" value={this.state.gooddogs} onChange={(e)=>this.setState({gooddogs:e.target.value})}/>
                     </Col>
                   </FormGroup>
                   </Form>

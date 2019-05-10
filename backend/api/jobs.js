@@ -24,6 +24,12 @@ router.post('/update', (req, res, next) => {
                   comments ="`+req.body.comments+`",
                   inspector ="`+req.body.inspectorId+`",
                   actionLevel = "`+req.body.actionLevel+`",
+                  numbed = "`+req.body.numbed+`",
+                  numbath = "`+req.body.numbath+`",
+                  sqft = "`+req.body.sqft+`",
+                  early = "`+req.body.early+`",
+                  dogs = "`+req.body.dogs+`",
+                  gooddogs = "`+req.body.gooddogs+`",
                   cost ="`+req.body.cost+`"
                   WHERE id =`+req.body.id+` ;`
     console.log(sql)
@@ -62,6 +68,12 @@ router.post('/new', (req, res, next) => {
                     clientId,
                     address,
                     inspector,
+                    numbeds,
+                    numbaths,
+                    sqft,
+                    early,
+                    dogs,
+                    gooddogs,
                     comments)
                 VALUES
                   ("`+req.body.name+`",
@@ -79,6 +91,12 @@ router.post('/new', (req, res, next) => {
                   "`+req.body.clientId+`",
                   "`+req.body.address+`",
                   "`+req.body.inspectorId+`",
+                  "`+req.body.numbeds+`",
+                  "`+req.body.numbaths+`",
+                  "`+req.body.sqft+`",
+                  "`+req.body.early+`",
+                  "`+req.body.dogs+`",
+                  "`+req.body.gooddogs+`",
                   "`+req.body.comments+`");`
     db.getConnection((error, connection) => {
         if (error) console.log('err', error);

@@ -72,16 +72,7 @@ class Client extends Component {
           street:client.street,
           city:client.city,
           state:client.state,
-          postal:client.postal,
-          country:client.country,
-          phone1:client.phone1,
-          phone2:client.phone2,
-          email:client.email,
-          street:client.street,
-          city:client.city,
-          state:client.state,
-          postal:client.postal,
-          country:client.country
+          postal:client.postal
         })
       })
   }
@@ -92,7 +83,7 @@ class Client extends Component {
 
   clearInputs(){
     this.setState({
-      clientName:'',
+      name:'',
       companyName:'',
       phone1:'',
       phone2:'',
@@ -100,8 +91,7 @@ class Client extends Component {
       street:'',
       city:'',
       state:'',
-      postal:'',
-      country:''
+      postal:''
     })
     console.log(this.state.clientName)
   }
@@ -111,7 +101,7 @@ class Client extends Component {
     if(this.props.match.params.id){
      axios.post('/api/clients/update', {
        id:this.props.match.params.id,
-       name: this.state.clientName,
+       name: this.state.name,
        company: this.state.companyName,
        phone1: this.state.phone1,
        phone2: this.state.phone2,
@@ -119,7 +109,7 @@ class Client extends Component {
        street: this.state.street,
        city: this.state.city,
        postal: this.state.postal,
-       country: this.state.country,
+       state: this.state.state,
      }).then(function (response) {
          console.log(response);
          alert('sucessfully updated!')
@@ -128,10 +118,10 @@ class Client extends Component {
          console.log(error);
        });
     }
-    if(this.state.clientName && this.state.email && this.state.phone1 && this.state.street && this.state.city)
+    else if(this.state.name && this.state.email && this.state.phone1 && this.state.street && this.state.city)
     {
       axios.post('/api/clients/new', {
-        name: this.state.clientName,
+        name: this.state.name,
         company: this.state.companyName,
         phone1: this.state.phone1,
         phone2: this.state.phone2,
@@ -139,7 +129,7 @@ class Client extends Component {
         street: this.state.street,
         city: this.state.city,
         postal: this.state.postal,
-        country: this.state.country,
+        state: this.state.state,
       })
       .then(function (response) {
         console.log(response);

@@ -46,6 +46,33 @@ router.get('/all', (req, res, next) => {
 });
 })
 
+router.post('/update', (req, res, next) => {
+  console.log('client update')
+    console.log(req.body)
+    const sql = `UPDATE bandc.clients
+                  set name = "`+req.body.name+`",
+                  company = "`+req.body.company+`",
+                  phone1 = "`+req.body.phone1+`",
+                  phone2 = "`+req.body.phone2+`",
+                  email = "`+req.body.email+`",
+                  street = "`+req.body.street+`",
+                  city = "`+req.body.city+`",
+                  postal = "`+req.body.postal+`",
+                  state = "`+req.body.state+`"
+                  WHERE id =`+req.body.id+` ;`
+    console.log(sql)
+    db.getConnection((error, connection) => {
+        if (error) console.log('err', error);
+        connection.query(sql, (err, rows) => {
+          if (err) {
+            return res.status(500).send(err);
+          } else {
+            res.send(rows);
+          }
+          connection.release();
+        });
+    })
+})
 
 router.post('/new', (req, res, next) => {
   console.log(req.body)
@@ -59,7 +86,7 @@ router.post('/new', (req, res, next) => {
                 street,
                 city,
                 postal,
-                country)
+                state)
               VALUES
                 ("`+req.body.name+`",
                 "`+req.body.company+`",
@@ -69,9 +96,8 @@ router.post('/new', (req, res, next) => {
                 "`+req.body.street+`",
                 "`+req.body.city+`",
                 "`+req.body.postal+`",
-                "`+req.body.country+`");`
-
-
+                "`+req.body.state+`");`
+    console.log(sql)
     db.getConnection((error, connection) => {
       if (error) console.log('err', error);
       connection.query(sql, (err, rows) => {

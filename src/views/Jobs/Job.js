@@ -115,7 +115,7 @@ const Insrow = (props) => {
     location = 'Interior'
   }
   else if(props.unit == 'Calibration'){
-    location = 'Common'
+    location = ''
   }
   else {
     location = 'Exterior'
@@ -279,6 +279,7 @@ class Job extends Component {
             }
             console.log(loc)
             this.setState({locations:[loc]})
+            this.getInspections()
           }
         })
       })
@@ -306,15 +307,15 @@ class Job extends Component {
           if(checklist.type=='calibration'){
             if( checklist.startone){
               let result = (Math.round(checklist.startone * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-              rows.push({reading: checklist.startone || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Common', room: 'Start of Job', side:' ', condition:'Intact'})
+              rows.push({reading: checklist.startone || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'', room: 'Start of Job', side:' ', condition:'Intact'})
             }
             if( checklist.starttwo){
               let result = (Math.round(checklist.starttwo * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-              rows.push({reading: checklist.starttwo || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Common',  room: 'Start of Job', side:' ', condition:'Intact'})
+              rows.push({reading: checklist.starttwo || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'',  room: 'Start of Job', side:' ', condition:'Intact'})
             }
             if( checklist.startthree){
               let result = (Math.round(checklist.startthree * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-              rows.push({reading: checklist.startthree || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Common', room: 'Start of Job', side:' ', condition:'Intact'})
+              rows.push({reading: checklist.startthree || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'', room: 'Start of Job', side:' ', condition:'Intact'})
             }
           }
         })
@@ -389,15 +390,15 @@ class Job extends Component {
           if(checklist.type=='calibration'){
             if(checklist.endone){
               let result = (Math.round(checklist.endone * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-              rows.push({reading: checklist.endone, result:result,  name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Common',  room: 'End of Job', side:' ', condition:'Intact'})
+              rows.push({reading: checklist.endone, result:result,  name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'',  room: 'End of Job', side:' ', condition:'Intact'})
             }
             if(checklist.endtwo){
               let result = (Math.round(checklist.endtwo* 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-              rows.push({reading: checklist.endtwo, result:result,  name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Common',  room: 'End of Job', side:' ', condition:'Intact'})
+              rows.push({reading: checklist.endtwo, result:result,  name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'',  room: 'End of Job', side:' ', condition:'Intact'})
             }
             if(checklist.endthree){
               let result = (Math.round(checklist.endthree * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-              rows.push({reading: checklist.endthree, result:result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Common', room: 'End of Job', side:' ', condition:'Intact'})
+              rows.push({reading: checklist.endthree, result:result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'', room: 'End of Job', side:' ', condition:'Intact'})
 
             }
           }
@@ -419,8 +420,6 @@ class Job extends Component {
 
   async componentDidMount(){
     await this.getJobInfo()
-    await this.getInspections()
-
   }
 
   render() {
@@ -449,12 +448,28 @@ class Job extends Component {
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.homeownerName : ''}</dt>
               <dd className="col-sm-3">Homeowner Number</dd>
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.homeownerNumber : ''}</dt>
+              <dd className="col-sm-3">Billing Name</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.billingName : ''}</dt>
               <dd className="col-sm-3">Action Level</dd>
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.actionLevel : ''}</dt>
               <dd className="col-sm-3">Recieved date</dd>
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.recievedDate : ''}</dt>
+              <dd className="col-sm-3">Scheduled date</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.scheduledDate : ''}</dt>
               <dd className="col-sm-3">Intake notes</dd>
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.comments : ''}</dt>
+              <dd className="col-sm-3">Number of Beds</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.numbeds : ''}</dt>
+              <dd className="col-sm-3">Number of Baths</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.numbaths : ''}</dt>
+              <dd className="col-sm-3">Square feet</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.sqft : ''}</dt>
+              <dd className="col-sm-3">Arrive Early?</dd>
+              <dt className="col-sm-9">{this.state.jobInfo && this.state.jobInfo.early? 'yes': 'no'}</dt>
+              <dd className="col-sm-3">Dogs?</dd>
+              <dt className="col-sm-9">{this.state.jobInfo && this.state.jobInfo.dogs? 'yes': 'no'}</dt>
+              <dd className="col-sm-3"></dd>
+              <dt className="col-sm-9">{this.state.jobInfo ? this.state.jobInfo.gooddogs : ''}</dt>
               <br></br>
               <br></br>
               <br></br>
@@ -507,7 +522,7 @@ class Job extends Component {
                       <th>Room Equivalent</th>
                       <th>Side</th>
                       <th>Component</th>
-                      <th>Substraste</th>
+                      <th>Substrate</th>
                       <th>Condition</th>
                       <th>Lead</th>
                       <th>Results</th>
