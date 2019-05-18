@@ -116,7 +116,7 @@ class MarkerWithInfoWindow extends Component {
   }
   render() {
     const {location} = this.props;
-    console.log('loc', location)
+    //console.log('loc', location)
     return (
       <Marker onClick={this.toggle} position={location} title={location.title} label={location.label}>
         {this.state.isOpen &&
@@ -162,7 +162,7 @@ const Insrow = (props) => {
   else {
     location = 'Exterior'
   }
-  console.log('pp',props , location)
+  //console.log('pp',props , location)
   return(<tr style={{"backgroundColor":color}}>
       <td>{props.sampleId + 1|| "0"}</td>
       <td>{props.unit|| ''}</td>
@@ -180,7 +180,7 @@ const Insrow = (props) => {
 
 
   const GoogleMapsComponent = withScriptjs(withGoogleMap((props) => {
-    console.log('gprops',props)
+    //console.log('gprops',props)
       if(props && props.center && props.locations[0].title){
         return (
           <GoogleMap defaultZoom={defaultZoom} defaultCenter={{lat:props.center.lat, lng:props.center.lng}}>
@@ -238,7 +238,7 @@ class Job extends Component {
   }
 
   openModal(props) {
-    console.log("yo",props)
+    //console.log("yo",props)
     this.setState({modalStuff: props});
     this.setState({modalIsOpen: true});
   }
@@ -265,15 +265,15 @@ class Job extends Component {
     const groupByName= groupBy('name');
     if(groupBylocation(data).Common){
       let material = groupByMaterial(groupBylocation(data).Common)
-      console.log('BIGDATA', material)
-      console.log('BIGDATA COmp', groupByName(material.Wood))
+      //console.log('BIGDATA', material)
+      //console.log('BIGDATA COmp', groupByName(material.Wood))
       let wood = groupByName(material.Wood)
       Object.keys(groupByName(material.Wood)).map(k => {
         let pos = []
         let neg = []
         wood[k].map( x => x.result == 'Negative'? neg.push(x): pos.push(x))
         final.push({component:wood[k][0].material+' '+k, material: wood[k][0].material, number:wood[k].length, numpos:pos.length, numneg:neg.length, percentpos:((pos.length * 100) / wood[k].length), percentneg:((neg.length * 100) / wood[k].length)})
-        console.log('BIGDATA fin', final)
+        //console.log('BIGDATA fin', final)
       })
     }
     return final
@@ -366,7 +366,7 @@ class Job extends Component {
               draggable: false,
               title: res.data[0].address,
             }
-            console.log(loc)
+            //console.log(loc)
             this.setState({locations:[loc]})
           }
         })
@@ -374,7 +374,7 @@ class Job extends Component {
   }
 
   getInspections(){
-    console.log('called get')
+    //console.log('called get')
      axios({
       url: '/api/inspections/get',
       method: 'post',
@@ -406,6 +406,15 @@ class Job extends Component {
               rows.push({reading: checklist.startthree || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Common', room: 'Start of Job', side:' ', condition:'Intact'})
             }
           }
+          if(checklist.type == "property details"){
+            console.log("property details", checklist)
+          }
+          if(checklist.type == "5.0"){
+            console.log("5.0", checklist)
+          }
+          if(checklist.type == "5.1"){
+            console.log("5.1", checklist)
+          }
         })
         //console.log("sheets and checklists", x)
         let sample = {};
@@ -421,7 +430,7 @@ class Job extends Component {
           }
           //console.log('sheet', s)
           s.data.map(d => {
-            console.log('data', d)
+            //console.log('data', d)
             let comments = d.comments
             let side
 
@@ -447,13 +456,13 @@ class Job extends Component {
                 if (obj != 'id' && obj != 'loc' && obj != 'doorType' && obj != 'comments' && obj != 'side' &&  obj != 'type' && obj != 'expanded' && obj != 'done' && obj != 'title' && obj != 'leadsTo' && obj != 'windowType'
               && obj != 'unit'){
                   let item = obj
-                  console.log('ah', d[obj])
+                  //console.log('ah', d[obj])
                   let material
                     if(d[obj] && d[obj].M){
                      material = d[obj].M
                     }
                     else{
-                     console.log('no material' , d, obj)
+                     //console.log('no material' , d, obj)
                      material = null
                     }
                     if(d[obj] && d[obj].S){
@@ -464,7 +473,7 @@ class Job extends Component {
                   let name = d[obj].name
                   if(reading != null){
                     let result = (Math.round(reading * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-                    console.log(item, material, condition, reading, side, result, room, name,location, component, comments, type, unit)
+                    //console.log(item, material, condition, reading, side, result, room, name,location, component, comments, type, unit)
                     //console.log('r', reading)
                     rows.push({item, material, condition, reading, result, side, room, name,location, component, comments, type, unit, extDirecton})
                   }
@@ -1401,7 +1410,7 @@ class Job extends Component {
   }
 
   render() {
-    console.log('y',this.state.jobInfo)
+    //console.log('y',this.state.jobInfo)
     return (
       <div className="animated fadeIn">
 
@@ -1607,7 +1616,7 @@ class Job extends Component {
                   <Input value={this.state.modalStuff.type}/>
                   </dt>
                 </dl>
-                
+
                 </form>
                 <Button onClick={this.closeModal}>close</Button>
 

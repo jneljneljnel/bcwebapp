@@ -5,7 +5,7 @@ import 'react-bootstrap-table/dist//react-bootstrap-table-all.min.css';
 
 class Summary extends Component {
   render(){
-        console.log("HHHH",this.props)
+        //console.log("HHHH",this.props)
     return(
       <div className="animated">
         <Card>
