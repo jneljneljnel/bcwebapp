@@ -1,15 +1,23 @@
 import React, {Component} from 'react';
-import {Card, CardHeader, CardBody} from 'reactstrap';
+import {Card, CardHeader, CardBody, Button} from 'reactstrap';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
+import { createBrowserHistory } from 'history';
+import { Route , withRouter} from 'react-router-dom';
 import 'react-bootstrap-table/dist//react-bootstrap-table-all.min.css';
 import data from './_data';
 const axios = require('axios')
+const history = createBrowserHistory();
+
 
 
 class DataTable extends Component {
   constructor(props) {
     super(props);
     this.table = data.rows;
+    this.uncomplete =this.uncomplete.bind(this)
+    this.goback = this.goback.bind(this)
+    this.doneButton = this.doneButton.bind(this)
+    this.goButton = this.goButton.bind(this)
     this.state = {
       data: []
     }
@@ -25,6 +33,27 @@ class DataTable extends Component {
 
   }
 
+  goback(cell, row){
+    return (<div> </div>)
+  }
+
+  doneButton(cell, row){
+     return (<div> <Button onClick={() => {this.getReport(row)}} color="danger">Report</Button> <Button color="success" onClick={() => this.uncomplete(row.id)}>Uncomplete</Button></div>)
+  }
+
+  goButton(cell, row){
+     return (<div><Button color="success" onClick={() =>  this.props.history.push('/jobs/'+row.id)}>Open</Button> </div>)
+  }
+
+  uncomplete(id){
+     axios.get(`/api/jobs/uncomplete/${id}`).then( res => {
+       console.log('send back')
+       window.location.reload();
+     })
+  }
+
+
+
   render() {
 
     return (
@@ -35,10 +64,13 @@ class DataTable extends Component {
           </CardHeader>
           <CardBody>
             <BootstrapTable data={this.props.data || this.table} version="4" striped hover pagination search options={this.options}>
+            <TableHeaderColumn dataFormat={this.goButton}></TableHeaderColumn>
             <TableHeaderColumn isKey dataField="id" dataSort>JobId</TableHeaderColumn>
             <TableHeaderColumn dataField="name">Job Name</TableHeaderColumn>
             <TableHeaderColumn dataField="address" dataSort>Address</TableHeaderColumn>
             <TableHeaderColumn dataField="comments" dataSort>Comments</TableHeaderColumn>
+            <TableHeaderColumn dataFormat={this.goback}></TableHeaderColumn>
+            <TableHeaderColumn dataFormat={this.doneButton}></TableHeaderColumn>
             </BootstrapTable>
           </CardBody>
         </Card>
@@ -47,4 +79,4 @@ class DataTable extends Component {
   }
 }
 
-export default DataTable;
+export default withRouter(DataTable);

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Autocomplete from 'react-autocomplete'
 import { createBrowserHistory } from 'history';
 import { Route , withRouter} from 'react-router-dom';
 import {
@@ -38,6 +39,8 @@ class Create extends Component {
     this.getClients = this.getClients.bind(this);
     this.getJobInfo = this.getJobInfo.bind(this)
     this.post = this.post.bind(this);
+    this.sortStates = this.sortStates.bind(this)
+    this.matchStateToTerm = this.matchStateToTerm.bind(this)
     this.state = {
       collapse: true,
       fadeIn: true,
@@ -61,13 +64,15 @@ class Create extends Component {
       sqft: '',
       numbeds: '',
       numbaths: '',
-      early: false,
-      dogs: false,
+      early: 0,
+      dogs: 0,
       goodogs: '',
       dbClients: [],
-      inspectors:[]
+      inspectors:[],
+      value:''
     };
   }
+
   componentDidMount(){
     const { id } = this.props.match.params
     this.getClients()
@@ -75,6 +80,26 @@ class Create extends Component {
     if(id){
         this.getJobInfo(id)
     }
+  }
+
+  matchStateToTerm(state, value) {
+    if(state && value){
+      return (
+        state.name.toLowerCase().indexOf(value.toLowerCase()) !== -1
+      )
+    }
+  }
+
+  sortStates(a, b, value) {
+    const aLower = a.name.toLowerCase()
+    const bLower = b.name.toLowerCase()
+    const valueLower = value.toLowerCase()
+    const queryPosA = aLower.indexOf(valueLower)
+    const queryPosB = bLower.indexOf(valueLower)
+    if (queryPosA !== queryPosB) {
+      return queryPosA - queryPosB
+    }
+    return aLower < bLower ? -1 : 1
   }
 
   toggle() {
@@ -88,7 +113,7 @@ class Create extends Component {
       axios.post('/api/jobs/update', {
         id:id,
         name: this.state.name,
-        clientId: this.state.clientName,
+        clientId: this.state.clientId,
         recievedDate: this.state.recievedDate,
         scheduledDate: this.state.scheduledDate,
         inspectionDate: this.state.inspectionDate,
@@ -122,7 +147,7 @@ class Create extends Component {
     else{
       axios.post('/api/jobs/new', {
         name: this.state.name,
-        clientId: this.state.clientName,
+        clientId: this.state.clientId,
         recievedDate: this.state.recievedDate,
         scheduledDate: this.state.scheduledDate,
         inspectionDate: this.state.inspectionDate,
@@ -179,6 +204,7 @@ class Create extends Component {
           }
         })
         .then( res => {
+
           this.setState({name:res.data[0].name})
           this.setState({clientId:res.data[0].clientId})
           this.setState({recievedDate:res.data[0].recievedDate})
@@ -201,6 +227,7 @@ class Create extends Component {
           this.setState({early:res.data[0].early})
           this.setState({dogs:res.data[0].dogs})
           this.setState({gooddogs:res.data[0].gooddogs})
+            console.log('res', res.data[0])
             console.log('job', this.state.jobInfo)
         })
     }
@@ -228,25 +255,35 @@ class Create extends Component {
                       <Input type="text" id="text-input" name="text-input" value={this.state.name} onChange={(e)=>this.setState({name:e.target.value})}/>
                     </Col>
                   </FormGroup>
-                  <FormGroup row>
+
+                  <FormGroup row style={{"zIndex":"100"}}>
                     <Col md="3">
                       <Label htmlFor="select">Client</Label>
                     </Col>
                     <Col xs="12" md="9">
-                      <Input type="select" name="select" id="select"  onChange={(e)=>this.setState({clientName:e.target.value})}>
-                        <option value='0'>Please select client</option>
-                        {this.state.dbClients.map( c => {
-                          if(c.id == this.state.clientId){
-                            return <option value={c.id} selected="selected">{c.name}</option>
-                          }
-                          else{
-                            return <option value={c.id}>{c.name}</option>
-                          }
-                        })}
-                      </Input>
+                    <Autocomplete
+                  
+                    getItemValue={(item) => item.name}
+                    items={this.state.dbClients}
+                    shouldItemRender={this.matchStateToTerm}
+                    sortItems={this.sortStates}
+                    renderItem={(item, isHighlighted) =>
+                    <div style={{ background: isHighlighted ? 'lightgray' : 'white' }}>
+                    {item.name}
+                    </div>
+                    }
+                    value={this.state.clientName}
+                    onChange={(e, value) => {
+                      this.setState({clientName:value})
+                    }}
+                    onSelect={(value, item) =>  {
+                      this.setState({clientName:value, clientId:item.id})}
+                    }
+                    />
                     </Col>
                   </FormGroup>
-                  <FormGroup row>
+
+              <FormGroup row>
                     <Col md="3">
                       <Label htmlFor="date-input">Date Recieved</Label>
                     </Col>
@@ -399,7 +436,7 @@ class Create extends Component {
                       <Label htmlFor="text-input">Arrive early?</Label>
                     </Col>
                     <Col xs="12" md="9">
-                      <Input type="checkbox" id="text-input" name="text-input" value={this.state.early} onChange={(e)=>this.setState({early:e.target.value})}/>
+                      <Input type="checkbox" id="text-input" name="text-input" checked={this.state.early} onChange={(e)=>this.setState({early:e.target.checked? 1: 0})}/>
                     </Col>
                   </FormGroup>
                   <FormGroup row>
@@ -407,7 +444,7 @@ class Create extends Component {
                       <Label htmlFor="text-input">Are dogs present?</Label>
                     </Col>
                     <Col xs="12" md="9">
-                      <Input type="checkbox" id="text-input" name="text-input" value={this.state.dogs} onChange={(e)=>this.setState({dogs:e.target.value})}/>
+                      <Input type="checkbox" id="text-input" name="text-input" checked={this.state.dogs} onChange={(e)=>this.setState({dogs:e.target.checked? 1: 0 })}/>
                     </Col>
                   </FormGroup>
                   <FormGroup row>

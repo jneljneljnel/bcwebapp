@@ -208,6 +208,42 @@ router.get('/inspectors', (req, res, next) => {
   });
 })
 
+
+
+router.get('/uncomplete/:id', (req, res, next) => {
+  console.log('markdone', req.params.id)
+  db.getConnection((error, connection) => {
+    if (error) console.log('err', error);
+    let sql = `UPDATE bandc.jobs set completed=0 where id=${req.params.id}`
+    console.log(sql)
+    connection.query(sql, (err, rows) => {
+      if (err) {
+        return res.status(500).send(err);
+      } else {
+        res.send(rows);
+      }
+      connection.release();
+    });
+  });
+})
+
+router.get('/sendBack/:id', (req, res, next) => {
+  console.log('markdone', req.params.id)
+  db.getConnection((error, connection) => {
+    if (error) console.log('err', error);
+    let sql = `UPDATE bandc.jobs set inspected=0 where id=${req.params.id}`
+    console.log(sql)
+    connection.query(sql, (err, rows) => {
+      if (err) {
+        return res.status(500).send(err);
+      } else {
+        res.send(rows);
+      }
+      connection.release();
+    });
+  });
+})
+
 router.get('/markDone/:id', (req, res, next) => {
   console.log('markdone', req.params.id)
   db.getConnection((error, connection) => {

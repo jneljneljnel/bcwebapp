@@ -23,6 +23,8 @@ class DataTable extends Component {
     this.table = data.rows;
     this.doneButton = this.doneButton.bind(this)
     this.markDone = this.markDone.bind(this)
+    this.sendBack = this.sendBack.bind(this)
+    this.backButton = this.backButton.bind(this)
     this.getOpenJobs = this.getOpenJobs.bind(this)
     this.getReport = this.getReport.bind(this)
     this.goButton = this.goButton.bind(this)
@@ -40,8 +42,15 @@ class DataTable extends Component {
       withFirstAndLast: false
     }
   }
+
+  sendBack(id){
+     axios.get(`/api/jobs/sendBack/${id}`).then( res => {
+       console.log('send back')
+       window.location.reload();
+     })
+  }
+
   markDone(id){
-     //console.log(id)
      axios.get(`/api/jobs/markDone/${id}`).then( res => {
        console.log('done')
        window.location.reload();
@@ -839,7 +848,9 @@ const packer = new Packer();
 
 }
 
-
+  backButton(cell, row){
+    return (<div> <Button color="success" onClick={() => this.sendBack(row.id)}>Send Back</Button> </div>)
+  }
   doneButton(cell, row){
      return (<div><Button onClick={() => {this.getReport(row)}} color="danger">Report</Button> <Button color="success" onClick={() => this.markDone(row.id)}>Complete</Button></div>)
   }
@@ -863,6 +874,7 @@ const packer = new Packer();
             <TableHeaderColumn dataField="name">Job Name</TableHeaderColumn>
             <TableHeaderColumn dataField="address" dataSort>Address</TableHeaderColumn>
             <TableHeaderColumn dataField="comments" dataSort>Comments</TableHeaderColumn>
+            <TableHeaderColumn dataFormat={this.backButton}></TableHeaderColumn>
             <TableHeaderColumn dataFormat={this.doneButton}></TableHeaderColumn>
             </BootstrapTable>
           </CardBody>
