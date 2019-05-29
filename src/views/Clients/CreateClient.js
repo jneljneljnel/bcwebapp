@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { TextMask, InputAdapter } from 'react-text-mask-hoc';
 
 import {
   Badge,
@@ -65,7 +66,7 @@ class Client extends Component {
         console.log(client)
         this.setState({
           name:client.name,
-          companyName:client.companyName,
+          companyName:client.company,
           phone1:client.phone1,
           phone2:client.phone2,
           email:client.email,
@@ -97,7 +98,8 @@ class Client extends Component {
   }
 
   post() {
-    console.log('submit')
+    console.log('submit', this.props)
+    console.log(this.state.name, this.state.email, this.state.phone1, this.state.street, this.state.city)
     if(this.props.match.params.id){
      axios.post('/api/clients/update', {
        id:this.props.match.params.id,
@@ -111,15 +113,16 @@ class Client extends Component {
        postal: this.state.postal,
        state: this.state.state,
      }).then(function (response) {
-         console.log(response);
          alert('sucessfully updated!')
        })
        .catch(function (error) {
          console.log(error);
        });
+       this.props.history.push('/clients')
     }
     else if(this.state.name && this.state.email && this.state.phone1 && this.state.street && this.state.city)
     {
+      console.log('new')
       axios.post('/api/clients/new', {
         name: this.state.name,
         company: this.state.companyName,
@@ -133,7 +136,8 @@ class Client extends Component {
       })
       .then(function (response) {
         console.log(response);
-        alert('sucessfully added new client!')
+        //alert('sucessfully added new client!')
+        this.props.history.push('/dashboard')
       })
       .catch(function (error) {
         console.log(error);
@@ -158,8 +162,8 @@ class Client extends Component {
             </CardHeader>
             <CardBody>
               <FormGroup>
-                <Label htmlFor="company">Client Name</Label>
-                <Input type="text" id="company"  value={this.state.name}  onChange={(e) => this.setState({name:e.target.value})}/>
+                <Label htmlFor="name">Client Name</Label>
+                <Input type="text" id="name"  value={this.state.name}  onChange={(e) => this.setState({name:e.target.value})}/>
               </FormGroup>
               <FormGroup>
                 <Label htmlFor="company">Company Name</Label>
@@ -167,16 +171,41 @@ class Client extends Component {
               </FormGroup>
 
               <FormGroup>
-                <Label htmlFor="company">Primary Phone</Label>
-                <Input type="text" id="company"  value={this.state.phone1}  onChange={(e)=>this.setState({phone1:e.target.value})}/>
+                <Label>Primary Phone</Label>
+                <InputGroup>
+                  <InputGroupAddon addonType="prepend">
+                    <InputGroupText><i className="fa fa-phone"></i></InputGroupText>
+                  </InputGroupAddon>
+                <TextMask
+                    value={this.state.phone1}
+                    onChange={(e)=>this.setState({phone1:e.target.value})}
+                    mask={['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+                    Component={InputAdapter}
+                    className="form-control"
+                  />
+                </InputGroup>
               </FormGroup>
+
+
               <FormGroup>
-                <Label htmlFor="company">Secondary Phone</Label>
-                <Input type="text" id="company"  value={this.state.phone2}   onChange={(e)=>this.setState({phone2:e.target.value})}/>
+                <Label>Secondary Phone</Label>
+                <InputGroup>
+                  <InputGroupAddon addonType="prepend">
+                    <InputGroupText ><i className="fa fa-phone"></i></InputGroupText>
+                  </InputGroupAddon>
+                  <TextMask
+                    value={this.state.phone2}
+                    onChange={(e)=>this.setState({phone2:e.target.value})}
+                    mask={['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+                    Component={InputAdapter}
+                    className="form-control"
+                  />
+                </InputGroup>
               </FormGroup>
+
               <FormGroup>
-                <Label htmlFor="company">Email</Label>
-                <Input type="text" id="company"  value={this.state.email} onChange={(e)=>this.setState({email:e.target.value})}/>
+                <Label htmlFor="email">Email</Label>
+                <Input type="text" id="email"  value={this.state.email} onChange={(e)=>this.setState({email:e.target.value})}/>
               </FormGroup>
 
               <FormGroup>

@@ -96,6 +96,21 @@ app.post('/upload', function (req, res) {
   res.json({message: 'uploaded success'})
 })
 
+
+app.post('/edit', function (req, res) {
+  let id = req.body.id
+  let state = JSON.stringify(req.body.state[0])
+  console.log(state)
+  let sql = "UPDATE inspections Set state = '"+state+"' Where id ='"+id+"';"
+  console.log('state', sql)
+  connection.query(sql , function (err, rows, fields) {
+    if (err) throw err
+  })
+
+  console.log('got an edit upload' )
+  res.json({message: 'edit success'})
+})
+
 app.post('/createClient', function (req, res) {
 
   // connection.query("INSERT INTO inspections ( jobid, state) VALUES ('"+jobid+"', '"+state+"');", function (err, rows, fields) {

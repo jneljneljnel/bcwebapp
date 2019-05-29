@@ -849,10 +849,10 @@ const packer = new Packer();
 }
 
   backButton(cell, row){
-    return (<div> <Button color="success" onClick={() => this.sendBack(row.id)}>Send Back</Button> </div>)
+    return (<div> <Button style={{padding:'3px'}} color="success" size="sm" onClick={() => this.sendBack(row.id)}>Send Back</Button>  <Button style={{padding:'3px'}}  size="sm" color="success" onClick={() => this.markDone(row.id)}>Complete</Button></div>)
   }
   doneButton(cell, row){
-     return (<div><Button onClick={() => {this.getReport(row)}} color="danger">Report</Button> <Button color="success" onClick={() => this.markDone(row.id)}>Complete</Button></div>)
+     return (<div><Button onClick={() => {this.getReport(row)}} color="danger">Report</Button></div>)
   }
   goButton(cell, row){
      return (<div><Button color="success" onClick={() =>  this.props.history.push('/jobs/'+row.id)}>Open</Button></div>)
@@ -874,7 +874,10 @@ const packer = new Packer();
             <TableHeaderColumn dataField="name">Job Name</TableHeaderColumn>
             <TableHeaderColumn dataField="address" dataSort>Address</TableHeaderColumn>
             <TableHeaderColumn dataField="comments" dataSort>Comments</TableHeaderColumn>
-            <TableHeaderColumn dataFormat={this.backButton}></TableHeaderColumn>
+            <TableHeaderColumn
+
+             dataFormat={this.backButton}>
+             </TableHeaderColumn>
             <TableHeaderColumn dataFormat={this.doneButton}></TableHeaderColumn>
             </BootstrapTable>
           </CardBody>

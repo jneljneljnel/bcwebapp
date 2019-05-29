@@ -33,6 +33,7 @@
     "docx": "^4.7.1",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.7.0",
+    "fetch": "^1.1.0",
     "fetch-base64": "^2.1.2",
     "file-saver": "^2.0.1",
     "flag-icon-css": "^3.2.1",

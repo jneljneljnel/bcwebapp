@@ -15,7 +15,6 @@ class DataTable extends Component {
     super(props);
     this.table = data.rows;
     this.uncomplete =this.uncomplete.bind(this)
-    this.goback = this.goback.bind(this)
     this.doneButton = this.doneButton.bind(this)
     this.goButton = this.goButton.bind(this)
     this.state = {
@@ -33,12 +32,9 @@ class DataTable extends Component {
 
   }
 
-  goback(cell, row){
-    return (<div> </div>)
-  }
 
   doneButton(cell, row){
-     return (<div> <Button onClick={() => {this.getReport(row)}} color="danger">Report</Button> <Button color="success" onClick={() => this.uncomplete(row.id)}>Uncomplete</Button></div>)
+     return (<div> <Button style={{padding:'3px'}} onClick={() => {this.getReport(row)}} color="danger">Report</Button> <Button style={{padding:'3px'}}  color="success" onClick={() => this.uncomplete(row.id)}>Uncomplete</Button></div>)
   }
 
   goButton(cell, row){
@@ -69,7 +65,6 @@ class DataTable extends Component {
             <TableHeaderColumn dataField="name">Job Name</TableHeaderColumn>
             <TableHeaderColumn dataField="address" dataSort>Address</TableHeaderColumn>
             <TableHeaderColumn dataField="comments" dataSort>Comments</TableHeaderColumn>
-            <TableHeaderColumn dataFormat={this.goback}></TableHeaderColumn>
             <TableHeaderColumn dataFormat={this.doneButton}></TableHeaderColumn>
             </BootstrapTable>
           </CardBody>

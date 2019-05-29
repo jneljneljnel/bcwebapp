@@ -63,7 +63,10 @@ class MarkerWithInfoWindow extends Component {
       <Marker onClick={this.toggle} position={location} title={location.title} label={location.label}>
         {this.state.isOpen &&
         <InfoWindow onCloseClick={this.toggle}>
-          <NavLink href={location.www} target="_blank">{location.title}</NavLink>
+          <NavLink href={location.www} target="_blank">
+            <p>{location.title}</p>
+            <p>{location.address}</p>
+          </NavLink>
         </InfoWindow>}
       </Marker>
     )
@@ -152,6 +155,7 @@ class Scheduled extends Component {
                         label: 'M',
                         draggable: false,
                         title: j.name,
+                        address: j.address
                       }
                 }
                 else {

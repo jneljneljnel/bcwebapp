@@ -61,6 +61,24 @@ const customStyles = {
   }
 };
 
+function move(arr, old_index, new_index) {
+    while (old_index < 0) {
+        old_index += arr.length;
+    }
+    while (new_index < 0) {
+        new_index += arr.length;
+    }
+    if (new_index >= arr.length) {
+        let k = new_index - arr.length;
+        while ((k--) + 1) {
+            arr.push(undefined);
+        }
+    }
+     arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+   return arr;
+}
+
+
 const groupBy = key => array =>
   array.reduce((objectsByKeyValue, obj) => {
     const value = obj[key];
@@ -162,6 +180,13 @@ const Insrow = (props) => {
   else {
     location = 'Exterior'
   }
+
+  console.log('state', props.stateId)
+  console.log('insid', props.inspectionId)
+  console.log('sheetid', props.sheetId)
+  console.log('itemId', props.itemId)
+  console.log('component', props.property)
+
   //console.log('pp',props , location)
   return(<tr style={{"backgroundColor":color}}>
       <td>{props.sampleId + 1|| "0"}</td>
@@ -224,6 +249,7 @@ class Job extends Component {
     this.openModal = this.openModal.bind(this);
     this.afterOpenModal = this.afterOpenModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
+    this.saveModal = this.saveModal.bind(this);
 
 
     this.state = {
@@ -238,7 +264,7 @@ class Job extends Component {
   }
 
   openModal(props) {
-    //console.log("yo",props)
+    console.log("yo",props)
     this.setState({modalStuff: props});
     this.setState({modalIsOpen: true});
   }
@@ -246,6 +272,97 @@ class Job extends Component {
   afterOpenModal() {
    // references are now sync'd and can be accessed.
    this.subtitle.style.color = '#f00';
+  }
+
+  saveModal() {
+    let { sheetIndex, inspectionId, stateId, sheetId, itemId, property, comments, reading, material, side, type, room, unit } = this.state.modalStuff
+   this.setState({modalIsOpen: false});
+   console.log('save newstuff',this.state.modalStuff)
+   console.log('save data',this.state.data)
+   console.log('save',this.state.modalStuff.stateId)
+   console.log('save',this.state.modalStuff.sheetId)
+   console.log('save',this.state.modalStuff.itemId)
+   console.log('save',this.state.modalStuff.property)
+   let data =  this.state.data;
+   let sheets = data[stateId].insSheets
+   let sheet = sheets.find((obj, i ) => obj.id == sheetId)
+   let origIndex = sheets.indexOf(sheet)
+   if (origIndex != sheetIndex  && sheetIndex <= sheets.length){
+     console.log("obj MOVE")
+     sheets = move(sheets, origIndex, sheetIndex)
+   }
+   console.log("obj sheet index", sheets.indexOf(sheet))
+   console.log("obj sheet", sheet)
+   let loc = sheet.type
+   if(loc !== "ExtSheet" ){
+     sheet.name = room
+   }
+   console.log("obj sheet type", loc)
+   sheet.data.forEach(obj => {
+     if(obj.title == "Sheet Details" && loc !== "ExtSheet" ){
+       obj.unit = unit
+     }
+     if(obj.id == itemId){
+        obj.comments = comments
+        obj.doorType = type
+        obj[property].R = reading
+        obj[property].M = material
+        if(obj[property].hasOwnProperty("S")){
+          console.log('obj S true')
+          obj[property].S = side
+        }
+        else if (obj.hasOwnProperty("side") && loc !== "ExtSheet") {
+
+          console.log('obj changed side', loc)
+          obj.side = side
+        }
+        else {
+          sheet.data.forEach(d => {
+            if (d.title == 'Exterior Sheet Details'){
+              console.log("obj CHANGE EXT SIDE", d)
+              d.side = side
+            }
+           })
+        }
+
+        console.log('obj',obj)
+        console.log('obj obj side', obj.side)
+        console.log('obj side', side)
+        //window.location.reload();
+     }
+   })
+
+   sheets.forEach(obj => {
+     if(obj.id == sheetId){
+       obj = sheet
+    }})
+
+    data.forEach(obj => {
+       if(obj.id == stateId){
+          obj.insSheets = sheets
+       }
+    })
+
+   this.setState(data)
+
+   axios(
+     {
+       url: '/edit',
+       method: 'POST',
+       headers: {
+         Accept: 'application/json',
+         'Content-Type': 'application/json',
+       },
+       data: JSON.stringify({
+         id: inspectionId,
+         state: data
+       })
+     }).then(res => {
+       console.log('update', res)
+     })
+
+   console.log("save newstate", data)
+
   }
 
   closeModal() {
@@ -383,14 +500,19 @@ class Job extends Component {
       }
     }).then( res => {
       let states = res.data.map( i => {
-        return JSON.parse(i.state)
+        let state = JSON.parse(i.state)
+        state.inspectionId = i.id
+        console.log('res', state)
+        return state
       })
-      //console.log(states)
+      console.log(states)
       this.setState({data:states})
       let rows = [];
       let calibrationStart = []
       let calibrationEnd = []
-      states.map(x => {
+      states.map((x,i) => {
+        let inspectionId = x.inspectionId;
+        let stateId = i
         x.data.map( checklist => {
           if(checklist.type=='calibration'){
             if( checklist.startone){
@@ -418,19 +540,21 @@ class Job extends Component {
         })
         //console.log("sheets and checklists", x)
         let sample = {};
-        x.insSheets.map(s => {
+        x.insSheets.map((s, i) => {
+          let sheetIndex = i
           let room = s.name
           let location = s.type
           let extSide;
           let extDirecton;
           let unit
+          let sheetId = s.id
           if(s.type == "ExtSheet"){
             extSide = s.data[0].side
             room = s.data[0].direction
           }
-          //console.log('sheet', s)
+          console.log('sheet', s)
           s.data.map(d => {
-            //console.log('data', d)
+            let itemId = d.id
             let comments = d.comments
             let side
 
@@ -456,7 +580,7 @@ class Job extends Component {
                 if (obj != 'id' && obj != 'loc' && obj != 'doorType' && obj != 'comments' && obj != 'side' &&  obj != 'type' && obj != 'expanded' && obj != 'done' && obj != 'title' && obj != 'leadsTo' && obj != 'windowType'
               && obj != 'unit'){
                   let item = obj
-                  //console.log('ah', d[obj])
+                  let property = obj
                   let material
                     if(d[obj] && d[obj].M){
                      material = d[obj].M
@@ -473,9 +597,9 @@ class Job extends Component {
                   let name = d[obj].name
                   if(reading != null){
                     let result = (Math.round(reading * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-                    //console.log(item, material, condition, reading, side, result, room, name,location, component, comments, type, unit)
+                    //console.log(item, material, condition, reading, side, result, room, name,location, component, comments, type, unit, sheetId)
                     //console.log('r', reading)
-                    rows.push({item, material, condition, reading, result, side, room, name,location, component, comments, type, unit, extDirecton})
+                    rows.push({item, property, material, condition, reading, result, side, room, name, location, component, comments, type, unit, extDirecton, inspectionId, stateId, sheetId, sheetIndex, itemId})
                   }
 
                 }
@@ -1528,7 +1652,7 @@ class Job extends Component {
                       //   component:x.component,
                       //   unit:x.unit
                       // })
-                      return <Insrow key={i} openModal={this.openModal} sampleId={i} side={x.side} item={x.name} material={x.material} room={x.room} reading={x.reading} result={x.result} condition={x.condition} type={x.type} comments={x.comments} location={x.location} component={x.component} unit={x.unit} />
+                      return <Insrow key={i} openModal={this.openModal} sheetIndex={x.sheetIndex} sampleId={i} side={x.side} item={x.name} property={x.property} material={x.material} room={x.room} reading={x.reading} result={x.result} condition={x.condition} type={x.type} comments={x.comments} location={x.location} component={x.component} unit={x.unit} inspectionId={x.inspectionId} stateId={x.stateId} sheetId={x.sheetId} itemId={x.itemId} />
                     }): <tr><td>"No Inspection Data"</td></tr>}
                     </tbody>
                   </Table>
@@ -1549,16 +1673,24 @@ class Job extends Component {
                 <form>
 
                 <dl className="row">
-                  <dd className="col-sm-3">Id</dd>
+                  <dd className="col-sm-3">Sheet Order</dd>
                   <dt className="col-sm-9">
-                    <Input value={this.state.modalStuff.sampleId + 1}/>
+                    <Input value={this.state.modalStuff.sheetIndex} onChange={(e) => {
+                      let modalStuff = {...this.state.modalStuff};
+                      modalStuff.sheetIndex = e.target.value
+                      this.setState({modalStuff})
+                    }}/>
                   </dt>
                 </dl>
 
                 <dl className="row">
                   <dd className="col-sm-3">unit</dd>
                   <dt className="col-sm-9">
-                    <Input value={this.state.modalStuff.unit}/>
+                  <Input value={this.state.modalStuff.unit} onChange={(e) => {
+                    let modalStuff = {...this.state.modalStuff};
+                    modalStuff.unit = e.target.value
+                    this.setState({modalStuff})
+                  }}/>
                   </dt>
                 </dl>
 
@@ -1571,13 +1703,21 @@ class Job extends Component {
                 <dl className="row">
                   <dd className="col-sm-3">room</dd>
                   <dt className="col-sm-9">
-                  <Input value={this.state.modalStuff.room }/>
+                  <Input value={this.state.modalStuff.room} onChange={(e) => {
+                    let modalStuff = {...this.state.modalStuff};
+                    modalStuff.room = e.target.value
+                    this.setState({modalStuff})
+                  }}/>
                   </dt>
                 </dl>
                 <dl className="row">
                   <dd className="col-sm-3">side</dd>
                   <dt className="col-sm-9">
-                    <Input value={this.state.modalStuff.side}/>
+                    <Input value={this.state.modalStuff.side} onChange={(e) => {
+                      let modalStuff = {...this.state.modalStuff};
+                      modalStuff.side = e.target.value
+                      this.setState({modalStuff})
+                    }}/>
                   </dt>
                 </dl>
                 <dl className="row">
@@ -1589,36 +1729,46 @@ class Job extends Component {
                 <dl className="row">
                   <dd className="col-sm-3">material</dd>
                   <dt className="col-sm-9">
-                  <Input value={this.state.modalStuff.material}/>
+                  <Input value={this.state.modalStuff.material} onChange={(e) => {
+                    let modalStuff = {...this.state.modalStuff};
+                    modalStuff.material = e.target.value
+                    this.setState({modalStuff})
+                  }}/>
                   </dt>
                 </dl>
                 <dl className="row">
                   <dd className="col-sm-3">reading</dd>
                   <dt className="col-sm-9">
-                  <Input value={this.state.modalStuff.reading}/>
-                  </dt>
-                </dl>
-                <dl className="row">
-                  <dd className="col-sm-3">result</dd>
-                  <dt className="col-sm-9">
-                  <Input value={this.state.modalStuff.result}/>
+                  <Input value={this.state.modalStuff.reading} onChange={(e) => {
+                    let modalStuff = {...this.state.modalStuff};
+                    modalStuff.reading = e.target.value
+                    this.setState({modalStuff})
+                  }}/>
                   </dt>
                 </dl>
                 <dl className="row">
                   <dd className="col-sm-3">comments</dd>
                   <dt className="col-sm-9">
-                  <Input value={this.state.modalStuff.comments}/>
+                  <Input value={this.state.modalStuff.comments} onChange={(e) => {
+                    let modalStuff = {...this.state.modalStuff};
+                    modalStuff.comments = e.target.value
+                    this.setState({modalStuff})
+                  }}/>
                   </dt>
                 </dl>
                 <dl className="row">
                   <dd className="col-sm-3">type</dd>
                   <dt className="col-sm-9">
-                  <Input value={this.state.modalStuff.type}/>
+                  <Input value={this.state.modalStuff.type} onChange={(e) => {
+                    let modalStuff = {...this.state.modalStuff};
+                    modalStuff.type = e.target.value
+                    this.setState({modalStuff})
+                  }}/>
                   </dt>
                 </dl>
 
                 </form>
-                <Button onClick={this.closeModal}>close</Button>
+                <Button onClick={this.saveModal}>Save</Button>
 
               </Modal>
               :

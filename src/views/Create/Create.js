@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import Autocomplete from 'react-autocomplete'
 import { createBrowserHistory } from 'history';
 import { Route , withRouter} from 'react-router-dom';
+import { TextMask, InputAdapter } from 'react-text-mask-hoc';
+
 import {
   Badge,
   Button,
@@ -138,11 +140,11 @@ class Create extends Component {
       .then(function (response) {
         console.log(response);
         alert('sucessfully updated Job!')
-        this.props.history.push('/dashboard')
       })
       .catch(function (error) {
         console.log(error);
       });
+      this.props.history.push('/dashboard')
     }
     else{
       axios.post('/api/jobs/new', {
@@ -172,11 +174,12 @@ class Create extends Component {
       .then(function (response) {
         console.log(response);
         alert('sucessfully added new Job!')
-        this.props.history.push('/dashboard')
+
       })
       .catch(function (error) {
         console.log(error);
       });
+        this.props.history.push('/dashboard')
     }
   }
 
@@ -262,7 +265,7 @@ class Create extends Component {
                     </Col>
                     <Col xs="12" md="9">
                     <Autocomplete
-                  
+
                     getItemValue={(item) => item.name}
                     items={this.state.dbClients}
                     shouldItemRender={this.matchStateToTerm}
@@ -315,14 +318,26 @@ class Create extends Component {
                       <Input type="text" id="text-input" name="text-input" value={this.state.homeownerName} onChange={(e)=>this.setState({homeownerName:e.target.value})}/>
                     </Col>
                   </FormGroup>
-                  <FormGroup row>
-                    <Col md="3">
-                      <Label htmlFor="text-input">Homeowner Number</Label>
-                    </Col>
-                    <Col xs="12" md="9">
-                      <Input type="text" id="text-input" name="text-input" value={this.state.homeownerNumber} onChange={(e)=>this.setState({homeownerNumber:e.target.value})}/>
-                    </Col>
-                  </FormGroup>
+
+                                <FormGroup row>
+                                  <Col md="3">
+                                    <Label>Homeowner Number</Label>
+                                  </Col>
+                                  <Col xs="12" md="9">
+                                  <InputGroup>
+                                    <InputGroupAddon addonType="prepend">
+                                      <InputGroupText ><i className="fa fa-phone"></i></InputGroupText>
+                                    </InputGroupAddon>
+                                    <TextMask
+                                      value={this.state.homeownerNumber}
+                                      onChange={(e)=>this.setState({homeownerNumber:e.target.value})}
+                                      mask={['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+                                      Component={InputAdapter}
+                                      className="form-control"
+                                    />
+                                  </InputGroup>
+                                  </Col>
+                                </FormGroup>
                   <FormGroup row>
                     <Col md="3">
                       <Label htmlFor="text-input">Inspection Address</Label>
@@ -339,14 +354,26 @@ class Create extends Component {
                       <Input type="text" id="text-input" name="text-input" value={this.state.siteName} onChange={(e)=>this.setState({siteName:e.target.value})}/>
                     </Col>
                   </FormGroup>
-                  <FormGroup row>
-                    <Col md="3">
-                      <Label htmlFor="text-input">Site Contact Number</Label>
-                    </Col>
-                    <Col xs="12" md="9">
-                      <Input type="phone" id="text-input" name="text-input" value={this.state.siteNumber} onChange={(e)=>this.setState({siteNumber:e.target.value})}/>
-                    </Col>
-                  </FormGroup>
+
+                                <FormGroup row>
+                                  <Col md="3">
+                                  <Label>Site Contact Number</Label>
+                                  </Col>
+                                  <Col xs="12" md="9">
+                                  <InputGroup>
+                                    <InputGroupAddon addonType="prepend">
+                                      <InputGroupText ><i className="fa fa-phone"></i></InputGroupText>
+                                    </InputGroupAddon>
+                                    <TextMask
+                                      value={this.state.siteNumber}
+                                      onChange={(e)=>this.setState({siteNumber:e.target.value})}
+                                      mask={['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+                                      Component={InputAdapter}
+                                      className="form-control"
+                                    />
+                                  </InputGroup>
+                                  </Col>
+                                </FormGroup>
                   <FormGroup row>
                     <Col md="3">
                       <Label htmlFor="text-input">Name of Person who set Appointmet</Label>

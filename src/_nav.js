@@ -3,19 +3,22 @@ export default {
     {
       name: 'Dashboard',
       url: '/dashboard',
-      icon: 'icon-speedometer',
+      icon: 'icon-calendar',
     },
     {
       name: 'Create Client',
       url: '/client',
+      icon: 'icon-user-follow',
     },
     {
       name: 'All Clients',
       url: '/clients',
+      icon: 'icon-people',
     },
     {
       name: 'Create New Job',
       url: '/create',
+      icon:'icon-phone'
     },
     {
       title: true,
@@ -29,18 +32,23 @@ export default {
     {
       name: 'Pending Jobs',
       url: '/pending',
+      icon: 'P',
+        icon:'fa fa-ellipsis-h'
     },
     {
       name: 'Scheduled Jobs',
       url: '/scheduled',
+        icon:'fa fa-calendar-o'
     },
     {
       name: 'Inspected Jobs',
       url: '/inspected',
+        icon:'fa fa-tags'
     },
     {
       name: 'Completed Jobs',
       url: '/completed',
+      icon:'fa fa-calendar-check-o'
     }
   ]
 };
