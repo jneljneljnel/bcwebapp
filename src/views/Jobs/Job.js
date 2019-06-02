@@ -136,10 +136,16 @@ class MarkerWithInfoWindow extends Component {
     const {location} = this.props;
     //console.log('loc', location)
     return (
-      <Marker onClick={this.toggle} position={location} title={location.title} label={location.label}>
+      <Marker onClick={this.toggle} icon={location.icon} position={location} title={location.title} label={location.label}>
         {this.state.isOpen &&
         <InfoWindow onCloseClick={this.toggle}>
-          <NavLink href={location.www} target="_blank">{location.title}</NavLink>
+        <div>
+          <p>{location.title}</p>
+          <p>{location.phone}</p>
+          <NavLink href={location.link} target="_blank">
+            <p>{location.address}</p>
+          </NavLink>
+        </div>
         </InfoWindow>}
       </Marker>
     )
@@ -162,7 +168,7 @@ class MarkerWithInfoWindow extends Component {
 //   }
 // }
 
-function show_percent (e) { return ( e == 0 ) ? "" : ( e + ".00 % " ) }
+function show_percent (e) { return ( e == 0 ) ? "" : ( e + "% " ) }
 
 const Insrow = (props) => {
   let location;
@@ -190,6 +196,7 @@ const Insrow = (props) => {
   //console.log('pp',props , location)
   return(<tr style={{"backgroundColor":color}}>
       <td>{props.sampleId + 1|| "0"}</td>
+      <td>{props.sheetIndex + 1|| "0"}</td>
       <td>{props.unit|| ''}</td>
       <td>{location + ' ' + props.room}</td>
       <td>{props.side|| ''}</td>
@@ -198,7 +205,7 @@ const Insrow = (props) => {
       <td>{props.condition || ''}</td>
       <td>{props.reading || '0'}</td>
       <td>{props.result || ' '}</td>
-      <td>{props.type? props.type+', ': ""}{props.comments || ' '}</td>
+      <td>{props.type? props.type+' ': ""}{props.comments || ' '}</td>
       <td>  <Button onClick={() => props.openModal(props)}>edit</Button></td>
     </tr>)
 }
@@ -328,7 +335,7 @@ class Job extends Component {
         console.log('obj',obj)
         console.log('obj obj side', obj.side)
         console.log('obj side', side)
-        //window.location.reload();
+        window.location.reload();
      }
    })
 
@@ -417,7 +424,7 @@ class Job extends Component {
          let pos = []
          let neg = []
          mat[k].map( x => x.result == 'Negative'? neg.push(x): pos.push(x))
-         final.push({component:mat[k][0].material + ' '+ k, material: mat[k][0].material, number:mat[k].length, numpos:pos.length, numneg:neg.length, percentpos:((pos.length * 100) / mat[k].length), percentneg:((neg.length * 100) / mat[k].length)})
+         final.push({component:mat[k][0].material + ' '+ k, material: mat[k][0].material, number:mat[k].length, numpos:pos.length, numneg:neg.length, percentpos:((pos.length * 100) / mat[k].length).toFixed(2), percentneg:((neg.length * 100) / mat[k].length).toFixed(2)})
          //console.log('BIGDATA fin', final)
        })
       })
@@ -447,7 +454,7 @@ class Job extends Component {
          let pos = []
          let neg = []
          mat[k].map( x => x.result == 'Negative'? neg.push(x): pos.push(x))
-         final.push({component:mat[k][0].material + ' '+ k, material: mat[k][0].material, number:mat[k].length, numpos:pos.length, numneg:neg.length, percentpos:((pos.length * 100) / mat[k].length), percentneg:((neg.length * 100) / mat[k].length)})
+         final.push({component:mat[k][0].material + ' '+ k, material: mat[k][0].material, number:mat[k].length, numpos:pos.length, numneg:neg.length, percentpos:((pos.length * 100) / mat[k].length).toFixed(2), percentneg:((neg.length * 100) / mat[k].length).toFixed(2)})
          //console.log('BIGDATA fin', final)
        })
       })
@@ -473,15 +480,33 @@ class Job extends Component {
       })
       .then( res => {
         this.setState({jobInfo:res.data[0]})
+        console.log(res.data[0])
+        console.log(res.data[0].street)
+        let image
+        if(res.data[0].inspector == 1) {
+
+         image = 'http://maps.google.com/mapfiles/ms/icons/green.png';
+        }
+        if(res.data[0].inspector == 2) {
+         image = 'http://maps.google.com/mapfiles/ms/icons/red.png';
+        }
+        if(res.data[0].inspector == 3) {
+         image = 'http://maps.google.com/mapfiles/ms/icons/blue.png';
+        }
         ////action level async isue
         this.setState({actionLevel:res.data[0].actionLevel})
-        axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${res.data[0].address}&key=AIzaSyA3FkbIxQAgVDWNej22DnBn6XzhHjoK5nc`).then(results => {
+        axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${res.data[0].street+ ' ' + res.data[0].city}&key=AIzaSyA3FkbIxQAgVDWNej22DnBn6XzhHjoK5nc`).then(results => {
           if( results.data.results[0] && results.data.results.length){
             let loc = {
               lat: results.data.results[0].geometry.location.lat,
               lng: results.data.results[0].geometry.location.lng,
               draggable: false,
-              title: res.data[0].address,
+              title: res.data[0].name,
+              phone: res.data[0].siteNumber,
+              address: res.data[0].street,
+              icon:image,
+              link: 'https://www.google.com/maps/dir/?api=1&destination='+res.data[0].street+'%2C'+res.data[0].city+'%2C'+res.data[0].state
+
             }
             //console.log(loc)
             this.setState({locations:[loc]})
@@ -647,7 +672,7 @@ class Job extends Component {
 
 
 
-  printSummary() {
+  printSummary(jobId) {
     var css = `
       h1 {
         font-family: Arial;
@@ -913,7 +938,7 @@ class Job extends Component {
 
     content = juice.inlineContent(content, css);
     var converted = htmlDocx.asBlob(content, {orientation: 'portrait', margins: {top: 720, left : 700, right : 700, bottom: 400}});
-    saveAs(converted, 'portrait.docx' );
+    saveAs(converted, jobId+' Summaries.docx' );
 
 
     page ++;
@@ -980,7 +1005,7 @@ class Job extends Component {
     // myBlobBuilder.append(converted);
     // console.log(new Blob([temp, converted]));
 
-    saveAs(converted, 'landscape.docx');
+    saveAs(converted,  jobId+' Data.docx');
 
   }
 
@@ -1087,7 +1112,7 @@ class Job extends Component {
         table += '</tr>';
       })
       table += '<tr class="blank">';
-        table += '<td class="bold" style="text-align:right;">ssTotal</td>';
+        table += '<td class="bold" style="text-align:right;">Total</td>';
         table += '<td class="bold">' + numberSum + '</td>';
         table += '<td class="bold">' + numberposSum + '</td>';
         table += '<td> </td>';
@@ -1251,7 +1276,7 @@ class Job extends Component {
         </td>
         <td style="width : 50px; text-align:right">
             <span class="bold">Protocol : </span>
-            <span >` + 'LA Country' + `</span>
+            <span >` + 'LA County' + `</span>
         </td>
       </tr>
     </table>
@@ -1299,7 +1324,7 @@ class Job extends Component {
         <th>Room Equivalent</th>
         <th class="center">Side</th>
         <th>Component</th>
-        <th>Substraste</th>
+        <th>Substrate</th>
         <th>Condition</th>
         <th class="center">Lead</th>
         <th>Results</th>
@@ -1550,7 +1575,7 @@ class Job extends Component {
               <dd className="col-sm-3">Project Name</dd>
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.name : ''}</dt>
               <dd className="col-sm-3">Address</dd>
-              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.address : ''}</dt>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.street + ' ' +this.state.jobInfo.city+', '+this.state.jobInfo.state: ''}</dt>
               <dd className="col-sm-3">Site Contact</dd>
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.siteName : ''}</dt>
               <dd className="col-sm-3">Site Contact Number</dd>
@@ -1569,7 +1594,7 @@ class Job extends Component {
               <br></br>
               <br></br>
               <dd className="col-sm-3">
-                <Button color="success" onClick={() => this.printSummary()}>Print Summary</Button>
+                <Button color="success" onClick={() => this.printSummary(this.state.jobInfo.id)}>Print Summary</Button>
               </dd>
 
               {this.state.jobInfo && this.state.jobInfo.inspected!=1 ?
@@ -1617,6 +1642,7 @@ class Job extends Component {
                     <thead>
                     <tr>
                       <th>Sample</th>
+                      <th>Sheet Number</th>
                       <th>Unit ID/Location</th>
                       <th>Room Equivalent</th>
                       <th>Side</th>
@@ -1675,9 +1701,9 @@ class Job extends Component {
                 <dl className="row">
                   <dd className="col-sm-3">Sheet Order</dd>
                   <dt className="col-sm-9">
-                    <Input value={this.state.modalStuff.sheetIndex} onChange={(e) => {
+                    <Input value={this.state.modalStuff.sheetIndex+1} onChange={(e) => {
                       let modalStuff = {...this.state.modalStuff};
-                      modalStuff.sheetIndex = e.target.value
+                      modalStuff.sheetIndex = e.target.value -1
                       this.setState({modalStuff})
                     }}/>
                   </dt>

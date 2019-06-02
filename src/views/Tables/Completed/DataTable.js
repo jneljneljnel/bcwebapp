@@ -41,6 +41,10 @@ class DataTable extends Component {
      return (<div><Button color="success" onClick={() =>  this.props.history.push('/jobs/'+row.id)}>Open</Button> </div>)
   }
 
+  address(cell,row){
+       return (<div>{row.street +' '+ row.city}</div>)
+  }
+
   uncomplete(id){
      axios.get(`/api/jobs/uncomplete/${id}`).then( res => {
        console.log('send back')
@@ -63,7 +67,8 @@ class DataTable extends Component {
             <TableHeaderColumn dataFormat={this.goButton}></TableHeaderColumn>
             <TableHeaderColumn isKey dataField="id" dataSort>JobId</TableHeaderColumn>
             <TableHeaderColumn dataField="name">Job Name</TableHeaderColumn>
-            <TableHeaderColumn dataField="address" dataSort>Address</TableHeaderColumn>
+            <TableHeaderColumn dataFormat={this.address} dataSort>Address</TableHeaderColumn>
+            <TableHeaderColumn dataField='siteNumber' dataSort>Phone</TableHeaderColumn>
             <TableHeaderColumn dataField="comments" dataSort>Comments</TableHeaderColumn>
             <TableHeaderColumn dataFormat={this.doneButton}></TableHeaderColumn>
             </BootstrapTable>

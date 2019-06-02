@@ -57,16 +57,19 @@ class MarkerWithInfoWindow extends Component {
     });
   }
   render() {
-    const {location} = this.props;
+    const {location, icon} = this.props;
 
     return (
-      <Marker onClick={this.toggle} position={location} title={location.title} label={location.label}>
+      <Marker onClick={this.toggle} icon={location.icon} position={location} title={location.title} label={location.label}>
         {this.state.isOpen &&
         <InfoWindow onCloseClick={this.toggle}>
-          <NavLink href={location.www} target="_blank">
+        <div>
             <p>{location.title}</p>
+            <p>{location.phone}</p>
+          <NavLink href={location.www} target="_blank">
             <p>{location.address}</p>
           </NavLink>
+        </div>  
         </InfoWindow>}
       </Marker>
     )
@@ -135,27 +138,33 @@ class Scheduled extends Component {
       let promises = [];
       res.data.map( j => {
         let label;
-        if(j.inspector == 1) {
-         label = 'M'
+        let image = ''
+        if(j.inspector == "1") {
+         //label = 'M'
+         image = 'http://maps.google.com/mapfiles/ms/icons/green.png';
         }
-        if(j.inspector == 2) {
-         label = 'J'
+        if(j.inspector == "2") {
+         //label = 'J'
+         image = 'http://maps.google.com/mapfiles/ms/icons/red.png';
         }
-        if(j.inspector == 3) {
-         label = 'K'
+        if(j.inspector == "3") {
+         //label = 'K'
+         image = 'http://maps.google.com/mapfiles/ms/icons/blue.png';
         }
-        if(j.address){
+        if(j.street){
           promises.push(
-            axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${j.address}&key=AIzaSyA3FkbIxQAgVDWNej22DnBn6XzhHjoK5nc`)
+            axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${j.street + ' ' + j.city +' '+ j.state + '' + j.postal}&key=AIzaSyA3FkbIxQAgVDWNej22DnBn6XzhHjoK5nc`)
               .then(result => {
                 if( result.data.results[0] && result.data.results.length){
                   return {
                         lat: result.data.results[0].geometry.location.lat,
                         lng: result.data.results[0].geometry.location.lng,
-                        label: 'M',
+                        label: label,
                         draggable: false,
                         title: j.name,
-                        address: j.address
+                        icon:image,
+                        phone:j.siteNumber,
+                        address: j.street + ' ' + j.city
                       }
                 }
                 else {

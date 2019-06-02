@@ -30,6 +30,10 @@ class DataTable extends Component {
     console.log('filter2', this.props.data)
   }
 
+  address(props){
+   return(this.props.street +' '+ this.props.city +' '+ this.props.state +' '+ this.props.postal)
+  }
+
   render() {
 
     return (
@@ -42,7 +46,7 @@ class DataTable extends Component {
             <BootstrapTable data={this.props.data} version="4" striped hover pagination search options={this.options}>
               <TableHeaderColumn isKey dataField="id" dataSort>JobId</TableHeaderColumn>
               <TableHeaderColumn dataField="name">Job Name</TableHeaderColumn>
-              <TableHeaderColumn dataField="address" dataSort>Address</TableHeaderColumn>
+              <TableHeaderColumn dataField="address" dataFormat={() => this.address(this.props)}dataSort></TableHeaderColumn>
               <TableHeaderColumn dataField="comments" dataSort>Comments</TableHeaderColumn>
               <TableHeaderColumn dataSort>Done</TableHeaderColumn>
             </BootstrapTable>

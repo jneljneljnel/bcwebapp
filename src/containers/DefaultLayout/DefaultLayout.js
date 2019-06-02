@@ -32,6 +32,7 @@ class DefaultLayout extends Component {
   }
 
   render() {
+      console.log('props', this.props)
     return (
       <div className="app">
         <AppHeader fixed>
@@ -40,11 +41,11 @@ class DefaultLayout extends Component {
           </Suspense>
         </AppHeader>
         <div className="app-body">
-          <AppSidebar fixed display="lg">
+          <AppSidebar fixed display="lg" className={"sidebar-minimized brand-minimized"}>
             <AppSidebarHeader />
             <AppSidebarForm />
             <Suspense>
-            <AppSidebarNav navConfig={navigation} {...this.props} />
+            <AppSidebarNav className={"sidebar-minimized brand-minimized"} navConfig={navigation} {...this.props} />
             </Suspense>
             <AppSidebarFooter />
             <AppSidebarMinimizer />
@@ -77,11 +78,7 @@ class DefaultLayout extends Component {
             </Suspense>
           </AppAside>
         </div>
-        <AppFooter>
-          <Suspense fallback={this.loading()}>
-            <DefaultFooter />
-          </Suspense>
-        </AppFooter>
+      
       </div>
     );
   }

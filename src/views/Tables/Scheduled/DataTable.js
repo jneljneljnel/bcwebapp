@@ -80,14 +80,19 @@ class DataTable extends Component {
   }
 
   componentDidMount(){
-    let addy='819 north rockwell street chicago illinois'
-    this.state.data.map( j => console.log('D',this.props.data))
-    axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${addy}&key=AIzaSyA3FkbIxQAgVDWNej22DnBn6XzhHjoK5nc`).then(res => {
-      //console.log(res.data.results[0].geometry.location)
-    })
+    // let addy='819 north rockwell street chicago illinois'
+    // this.state.data.map( j => console.log('D',this.props.data))
+    // axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${addy}&key=AIzaSyA3FkbIxQAgVDWNej22DnBn6XzhHjoK5nc`).then(res => {
+    //   //console.log(res.data.results[0].geometry.location)
+    // })
   }
+
   goButton(cell, row){
      return (<div><Button color="success" onClick={() =>  this.props.history.push('/jobs/'+row.id)}>Open</Button></div>)
+  }
+
+  address(cell,row){
+       return (<div>{row.street +' '+ row.city}</div>)
   }
 
 
@@ -105,7 +110,7 @@ class DataTable extends Component {
             <TableHeaderColumn isKey dataField="id" dataSort>JobId</TableHeaderColumn>
             <TableHeaderColumn dataField="name"> Job Name</TableHeaderColumn>
             <TableHeaderColumn dataField="inspectionDate" dataFormat={dateFormatter}> Inspection Date</TableHeaderColumn>
-            <TableHeaderColumn dataField="address" dataSort>Address</TableHeaderColumn>
+            <TableHeaderColumn dataField="address" dataFormat={this.address}dataSort>Address</TableHeaderColumn>
             <TableHeaderColumn dataField="comments" dataSort>Comments</TableHeaderColumn>
             </BootstrapTable>
           </CardBody>

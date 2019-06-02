@@ -62,6 +62,11 @@ class Create extends Component {
       clientName: '',
       phone: '',
       address: '',
+      street:'',
+      city:'',
+      state:'',
+      county:'',
+      postal:'',
       comments: '',
       sqft: '',
       numbeds: '',
@@ -71,7 +76,9 @@ class Create extends Component {
       goodogs: '',
       dbClients: [],
       inspectors:[],
-      value:''
+      value:'',
+      type: 0,
+
     };
   }
 
@@ -122,6 +129,11 @@ class Create extends Component {
         homeownerName: this.state.homeownerName,
         homeownerNumber: this.state.homeownerNumber,
         address: this.state.address,
+        street:this.sate.street,
+        city:this.state.city,
+        state:this.state.state,
+        county:this.state.county,
+        postal:this.state.postal,
         siteName:this.state.siteName,
         siteNumber:this.state.siteNumber,
         appointmetPerson: this.state.appointmetPerson,
@@ -129,6 +141,7 @@ class Create extends Component {
         inspectorId: this.state.inspectorId,
         comments: this.state.comments,
         actionLevel: this.state.actionLevel,
+        type: this.state.type,
         cost: this.state.cost,
         numbeds: this.state.numbeds,
         numbaths: this.state.numbaths,
@@ -156,6 +169,11 @@ class Create extends Component {
         homeownerName: this.state.homeownerName,
         homeownerNumber: this.state.homeownerNumber,
         address: this.state.address,
+        street:this.state.street,
+        city:this.state.city,
+        state:this.state.state,
+        county:this.state.county,
+        postal:this.state.postal,
         siteName:this.state.siteName,
         siteNumber:this.state.siteNumber,
         appointmetPerson: this.state.appointmetPerson,
@@ -163,6 +181,7 @@ class Create extends Component {
         inspectorId: this.state.inspectorId,
         comments: this.state.comments,
         actionLevel: this.state.actionLevel,
+        type: this.state.type,
         cost: this.state.cost,
         numbeds: this.state.numbeds,
         numbaths: this.state.numbaths,
@@ -216,12 +235,18 @@ class Create extends Component {
           this.setState({homeownerName:res.data[0].homeownerName})
           this.setState({homeownerNumber:res.data[0].homeownerNumber})
           this.setState({address:res.data[0].address})
+          this.setState({street:res.data[0].street})
+          this.setState({city:res.data[0].city})
+          this.setState({state:res.data[0].state})
+          this.setState({county:res.data[0].county})
+          this.setState({postal:res.data[0].postal})
           this.setState({siteName:res.data[0].siteName})
           this.setState({siteNumber:res.data[0].siteNumber})
           this.setState({appointmetPerson:res.data[0].appointmetPerson})
           this.setState({billingName:res.data[0].billingName})
           this.setState({inspectorId:res.data[0].inspector})
           this.setState({actionLevel:res.data[0].actionLevel})
+          this.setState({type:res.data[0].type})
           this.setState({comments:res.data[0].comments})
           this.setState({cost:res.data[0].cost})
           this.setState({numbaths:res.data[0].numbaths})
@@ -338,14 +363,36 @@ class Create extends Component {
                                   </InputGroup>
                                   </Col>
                                 </FormGroup>
-                  <FormGroup row>
-                    <Col md="3">
-                      <Label htmlFor="text-input">Inspection Address</Label>
-                    </Col>
-                    <Col xs="12" md="9">
-                      <Input type="text" id="text-input" name="text-input" value={this.state.address} onChange={(e)=>this.setState({address:e.target.value})} />
-                    </Col>
-                  </FormGroup>
+                                <FormGroup>
+                                  <Label htmlFor="street">Street</Label>
+                                  <Input type="text" id="street"  value={this.state.street} onChange={(e)=>this.setState({street:e.target.value})}/>
+                                </FormGroup>
+                                <FormGroup row className="my-0">
+                                  <Col xs="3">
+                                    <FormGroup>
+                                      <Label htmlFor="city">City</Label>
+                                      <Input type="text" id="city"  value={this.state.city} onChange={(e)=>this.setState({city:e.target.value})} />
+                                    </FormGroup>
+                                  </Col>
+                                  <Col xs="3">
+                                    <FormGroup>
+                                      <Label htmlFor="state">State</Label>
+                                      <Input type="text" id="state" value={this.state.state}  onChange={(e)=>this.setState({state:e.target.value})} />
+                                    </FormGroup>
+                                  </Col>
+                                  <Col xs="3">
+                                    <FormGroup>
+                                      <Label htmlFor="state">County</Label>
+                                      <Input type="text" id="state" value={this.state.county}  onChange={(e)=>this.setState({county:e.target.value})} />
+                                    </FormGroup>
+                                  </Col>
+                                  <Col xs="3">
+                                    <FormGroup>
+                                      <Label htmlFor="postal-code">Postal Code</Label>
+                                      <Input type="text" id="postal-code" value={this.state.postal} onChange={(e)=>this.setState({postal:e.target.value})} />
+                                    </FormGroup>
+                                  </Col>
+                                </FormGroup>
                   <FormGroup row>
                     <Col md="3">
                       <Label htmlFor="text-input">Site Contact Name</Label>
@@ -423,6 +470,19 @@ class Create extends Component {
                     </Col>
                     <Col xs="12" md="9">
                       <Input type="text" id="text-input" name="text-input" value={this.state.actionLevel} onChange={(e)=>this.setState({actionLevel:e.target.value})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="select">Inspection Type</Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input id="type" value={this.state.type} onChange={(e)=> {this.setState({type:e.target.value})}} type="select" name="type">
+                        <option value="0">Please select</option>
+                        <option value="1">Limited</option>
+                        <option value="2">Comprehensive</option>
+                        <option value="3">Windows and Doors</option>
+                      </Input>
                     </Col>
                   </FormGroup>
 

@@ -84,10 +84,10 @@ class DataTable extends Component {
     }).then((response) => {
    const url = window.URL.createObjectURL(new Blob([response.data]));
    const link = document.createElement('a');
-   link.href = url;
-   link.setAttribute('download', row.name+'-rest.docx'); //or any other extension
-   document.body.appendChild(link);
-   link.click();
+   // link.href = url;
+   // link.setAttribute('download', row.name+'-rest.docx'); //or any other extension
+   // document.body.appendChild(link);
+   // link.click();
 });
     let res = await axios({
       url: '/api/inspections/get',
@@ -312,7 +312,7 @@ doc.createParagraph(`${today}`);
 doc.createParagraph();
 doc.createParagraph();
 doc.createParagraph("Prepared for ").style("wellSpaced");
-doc.createParagraph(`${this.state.client.company}`);
+//doc.createParagraph(`${this.state.client.company}`);
 doc.createParagraph(`${this.state.client.street}, ${this.state.client.city}`);
 doc.createParagraph();
 const image = Media.addImage(doc, [this.state.propimg]);
@@ -858,7 +858,11 @@ const packer = new Packer();
      return (<div><Button color="success" onClick={() =>  this.props.history.push('/jobs/'+row.id)}>Open</Button></div>)
   }
 
+  address(cell,row){
+       return (<div>{row.street +' '+ row.city}</div>)
+  }
 
+  siteNumber
   render() {
 
     return (
@@ -872,7 +876,8 @@ const packer = new Packer();
             <TableHeaderColumn dataFormat={this.goButton}></TableHeaderColumn>
             <TableHeaderColumn isKey dataField="id" dataSort>JobId</TableHeaderColumn>
             <TableHeaderColumn dataField="name">Job Name</TableHeaderColumn>
-            <TableHeaderColumn dataField="address" dataSort>Address</TableHeaderColumn>
+            <TableHeaderColumn dataFormat={this.address} dataSort>Address</TableHeaderColumn>
+            <TableHeaderColumn dataField="siteNumber" dataSort>Phone</TableHeaderColumn>
             <TableHeaderColumn dataField="comments" dataSort>Comments</TableHeaderColumn>
             <TableHeaderColumn
 
