@@ -187,11 +187,11 @@ const Insrow = (props) => {
     location = 'Exterior'
   }
 
-  console.log('state', props.stateId)
-  console.log('insid', props.inspectionId)
-  console.log('sheetid', props.sheetId)
-  console.log('itemId', props.itemId)
-  console.log('component', props.property)
+  //console.log('state', props.stateId)
+  //console.log('insid', props.inspectionId)
+ // console.log('sheetid', props.sheetId)
+//  console.log('itemId', props.itemId)
+//  console.log('component', props.property)
 
   //console.log('pp',props , location)
   return(<tr style={{"backgroundColor":color}}>
@@ -253,6 +253,11 @@ class Job extends Component {
     this.getLandscapeHeader = this.getLandscapeHeader.bind(this);
     this.getLandscapeFooter = this.getLandscapeFooter.bind(this);
     this.blankPageWithTitle = this.blankPageWithTitle.bind(this);
+
+    // print 8552 Related Functions
+    this.print8552 = this.print8552.bind(this);
+    this.get8552Content = this.get8552Content.bind(this);
+
     this.openModal = this.openModal.bind(this);
     this.afterOpenModal = this.afterOpenModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
@@ -314,16 +319,17 @@ class Job extends Component {
         obj.doorType = type
         obj[property].R = reading
         obj[property].M = material
-        if(obj[property].hasOwnProperty("S")){
-          console.log('obj S true')
-          obj[property].S = side
-        }
-        else if (obj.hasOwnProperty("side") && loc !== "ExtSheet") {
+
+       if (obj.hasOwnProperty("side") && loc !== "ExtSheet") {
 
           console.log('obj changed side', loc)
           obj.side = side
         }
         else {
+          if(obj[property].hasOwnProperty("S")){
+            console.log('obj S true')
+            obj[property].S = side
+          }
           sheet.data.forEach(d => {
             if (d.title == 'Exterior Sheet Details'){
               console.log("obj CHANGE EXT SIDE", d)
@@ -555,6 +561,9 @@ class Job extends Component {
           }
           if(checklist.type == "property details"){
             console.log("property details", checklist)
+            this.setState({
+              property_detail : checklist
+            })
           }
           if(checklist.type == "5.0"){
             console.log("5.0", checklist)
@@ -575,9 +584,9 @@ class Job extends Component {
           let sheetId = s.id
           if(s.type == "ExtSheet"){
             extSide = s.data[0].side
-            room = s.data[0].direction
+            room = s.data[0].direction || ""
           }
-          console.log('sheet', s)
+//          console.log('sheet', s)
           s.data.map(d => {
             let itemId = d.id
             let comments = d.comments
@@ -670,6 +679,493 @@ class Job extends Component {
 
   }
 
+  async print8552() {
+    let css = `
+      * {
+        font-family: Arial;
+      }
+      h1, h3 {
+        font-family: Arial;
+      }
+
+      .heading {
+        text-align:center;
+      }
+
+      .header {
+        text-align:left;
+        font-size: 8px;
+      }
+
+      hr {
+        height : 3px;
+        color: black;
+      }
+
+      .row {
+        padding-left : 100px;
+        padding-right : 100px;
+      }
+
+      .bold {
+        font-weight: 700;
+      }
+
+      .footer div {
+        display: block;
+      }
+
+      .right {
+        text-align : right;
+      }
+
+      .left {
+        text-align : left;
+      }
+
+      .center {
+        text-align : center;
+      }
+
+      .underline {
+        border-bottom : black 1px solid;
+      }
+
+      .pink {
+        color : #a342b5;
+      }
+
+      div input {
+        margin : 10px;
+        width : 40px;
+        color: #a342b5;
+      }
+
+      div label {
+        margin : 30px;
+        width : 200px;
+        font-size : 12px;
+      }
+
+      b {
+        font-size: 14px;
+      }
+
+      .span-border span {
+        border-right : 1px solid #a342b5;
+        border-left : 1px solid #a342b5;
+      }
+
+      table {
+        width: 100%;
+      }
+
+      table, td {
+        border-top: 1px solid black;
+        border-bottom: 1px solid black;
+        border-spacing: 0px;
+        border-collapse: collapse;
+      }
+
+      .font-small {
+        font-size: 11px;
+      }
+
+      .side-border td {
+        border-right: 1px solid black;
+      }
+
+      .side-border td:last-child {
+        border-right: none;
+      }
+
+      table.no-border, table.no-border td {
+        border: none;
+      }
+
+      .italic {
+        font-style: italic;
+      }
+
+      .select-box label {
+        font-size: 10px;
+      }
+
+      div {
+        margin-top:0px;
+        margin-bottom:0px;
+        padding-top:0px;
+        padding-bottom:0px;
+      }
+    `;
+
+    let converted = '';
+    let content = '';
+
+    await this.toDataURL('/assets/img/signs/sign1.jpg', async (dataUrl1) => {
+      let image1 = '<img width=160 height=40 src="' + dataUrl1 + '"/>';
+      await this.toDataURL('/assets/img/signs/sign2.jpg', async (dataUrl2) => {
+        let image2 = '<img width=160 height=40 src="' + dataUrl2 + '"/>';
+        await this.toDataURL('/assets/img/signs/sign3.jpg', (dataUrl3) => {
+          let image3 = '<img width=140 height=36 src="' + dataUrl3 + '"/>';
+
+          content = this.get8552Content(image1, image2, image3);
+          content = juice.inlineContent(content, css);
+          converted = htmlDocx.asBlob(content, {orientation: 'portrait', margins: {top: 720, left : 400, right : 400, bottom: 400}});
+          saveAs(converted, 'export8552.docx' );
+        })
+      })
+    })
+
+    console.log(this.state.jobInfo);
+
+
+
+
+
+
+    // await base64Img.base64('path/demo.png').then(function(data) {
+    //   console.log(data);
+    // });
+    // console.log(base64Img.base64Sync('/assets/img/signs/sign1.jpg'));
+    // content += base64Img.base64Sync('assets/img/signs/sign1.jpg');
+
+
+
+
+
+  }
+
+  get8552Content(image1, image2, image3) {
+    let noneLead = true;
+    this.state.rows.map( (x, i) => {
+      if(x.result == "POSITIVE" && x.reading >= this.state.jobInfo.actionLevel)
+      {
+//        console.log(x);
+        noneLead = false;
+      }
+    });
+    console.log(noneLead);
+    console.log(this.state.jobInfo);
+
+    console.log('property', this.state.property_detail);
+
+    let content = '';
+    content += `
+    <div class="header" style="padding-bottom:0px;margin-bottom:0px;line-height:10px;">
+      State of California-Health and Human Services Agency</br>
+      California Department of Public Health
+    </div>
+    `;
+
+    content += `<h4 class="center">LEAD HAZARD EVALUATION REPORT</h4>`;
+
+    content += `
+
+
+      <div class="underline">
+        <b>Section 1-Date of Lead Hazard Evaluation</b>
+        <span>` + this.state.jobInfo.inspectionDate + `</span>
+      </div>
+      <div >
+        <b>Section 2-Type of Lead Hazard Evaluation </b>
+        <span>(Check one box only)</span>
+      </div>
+      <div>
+        <input type="checkbox" name="lead_inspection" value="lead_inspection"/>
+        <label style="font-size:10px">Lead inspection</label>
+        <input type="checkbox" name="risk_assessment" value="risk_assessment" />
+        <label>Risk Assessment</label>
+        <input type="checkbox" name="clearance_inspection" value="clearance_inspection" />
+        <label>Clearance inspection</label>
+        <input type="checkbox" name="other" value="other" />
+        <label>Other (Limited Inspection)</label>
+      </div>
+
+      <div>
+        <b>Section 3-Structure Where Lead Hazard Evaluation Was Conducted</b>
+      </div>
+      <table class="font-small">
+        <tr class="side-border">
+          <td colspan="2">
+            <div>
+              Address (number, street, apartment (if applicable)
+            </div>`
+            + (this.state.jobInfo? this.state.jobInfo.address : '') +
+          `</td>
+          <td style="width:20%;">
+            City
+          </td>
+          <td style="width:20%;">
+            County
+          </td>
+          <td style="width:20%;">
+           ZIP code
+          </td>
+        </tr>
+      </table>
+      <table class="select-box font-small">
+        <tr>
+          <td style="border-right: 1px solid black;">
+            <div>Construction date (year) of structure</div>`
+            + (typeof this.state.property_detail.year === 'undefined' ? 1 : this.state.property_detail.year) +
+          `</td>
+          <td colspan="2">
+            <div>Type of structure (check one box only)</div>
+            <div>
+            <input type="checkbox" name="multi_unit" value="multi_unit"/>
+            <label>Multi-unit building</label>
+            <input type="checkbox" name="daycare" value="daycare"/>
+            <label>School or Daycare</label>
+            </div>
+            <div>` +
+            (this.state.property_detail.dwelling == "Single Family Home" ? (
+              `<input type="checkbox" name="family" value="family" checked/>
+            <label>Single Family Dwelling</label>
+            <input type="checkbox" name="other" value="other"/>
+            <label>Other (specify)</label>`
+            ) : (
+              `<input type="checkbox" name="family" value="family"/>
+            <label>Single Family Dwelling</label>
+            <input type="checkbox" name="other" value="other" checked/>
+            <label>Other ` + (this.state.property_detail.dwelling) + `</label>`
+            ))
+             +
+            `</div>
+          </td>
+          <td colspan="2">
+            <div>Children Living in Structure?</div>
+            <div>` +
+            (this.state.property_detail.children == "Yes" ? (
+              `<input type="checkbox" name="yes" value="yes" checked/>
+              <label>Yes</label>
+              <input type="checkbox" name="no" value="no" />
+              <label>No</label>`
+            ) : (
+              `<input type="checkbox" name="yes" value="yes" />
+              <label>Yes</label>
+              <input type="checkbox" name="no" value="no" checked />
+              <label>No</label>`
+            ))
+            +
+            `</div>
+            <div>
+            <input type="checkbox" name="other" value="other"/>
+            <label>Don't know</label>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <div>
+        <b>Section 4-Owner of Structure</b> (If business/agency, list contact person)
+      </div>
+
+      <table class="side-border font-small">
+        <tr>
+          <td colspan="3">
+            <div>Name</div>` //(this.state.jobInfo? this.state.jobInfo.siteName : '')
+            + (this.state.jobInfo? this.state.jobInfo.homeownerName : '') +
+          `</td>
+          <td colspan="2">
+            <div>Telephone number<div>`
+            + (this.state.jobInfo? this.state.jobInfo.siteNumber : '') +
+          `</td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <div>
+              Address [number, street, apartment (if applicable)]
+            </div>`
+            + (this.state.jobInfo? this.state.jobInfo.address : '') +
+          `</td>
+          <td>
+            <div>
+              City
+            </div>
+            <div>
+            "PROJECT_INFOCITY"
+            </div>
+          </td>
+          <td>
+            <div>
+              State
+            </div>
+            <div>
+              CA
+            </div>
+          </td>
+
+          <td>
+          	<div>
+            ZIP code
+            </div>
+            <div>
+            "PROJECT_ZIP"
+            </div>
+
+          </td>
+        </tr>
+      </table>
+
+
+      <div>
+        <b>Section 5-Results of Lead Hazard Evaluation</b> (Check all that apply)
+      </div>
+
+
+      <div class="select-box" style="font-size:12px;">
+        <div>` +
+          ( noneLead== true ? `<input type="checkbox" name="lead_inspection" value="lead_inspection" checked/>` : `<input type="checkbox" name="lead_inspection" value="lead_inspection"/>`) +
+          `<label>No lead-based paint detected </label>
+          <input type="checkbox" name="risk_assessment" value="risk_assessment" />
+          <label>Intact Lead-based paint detected</label>
+          <input type="checkbox" name="clearance_inspection" value="clearance_inspection" />
+          <label>Deteriorated Lead-based paint detected</label>`
+        + `</div>
+        <div>` +
+
+          `<input type="checkbox" name="clearance_inspection" value="clearance_inspection" />
+          <label style="background-color: #4dbd74;">No lead hazards detected</label>
+          <input type="checkbox" name="clearance_inspection" value="clearance_inspection" />
+          <label>Lead Contaminated Dust Found</label>
+          <input type="checkbox" name="clearance_inspection" value="clearance_inspection" />
+          <label>Lead Contaminated Soil Found</label>
+          <input type="checkbox" name="other" value="other" />
+          <label>Other (specify) </label>`
+
+        + `</div>
+      </div>
+
+      <div>
+        <b>Section 6-Individual Conducting Lead Hazard Evaluation</b>
+      </div>
+
+
+      <table class="font-small">
+        <tr >
+          <td colspan="3">
+            <div>Name</div>
+            <div>Matthew Crochet, Jeremy Nguyen, Keith Piner</div>
+          </td>
+          <td colspan="2">
+            <div>Telephone number</div>
+            <div>714-894-5700</div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2">
+            <div>Address (number, street, apartment (if applicable)</div>
+            <div>16531 Bolsa Chica, Suite 205</div>
+          </td>
+          <td>
+            <div>City</div>
+            <div>Huntington Beach</div>
+          </td>
+          <td>
+            <div>State</div>
+            <div>CA</div>
+          </td>
+          <td>
+            <div>ZIP code</div>
+            <div>92649</div>
+          </td>
+        </tr>
+        <tr>
+          <td >
+            <div>CDPH certification number</div>
+            <div>12   14441      25548</div>
+          </td>
+          <td><div>Signature</div>`
+          + image1 +
+          `</td>
+          <td>`
+          + image2 +
+          `</td>
+          <td>`
+          + image3 +
+          `</td>
+          <td>
+            <div>Date</div>
+            <div>` + this.state.jobInfo.inspectionDate + `</div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="5">
+            Name and CDPH certification number of any other individuals conducting sampling or testing (if applicable)
+          </td>
+        </tr>
+      </table>
+
+      <div>
+        <b>Section 7-Attachments</b>
+      </div>
+
+      <div style="font-size: 11px;">
+        <div> A. A foundation diagram or sketch of the structure indicating the specific locations of each lead hazard or presence of lead-based paint; </div>
+        <div>B.  Each testing method, device, and sampling procedure used;</div>
+        <div>C. All data collected, including quality control data, laboratory results, including laboratory name, address, and phone number.</div>
+       </div>
+
+       <table style="font-size: 13px;" class="no-border">
+        <tr class="italic">
+          <td width="50%">
+          First copy and attachments retained by inspector
+          </td>
+          <td width="50%">
+          </td>
+        </tr>
+        <tr class="italic">
+          <td>
+            Second copy and attachments retained by owner
+          </td>
+          <td>
+            Third copy only (no attachments) mailed to:
+          </td>
+        </tr>
+        <tr>
+          <td>
+
+          </td>
+          <td>
+            California Department of Public Health<br/>
+            Childhood Lead Poisoning Prevention Branch Reports<br/>
+            850 Maria Bay Parkway, Building P, Third Floor<br/>
+            Richmond, CA 94804-6403 Fax (510) 620-5656
+          </td>
+        </tr>
+        <tr>
+          <td>
+          CDPH 8552 (6/07)
+          </td>
+          <td>
+
+          </td>
+        </tr>
+      </table>
+
+
+
+      <hr/>
+
+
+      `;
+    return content;
+  }
+
+   async toDataURL(url, callback) {
+    let xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+      let reader = new FileReader();
+      reader.onloadend = function() {
+        callback(reader.result);
+      }
+      reader.readAsDataURL(xhr.response);
+    };
+    xhr.open('GET', url);
+    xhr.responseType = 'blob';
+    xhr.send();
+  }
 
 
   printSummary(jobId) {
@@ -1596,7 +2092,9 @@ class Job extends Component {
               <dd className="col-sm-3">
                 <Button color="success" onClick={() => this.printSummary(this.state.jobInfo.id)}>Print Summary</Button>
               </dd>
-
+              <dd className="col-sm-2">
+                <Button color="success" onClick={() => this.print8552()}>Print 8552</Button>
+              </dd>
               {this.state.jobInfo && this.state.jobInfo.inspected!=1 ?
                 <dd className="col-sm-3">
                   <Button color="success" onClick={() => this.markInspected(this.state.jobInfo.id)}>Mark Inspected</Button>
@@ -1706,6 +2204,13 @@ class Job extends Component {
                       modalStuff.sheetIndex = e.target.value -1
                       this.setState({modalStuff})
                     }}/>
+                  </dt>
+                </dl>
+
+                <dl className="row">
+                  <dd className="col-sm-3">Sample Id</dd>
+                  <dt className="col-sm-9">
+                  <Input value={this.state.modalStuff.sheetId}/>
                   </dt>
                 </dl>
 
