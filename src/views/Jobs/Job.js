@@ -23,6 +23,7 @@ import {
   InputGroupText,
   Label,
   Row,
+  Media,
   NavLink,
   Pagination,
   PaginationItem,
@@ -287,7 +288,7 @@ class Job extends Component {
   }
 
   saveModal() {
-    let { sheetIndex, inspectionId, stateId, sheetId, itemId, property, comments, reading, material, side, type, room, unit } = this.state.modalStuff
+    let { sheetIndex, inspectionId, stateId, sheetId, itemId, property, condition, comments, reading, item, material, side, type, room, unit } = this.state.modalStuff
    this.setState({modalIsOpen: false});
    console.log('save newstuff',this.state.modalStuff)
    console.log('save data',this.state.data)
@@ -317,8 +318,14 @@ class Job extends Component {
      if(obj.id == itemId){
         obj.comments = comments
         obj.doorType = type
+        obj[property].name = item
         obj[property].R = reading
         obj[property].M = material
+        if(condition == "Intact"){
+          obj[property].I = true
+        } else {
+          obj[property].I = false
+        }
 
        if (obj.hasOwnProperty("side") && loc !== "ExtSheet") {
 
@@ -341,7 +348,7 @@ class Job extends Component {
         console.log('obj',obj)
         console.log('obj obj side', obj.side)
         console.log('obj side', side)
-        window.location.reload();
+        //window.location.reload();
      }
    })
 
@@ -607,8 +614,11 @@ class Job extends Component {
 
             let component = d.title
             let type = d.doorType || d.type
+            console.log("Dee",d )
+            if(d.title == 'Other Item'){
+              d.other.name = d.comments
+            }
 
-            //console.log(d.title)
             if (d.title !='Exterior Sheet Details' && d.title != 'Sheet Details' && d.title !='Soil Sample Details' && d.title !='Dust Sample Details' && d.type !='sample'){
               Object.keys(d).map( obj => {
                 if (obj != 'id' && obj != 'loc' && obj != 'doorType' && obj != 'comments' && obj != 'side' &&  obj != 'type' && obj != 'expanded' && obj != 'done' && obj != 'title' && obj != 'leadsTo' && obj != 'windowType'
@@ -797,25 +807,38 @@ class Job extends Component {
         padding-top:0px;
         padding-bottom:0px;
       }
+
+      .nopadding {
+        padding: 0px;
+      }
+
+      .nomargin {
+        margin: 0px;
+      }
     `;
 
     let converted = '';
     let content = '';
 
-    await this.toDataURL('/assets/img/signs/sign1.jpg', async (dataUrl1) => {
-      let image1 = '<img width=160 height=40 src="' + dataUrl1 + '"/>';
-      await this.toDataURL('/assets/img/signs/sign2.jpg', async (dataUrl2) => {
-        let image2 = '<img width=160 height=40 src="' + dataUrl2 + '"/>';
-        await this.toDataURL('/assets/img/signs/sign3.jpg', (dataUrl3) => {
-          let image3 = '<img width=140 height=36 src="' + dataUrl3 + '"/>';
+    let image1, image2, image3;
 
-          content = this.get8552Content(image1, image2, image3);
-          content = juice.inlineContent(content, css);
-          converted = htmlDocx.asBlob(content, {orientation: 'portrait', margins: {top: 720, left : 400, right : 400, bottom: 400}});
-          saveAs(converted, 'export8552.docx' );
-        })
-      })
-    })
+    await this.getBase64('/assets/img/signs/sign1.jpg').then((data)=>{
+      image1 = '<img width=160 height=40 src="' + data + '"/>';
+    });
+
+    await this.getBase64('/assets/img/signs/sign2.jpg').then((data)=>{
+      image2 = '<img width=160 height=40 src="' + data + '"/>';
+    });
+
+    await this.getBase64('/assets/img/signs/sign3.jpg').then((data)=>{
+      image3 = '<img width=160 height=36 src="' + data + '"/>';
+    });
+
+
+    content = this.get8552Content(image1, image2, image3);
+    content = juice.inlineContent(content, css);
+    converted = htmlDocx.asBlob(content, {orientation: 'portrait', margins: {top: 720, left : 400, right : 400, bottom: 400}});
+    saveAs(converted, 'export8552.docx' );
 
     console.log(this.state.jobInfo);
 
@@ -888,19 +911,17 @@ class Job extends Component {
       <table class="font-small">
         <tr class="side-border">
           <td colspan="2">
-            <div>
-              Address (number, street, apartment (if applicable)
-            </div>`
+            <p class="nomargin nopadding">Address (number, street, apartment (if applicable)</p>`
             + (this.state.jobInfo? this.state.jobInfo.address : '') +
           `</td>
           <td style="width:20%;">
-            City
+            <p class="nomargin nopadding">City</p>
           </td>
           <td style="width:20%;">
-            County
+            <p class="nomargin nopadding">County</p>
           </td>
           <td style="width:20%;">
-           ZIP code
+            <p class="nomargin nopadding">ZIP code</p>
           </td>
         </tr>
       </table>
@@ -964,57 +985,43 @@ class Job extends Component {
       <table class="side-border font-small">
         <tr>
           <td colspan="3">
-            <div>Name</div>` //(this.state.jobInfo? this.state.jobInfo.siteName : '')
+          <p class="nopadding nomargin">Name</p><p class="nopadding nomargin">` //(this.state.jobInfo? this.state.jobInfo.siteName : '')
             + (this.state.jobInfo? this.state.jobInfo.homeownerName : '') +
-          `</td>
+          `</p></td>
           <td colspan="2">
-            <div>Telephone number<div>`
+          <p class="nopadding nomargin">Telephone number<p><p class="nopadding nomargin">`
             + (this.state.jobInfo? this.state.jobInfo.siteNumber : '') +
-          `</td>
+          `</p></td>
         </tr>
         <tr>
-          <td colspan="2">
-            <div>
+            <td colspan="2">
+              <p class="nopadding nomargin">
               Address [number, street, apartment (if applicable)]
-            </div>`
-            + (this.state.jobInfo? this.state.jobInfo.address : '') +
-          `</td>
-          <td>
-            <div>
-              City
-            </div>
-            <div>
-            "PROJECT_INFOCITY"
-            </div>
+              </p><p class="nopadding nomargin">`
+              + (this.state.jobInfo? this.state.jobInfo.address : '') +
+            `</p></td>
+            <td>
+            <p class="nopadding nomargin">City</p>
+            <p class="nopadding nomargin">${this.state.jobInfo.city}</p>
           </td>
           <td>
-            <div>
-              State
-            </div>
-            <div>
-              CA
-            </div>
+            <p class="nopadding nomargin">State</p>
+            <p class="nopadding nomargin">CA</p>
           </td>
-
           <td>
-          	<div>
-            ZIP code
-            </div>
-            <div>
-            "PROJECT_ZIP"
-            </div>
-
+            <p class="nopadding nomargin">ZIP code</p>
+            <p class="nopadding nomargin">${this.state.jobInfo.postal}</p>
           </td>
-        </tr>
-      </table>
+      </tr>
+    </table>
 
 
-      <div>
-        <b>Section 5-Results of Lead Hazard Evaluation</b> (Check all that apply)
-      </div>
+    <div class="left">
+      <b>Section 5-Results of Lead Hazard Evaluation</b> (Check all that apply)
+    </div>
 
 
-      <div class="select-box" style="font-size:12px;">
+      <div class="select-box left" style="font-size:12px;">
         <div>` +
           ( noneLead== true ? `<input type="checkbox" name="lead_inspection" value="lead_inspection" checked/>` : `<input type="checkbox" name="lead_inspection" value="lead_inspection"/>`) +
           `<label>No lead-based paint detected </label>
@@ -1045,38 +1052,38 @@ class Job extends Component {
       <table class="font-small">
         <tr >
           <td colspan="3">
-            <div>Name</div>
-            <div>Matthew Crochet, Jeremy Nguyen, Keith Piner</div>
+            <p class="nopadding nomargin">Name</p>
+            <p class="nopadding nomargin">Matthew Crochet, Jeremy Nguyen, Keith Piner</p>
           </td>
           <td colspan="2">
-            <div>Telephone number</div>
-            <div>714-894-5700</div>
+            <p class="nopadding nomargin">Telephone number</p>
+            <p class="nopadding nomargin">714-894-5700</p>
           </td>
         </tr>
         <tr>
           <td colspan="2">
-            <div>Address (number, street, apartment (if applicable)</div>
-            <div>16531 Bolsa Chica, Suite 205</div>
+            <p class="nopadding nomargin">Address (number, street, apartment (if applicable)</p>
+            <p class="nopadding nomargin">16531 Bolsa Chica, Suite 205</p>
           </td>
           <td>
-            <div>City</div>
-            <div>Huntington Beach</div>
+            <p class="nopadding nomargin">City</p>
+            <p class="nopadding nomargin">Huntington Beach</p>
           </td>
           <td>
-            <div>State</div>
-            <div>CA</div>
+            <p class="nopadding nomargin">State</p>
+            <p class="nopadding nomargin">CA</p>
           </td>
           <td>
-            <div>ZIP code</div>
-            <div>92649</div>
+            <p class="nopadding nomargin">ZIP code</p>
+            <p class="nopadding nomargin">92649</p>
           </td>
         </tr>
         <tr>
           <td >
-            <div>CDPH certification number</div>
-            <div>12   14441      25548</div>
+          <p class="nopadding nomargin">CDPH certification number</p>
+          <p class="nopadding nomargin">12   14441      25548</p>
           </td>
-          <td><div>Signature</div>`
+          <td><p class="nopadding nomargin">Signature</p>`
           + image1 +
           `</td>
           <td>`
@@ -1086,8 +1093,8 @@ class Job extends Component {
           + image3 +
           `</td>
           <td>
-            <div>Date</div>
-            <div>` + this.state.jobInfo.inspectionDate + `</div>
+          <p class="nopadding nomargin">Date</p>
+          <p class="nopadding nomargin">` + this.state.jobInfo.inspectionDate + `</p>
           </td>
         </tr>
         <tr>
@@ -1102,9 +1109,9 @@ class Job extends Component {
       </div>
 
       <div style="font-size: 11px;">
-        <div> A. A foundation diagram or sketch of the structure indicating the specific locations of each lead hazard or presence of lead-based paint; </div>
-        <div>B.  Each testing method, device, and sampling procedure used;</div>
-        <div>C. All data collected, including quality control data, laboratory results, including laboratory name, address, and phone number.</div>
+        <p class="nopadding nomargin"> A. A foundation diagram or sketch of the structure indicating the specific locations of each lead hazard or presence of lead-based paint; </p>
+        <p class="nopadding nomargin"> B.  Each testing method, device, and sampling procedure used;</p>
+        <p class="nopadding nomargin"> C. All data collected, including quality control data, laboratory results, including laboratory name, address, and phone number.</p>
        </div>
 
        <table style="font-size: 13px;" class="no-border">
@@ -1153,18 +1160,24 @@ class Job extends Component {
     return content;
   }
 
-   async toDataURL(url, callback) {
-    let xhr = new XMLHttpRequest();
-    xhr.onload = function() {
-      let reader = new FileReader();
-      reader.onloadend = function() {
-        callback(reader.result);
-      }
-      reader.readAsDataURL(xhr.response);
-    };
-    xhr.open('GET', url);
-    xhr.responseType = 'blob';
-    xhr.send();
+  getBase64(url) {
+
+    return new Promise((resolve, reject) => {
+
+      let xhr = new XMLHttpRequest();
+      xhr.onload = function() {
+        let reader = new FileReader();
+        reader.onloadend = function() {
+          resolve(reader.result);
+        }
+        reader.readAsDataURL(xhr.response);
+        reader.onerror = error => reject(error);
+      };
+      xhr.open('GET', url);
+      xhr.responseType = 'blob';
+      xhr.send();
+
+    });
   }
 
 
@@ -1854,12 +1867,16 @@ class Job extends Component {
             location = 'Exterior'
           }
 
+          let name = x.name;
+          if( name.startsWith("Wall") )
+            name = "Wall";
+
           table += `<tr style="background-color:` + color + `">
               <td>` + (i+1) + `</td>
               <td>` + (x.unit|| '') + `</td>
               <td>` + (location + ' ' + x.room) + `</td>
               <td class="center">` + (x.side|| '') + `</td>
-              <td>` + (x.name) + `</td>
+              <td>` + (name) + `</td>
               <td>` + (x.material) + `</td>
               <td>` + (x.condition || '') + `</td>
               <td class="center">` + (x.reading   || '0') + `</td>
@@ -1976,7 +1993,7 @@ class Job extends Component {
   positiveCommon(report, page, datetime, startIndex) { // data, page_number, current datetime, start index in the array
 
     var charSet = ' ';
-    var landscapeHeader = this.getLandscapeHeader('Common Lead Containing Components List');
+    var landscapeHeader = this.getLandscapeHeader('Calibration Lead Containing Components List');
     var landscapeFooter = this.getLandscapeFooter(page, datetime);
 
 
@@ -2062,9 +2079,20 @@ class Job extends Component {
       <div className="card">
         <div className="card-header">
           Job Info
+          <div className="card-header-actions">
+            <Button onClick={()=>{this.props.history.push('/create/'+this.state.jobInfo.id) }}>Edit</Button>
+          </div>
         </div>
         <div className="card-body">
           <div className="bd-example">
+            <dl className="row">
+              <Media object style={{
+  margin: "0 auto",
+  maxHeight: 228,
+  maxWidth: 228
+}} src={"https://barrandclark.s3-us-west-1.amazonaws.com/uploads/"+this.props.match.params.id+".png"} />
+            </dl>
+
             <dl className="row">
               <dd className="col-sm-3">Job Id:</dd>
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.id : ''}</dt>
@@ -2089,21 +2117,20 @@ class Job extends Component {
               <br></br>
               <br></br>
               <br></br>
-              <dd className="col-sm-3">
-                <Button color="success" onClick={() => this.printSummary(this.state.jobInfo.id)}>Print Summary</Button>
-              </dd>
-              <dd className="col-sm-2">
-                <Button color="success" onClick={() => this.print8552()}>Print 8552</Button>
-              </dd>
-              {this.state.jobInfo && this.state.jobInfo.inspected!=1 ?
-                <dd className="col-sm-3">
-                  <Button color="success" onClick={() => this.markInspected(this.state.jobInfo.id)}>Mark Inspected</Button>
-                </dd>
-              :
-            ''}
-
             </dl>
             <dl>
+            <dd className="col-sm-3">
+              <Button color="success" onClick={() => this.printSummary(this.state.jobInfo.id)}>Print Summary</Button>
+            </dd>
+            <dd className="col-sm-2">
+              <Button color="success" onClick={() => this.print8552()}>Print 8552</Button>
+            </dd>
+            {this.state.jobInfo && this.state.jobInfo.inspected!=1 ?
+              <dd className="col-sm-3">
+                <Button color="success" onClick={() => this.markInspected(this.state.jobInfo.id)}>Mark Inspected</Button>
+              </dd>
+            :
+          ''}
             </dl>
           </div>
         </div>
@@ -2242,7 +2269,7 @@ class Job extends Component {
                   </dt>
                 </dl>
                 <dl className="row">
-                  <dd className="col-sm-3">side</dd>
+                  <dd className="col-sm-3">Side</dd>
                   <dt className="col-sm-9">
                     <Input value={this.state.modalStuff.side} onChange={(e) => {
                       let modalStuff = {...this.state.modalStuff};
@@ -2252,13 +2279,17 @@ class Job extends Component {
                   </dt>
                 </dl>
                 <dl className="row">
-                  <dd className="col-sm-3">item</dd>
+                  <dd className="col-sm-3">Component</dd>
                   <dt className="col-sm-9">
-                  <Input value={this.state.modalStuff.item}/>
+                  <Input value={this.state.modalStuff.item} onChange={(e) => {
+                    let modalStuff = {...this.state.modalStuff};
+                    modalStuff.item = e.target.value
+                    this.setState({modalStuff})
+                  }}/>
                   </dt>
                 </dl>
                 <dl className="row">
-                  <dd className="col-sm-3">material</dd>
+                  <dd className="col-sm-3">Material</dd>
                   <dt className="col-sm-9">
                   <Input value={this.state.modalStuff.material} onChange={(e) => {
                     let modalStuff = {...this.state.modalStuff};
@@ -2268,7 +2299,21 @@ class Job extends Component {
                   </dt>
                 </dl>
                 <dl className="row">
-                  <dd className="col-sm-3">reading</dd>
+                  <dd className="col-sm-3">Intact</dd>
+                  <dt className="col-sm-9">
+                  <Input type="checkbox" checked={this.state.modalStuff.condition == "Intact"} onChange={(e) => {
+                    let modalStuff = {...this.state.modalStuff};
+                    if(this.state.modalStuff.condition == "Deteriorated"){
+                      modalStuff.condition = "Intact"
+                    } else{
+                      modalStuff.condition = "Deteriorated"
+                    }
+                    this.setState({modalStuff})
+                  }}/>
+                  </dt>
+                </dl>
+                <dl className="row">
+                  <dd className="col-sm-3">Reading</dd>
                   <dt className="col-sm-9">
                   <Input value={this.state.modalStuff.reading} onChange={(e) => {
                     let modalStuff = {...this.state.modalStuff};
@@ -2313,6 +2358,93 @@ class Job extends Component {
                 <Summary name={'SUMMARY OF INTERIOR'} data={this.formatIntData(this.state.rows)}/>
                 <Summary name={'SUMMARY OF EXTERIOR'} data={this.formatExtData(this.state.rows)}/>
                 <Summary name={'SUMMARY OF CALIBRATION'} data={this.formatCommonData(this.state.rows)}/>
+                </div>
+                :
+                ''
+              }
+
+              {this.state.data ?
+                <div className="card">
+                  <div className="card-header">
+                  Property Details
+                    <div className="card-header-actions">
+                      <Button onClick={()=>{this.props.history.push('/create/'+this.state.jobInfo.id) }}>Edit</Button>
+                    </div>
+                  </div>
+                  <div className="card-body">
+                    <div className="bd-example">
+                      <dl className="row">
+                        <dd className="col-sm-3">Type of dwelling</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.dwelling : ''}</dt>
+                        <dd className="col-sm-3">Year built</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.year : ''}</dt>
+                        <dd className="col-sm-3">Built on/over</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.builtover : ''}</dt>
+                        <dd className="col-sm-3">Exterior</dd>
+                        <dt className="col-sm-9">
+                          {this.state.property_detail? this.state.property_detail.brick? "Brick ": '' : ''}
+                          {this.state.property_detail? this.state.property_detail.wood? "Wood ": '' : ''}
+                          {this.state.property_detail? this.state.property_detail.stucco? "Stucco ": '' : ''}
+                          {this.state.property_detail? this.state.property_detail.transas? "Transite-Asbestos ": '' : ''}
+                          {this.state.property_detail? this.state.property_detail.woodshing? "Wood-Shingles ": '' : ''}
+                          {this.state.property_detail? this.state.property_detail.other? "Other ": '' : ''}
+                        </dt>
+                        <dd className="col-sm-3">COD payment type</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.payment : ''}</dt>
+                        <dd className="col-sm-3">Number of units</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.units : ''}</dt>
+                        <dd className="col-sm-3">Number of buildings</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.buildings : ''}</dt>
+                        <dd className="col-sm-3">Number of stories</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.stories : ''}</dt>
+                        <dd className="col-sm-3">Number of laundry facilities</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.laundry : ''}</dt>
+                        <dd className="col-sm-3">Types of windows</dd>
+                        <dt className="col-sm-9">
+                          {this.state.property_detail? this.state.property_detail.framed? "Aluminum Framed ": '' : ''}
+                          {this.state.property_detail? this.state.property_detail.casement? "Casement ": '' : ''}
+                          {this.state.property_detail? this.state.property_detail.dblhung? "Double Hung Sash ": '' : ''}
+                          {this.state.property_detail? this.state.property_detail.fixed? "Fixed ": '' : ''}
+                          {this.state.property_detail? this.state.property_detail.horz? "Horizontal Sliding ": '' : ''}
+                          {this.state.property_detail? this.state.property_detail.louvered? "Louvered ": '' : ''}
+                          {this.state.property_detail? this.state.property_detail.transom? "Transom ": '' : ''}
+                          {this.state.property_detail? this.state.property_detail.vinyl? "Vinyl ": '' : ''}
+                          {this.state.property_detail? this.state.property_detail.bay? "Bay Window ": '' : ''}
+                          {this.state.property_detail? this.state.property_detail.garden? "Garden Window ": '' : ''}
+                        </dt>
+                        <dd className="col-sm-3">Number of garages</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.garages : ''}</dt>
+                        <dd className="col-sm-3">Garage</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.garage : ''}</dt>
+                        <dd className="col-sm-3">Units accessed via</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.exterior : ''}</dt>
+                        <dd className="col-sm-3">Areas not accessable</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.noaccess : ''}</dt>
+                        <dd className="col-sm-3">Number of stories in building</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.buildingstories : ''}</dt>
+                        <dd className="col-sm-3">Numberof stories in unit</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.unitstories : ''}</dt>
+                        <dd className="col-sm-3">Number of beds</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.bednums : ''}</dt>
+                        <dd className="col-sm-3">Number of baths</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.bathnums : ''}</dt>
+                        <dd className="col-sm-3">Number of dust samples</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.dustnums : ''}</dt>
+                        <dd className="col-sm-3">Number of soil samples</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.soilnums : ''}</dt>
+                        <dd className="col-sm-3">Do children live in the home</dd>
+                        <dt className="col-sm-9">{this.state.property_detail? this.state.property_detail.children : ''}</dt>
+                        <br></br>
+                        <br></br>
+                        <br></br>
+                        :
+                      ''}
+
+                      </dl>
+                      <dl>
+                      </dl>
+                    </div>
+                  </div>
                 </div>
                 :
                 ''

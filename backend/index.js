@@ -88,12 +88,47 @@ app.all('/report', function (req, res){
 app.post('/upload', function (req, res) {
   let jobid = req.body.jobid
   let state = req.body.state
-  connection.query("INSERT INTO inspections ( jobid, state) VALUES ('"+jobid+"', '"+state+"');", function (err, rows, fields) {
+  let sql = "SELECT * From bandc.inspections Where jobid="+jobid
+  connection.query(sql, (err, rows) => {
+    if (err) {
+      return res.status(500).send(err);
+    } else {
+      if(rows.length){
+        //merge
+        console.log('merge')
+        let insp = JSON.parse(rows[0].state)
+        let newinsp = JSON.parse(state)
+        insp.insSheets = [...insp.insSheets, ...newinsp.insSheets]
+        insp.data = [...insp.data, ...newinsp.data]
+        let newState = JSON.stringify(insp)
+        let sql = `UPDATE inspections set state = '`+newState+`' WHERE jobid="`+jobid+`"`
+        console.log(sql)
+        connection.query( sql, function (err, rows, fields) {
+          if (err) throw err
+          res.json({message: 'merge success'})
+        })
+      } else {
+        //no merge
+        connection.query("INSERT INTO inspections ( jobid, state) VALUES ('"+jobid+"', '"+state+"');", function (err, rows, fields) {
+          if (err) throw err
+          console.log(state)
+          console.log('got an upload' )
+          res.json({message: 'uploaded success'})
+        })
+      }
+    }
+  });
+})
+
+app.post('/merge', function (req, res) {
+  let jobid = req.body.jobid
+  let state = req.body.state
+  connection.query(`UPDATE inspections set state = "`+state+`" WHERE jobid="`+jobid+`"`, function (err, rows, fields) {
     if (err) throw err
   })
   console.log(state)
-  console.log('got an upload' )
-  res.json({message: 'uploaded success'})
+  console.log('merge')
+  res.json({message: 'merge success'})
 })
 
 

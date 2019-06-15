@@ -36,7 +36,17 @@ router.post('/update', (req, res, next) => {
                   early = "`+req.body.early+`",
                   dogs = "`+req.body.dogs+`",
                   gooddogs = "`+req.body.gooddogs+`",
-                  cost ="`+req.body.cost+`"
+                  cost ="`+req.body.cost+`",
+                  gates = "`+req.body.gates+`",
+                  cod = "`+req.body.cod+`",
+                  numdust = "`+req.body.numdust+`",
+                  numsoil = "`+req.body.numsoil+`",
+                  numacm = "`+req.body.numacm+`",
+                  parking = "`+req.body.parking+`",
+                  cname = "`+req.body.cname+`",
+                  cphone = "`+req.body.cphone+`",
+                  contact = "`+req.body.contact+`",
+                  spec = "`+req.body.spec+`"
                   WHERE id =`+req.body.id+` ;`
     console.log(sql)
     db.getConnection((error, connection) => {
@@ -86,7 +96,17 @@ router.post('/new', (req, res, next) => {
                     early,
                     dogs,
                     gooddogs,
-                    comments)
+                    comments,
+                    gates,
+                    cod,
+                    numdust,
+                    numsoil,
+                    numacm,
+                    parking,
+                    cname,
+                    cphone,
+                    contact,
+                    spec)
                 VALUES
                   ("`+req.body.name+`",
                   "`+req.body.recievedDate+`",
@@ -115,7 +135,18 @@ router.post('/new', (req, res, next) => {
                   "`+req.body.early+`",
                   "`+req.body.dogs+`",
                   "`+req.body.gooddogs+`",
-                  "`+req.body.comments+`");`
+                  "`+req.body.comments+`",
+                  "`+req.body.gates+`",
+                  "`+req.body.cod+`",
+                  "`+req.body.numdust+`",
+                  "`+req.body.numsoil+`",
+                  "`+req.body.numacm+`",
+                  "`+req.body.parking+`",
+                  "`+req.body.cname+`",
+                  "`+req.body.cphone+`",
+                  "`+req.body.contact+`",
+                  "`+req.body.spec+`"
+                );`
     db.getConnection((error, connection) => {
         if (error) console.log('err', error);
         console.log(sql)

@@ -73,7 +73,13 @@ class Client extends Component {
           street:client.street,
           city:client.city,
           state:client.state,
-          postal:client.postal
+          postal:client.postal,
+          bname:client.bname,
+          bnumber:client.bnumber,
+          bemail:client.bemail,
+          cname:client.cname,
+          cnumber:client.cnumber,
+          cemail:client.cemail
         })
       })
   }
@@ -92,7 +98,13 @@ class Client extends Component {
       street:'',
       city:'',
       state:'',
-      postal:''
+      postal:'',
+      bname:'',
+      bnumber:'',
+      bemail:'',
+      cname:'',
+      cnumber:'',
+      cemail:''
     })
     console.log(this.state.clientName)
   }
@@ -112,6 +124,12 @@ class Client extends Component {
        city: this.state.city,
        postal: this.state.postal,
        state: this.state.state,
+       bname: this.state.bname,
+       bnumber: this.state.bnumber,
+       bemail: this.state.bemail,
+       cname: this.state.cname,
+       cnumber: this.state.cnumber,
+       cemail: this.state.cemail
      }).then(function (response) {
          alert('sucessfully updated!')
        })
@@ -133,6 +151,12 @@ class Client extends Component {
         city: this.state.city,
         postal: this.state.postal,
         state: this.state.state,
+        bname: this.state.bname,
+        bnumber: this.state.bnumber,
+        bemail: this.state.bemail,
+        cname: this.state.cname,
+        cnumber: this.state.cnumber,
+        cemail: this.state.cemail
       })
       .then(function (response) {
         console.log(response);
@@ -232,6 +256,56 @@ class Client extends Component {
                   </FormGroup>
                 </Col>
               </FormGroup>
+              <FormGroup>
+                <Label htmlFor="company">Billing Name</Label>
+                <Input type="text" id="company"  value={this.state.bname} onChange={(e)=>this.setState({bname:e.target.value})}/>
+              </FormGroup>
+
+              <FormGroup>
+                <Label>Billing Phone</Label>
+                <InputGroup>
+                  <InputGroupAddon addonType="prepend">
+                    <InputGroupText><i className="fa fa-phone"></i></InputGroupText>
+                  </InputGroupAddon>
+                <TextMask
+                    value={this.state.bnumber}
+                    onChange={(e)=>this.setState({bnumber:e.target.value})}
+                    mask={['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+                    Component={InputAdapter}
+                    className="form-control"
+                  />
+                </InputGroup>
+              </FormGroup>
+              <FormGroup>
+                <Label htmlFor="email">Billing Email</Label>
+                <Input type="text" id="email"  value={this.state.bemail} onChange={(e)=>this.setState({bemail:e.target.value})}/>
+              </FormGroup>
+
+              <FormGroup>
+                <Label htmlFor="company">Contact Name</Label>
+                <Input type="text" id="company"  value={this.state.cname} onChange={(e)=>this.setState({cname:e.target.value})}/>
+              </FormGroup>
+
+              <FormGroup>
+                <Label>Contact Phone</Label>
+                <InputGroup>
+                  <InputGroupAddon addonType="prepend">
+                    <InputGroupText><i className="fa fa-phone"></i></InputGroupText>
+                  </InputGroupAddon>
+                <TextMask
+                    value={this.state.cnumber}
+                    onChange={(e)=>this.setState({cnumber:e.target.value})}
+                    mask={['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+                    Component={InputAdapter}
+                    className="form-control"
+                  />
+                </InputGroup>
+              </FormGroup>
+              <FormGroup>
+                <Label htmlFor="email">Contact Email</Label>
+                <Input type="text" id="email"  value={this.state.cemail} onChange={(e)=>this.setState({cemail:e.target.value})}/>
+              </FormGroup>
+
             </CardBody>
             <CardFooter>
               <Button onClick={()=> this.post()} type="submit" size="sm" color="primary"><i className="fa fa-dot-circle-o"></i> Submit</Button>

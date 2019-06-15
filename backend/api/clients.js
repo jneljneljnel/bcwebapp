@@ -58,7 +58,13 @@ router.post('/update', (req, res, next) => {
                   street = "`+req.body.street+`",
                   city = "`+req.body.city+`",
                   postal = "`+req.body.postal+`",
-                  state = "`+req.body.state+`"
+                  state = "`+req.body.state+`",
+                  bname = "`+req.body.bname+`",
+                  bnumber = "`+req.body.bnumber+`",
+                  bemail = "`+req.body.bemail+`",
+                  cname = "`+req.body.cname+`",
+                  cnumber = "`+req.body.cnumber+`",
+                  cemail = "`+req.body.cemail+`"
                   WHERE id =`+req.body.id+` ;`
     console.log(sql)
     db.getConnection((error, connection) => {
@@ -86,7 +92,13 @@ router.post('/new', (req, res, next) => {
                 street,
                 city,
                 postal,
-                state)
+                state,
+                bname,
+                bnumber,
+                bemail,
+                cname,
+                cnumber,
+                cemail)
               VALUES
                 ("`+req.body.name+`",
                 "`+req.body.company+`",
@@ -96,7 +108,13 @@ router.post('/new', (req, res, next) => {
                 "`+req.body.street+`",
                 "`+req.body.city+`",
                 "`+req.body.postal+`",
-                "`+req.body.state+`");`
+                "`+req.body.state+`",
+                "`+req.body.bname+`",
+                "`+req.body.bnumber+`",
+                "`+req.body.bemail+`",
+                "`+req.body.cname+`",
+                "`+req.body.cnumber+`",
+                "`+req.body.cemail+`");`
     console.log(sql)
     db.getConnection((error, connection) => {
       if (error) console.log('err', error);

@@ -78,6 +78,16 @@ class Create extends Component {
       inspectors:[],
       value:'',
       type: 0,
+      gates:0,
+      cod:0,
+      numdust:'',
+      numsoil:'',
+      numacm:'',
+      parking:'',
+      cname:'',
+      cphone:'',
+      contact:'',
+      spec:0
 
     };
   }
@@ -129,7 +139,7 @@ class Create extends Component {
         homeownerName: this.state.homeownerName,
         homeownerNumber: this.state.homeownerNumber,
         address: this.state.address,
-        street:this.sate.street,
+        street:this.state.street,
         city:this.state.city,
         state:this.state.state,
         county:this.state.county,
@@ -149,6 +159,16 @@ class Create extends Component {
         early: this.state.early,
         dogs: this.state.dogs,
         gooddogs: this.state.gooddogs,
+        gates:this.state.gates,
+        cod:this.state.cod,
+        numdust:this.state.numdust,
+        numsoil:this.state.numsoil,
+        numacm:this.state.numacm,
+        parking:this.state.parking,
+        cname:this.state.cname,
+        cphone:this.state.cphone,
+        contact:this.state.contact,
+        spec:this.state.spec
       })
       .then(function (response) {
         console.log(response);
@@ -189,6 +209,16 @@ class Create extends Component {
         early: this.state.early,
         dogs: this.state.dogs,
         gooddogs: this.state.gooddogs,
+        gates:this.state.gates,
+        cod:this.state.cod,
+        numdust:this.state.numdust,
+        numsoil:this.state.numsoil,
+        numacm:this.state.numacm,
+        parking:this.state.parking,
+        cname:this.state.cname,
+        cphone:this.state.cphone,
+        contact:this.state.contact,
+        spec:this.state.spec
       })
       .then(function (response) {
         console.log(response);
@@ -255,6 +285,16 @@ class Create extends Component {
           this.setState({early:res.data[0].early})
           this.setState({dogs:res.data[0].dogs})
           this.setState({gooddogs:res.data[0].gooddogs})
+          this.setState({gates:res.data[0].gates})
+          this.setState({cod:res.data[0].cod})
+          this.setState({numdust:res.data[0].numdust})
+          this.setState({numsoil:res.data[0].numsoil})
+          this.setState({numacm:res.data[0].numacm})
+          this.setState({parking:res.data[0].parking})
+          this.setState({cname:res.data[0].cname})
+          this.setState({cphone:res.data[0].cphone})
+          this.setState({contact:res.data[0].contact})
+          this.setState({spec:res.data[0].spec})
             console.log('res', res.data[0])
             console.log('job', this.state.jobInfo)
         })
@@ -485,15 +525,6 @@ class Create extends Component {
                       </Input>
                     </Col>
                   </FormGroup>
-
-                  <FormGroup row>
-                    <Col md="3">
-                      <Label htmlFor="text-input">Cost</Label>
-                    </Col>
-                    <Col xs="12" md="9">
-                      <Input type="number" id="text-input" name="text-input" value={this.state.cost} onChange={(e)=>this.setState({cost:e.target.value})}/>
-                    </Col>
-                  </FormGroup>
                   <FormGroup row>
                     <Col md="3">
                       <Label htmlFor="text-input">Number of Beds</Label>
@@ -528,6 +559,14 @@ class Create extends Component {
                   </FormGroup>
                   <FormGroup row>
                     <Col md="3">
+                      <Label htmlFor="text-input">If we arrive early, are gates unlocked?</Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="checkbox" id="text-input" name="text-input" checked={this.state.gates} onChange={(e)=>this.setState({gates:e.target.checked? 1: 0})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
                       <Label htmlFor="text-input">Are dogs present?</Label>
                     </Col>
                     <Col xs="12" md="9">
@@ -540,6 +579,97 @@ class Create extends Component {
                     </Col>
                     <Col xs="12" md="9">
                       <Input type="text" id="text-input" name="text-input" value={this.state.gooddogs} onChange={(e)=>this.setState({gooddogs:e.target.value})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="text-input">Cost</Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="number" id="text-input" name="text-input" value={this.state.cost} onChange={(e)=>this.setState({cost:e.target.value})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="text-input">COD</Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="checkbox" id="text-input" name="text-input" checked={this.state.cod} onChange={(e)=>this.setState({cod:e.target.checked? 1: 0})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="text-input">Number of Dust Samples</Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="number" id="text-input" name="text-input" value={this.state.numdust} onChange={(e)=>this.setState({numdust:e.target.value})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="text-input">Number of Soil Samples</Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="number" id="text-input" name="text-input" value={this.state.numsoil} onChange={(e)=>this.setState({numsoil:e.target.value})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="text-input">Number of ACM</Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="number" id="text-input" name="text-input" value={this.state.numacm} onChange={(e)=>this.setState({numacm:e.target.value})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="text-input">Any Special parking Requirements? </Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="text" id="text-input" name="text-input" value={this.state.parking} onChange={(e)=>this.setState({parking:e.target.value})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="text-input">Abatement Contractor Name</Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="text" id="text-input" name="text-input" value={this.state.cname} onChange={(e)=>this.setState({cname:e.target.value})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                    <Label>Abatement Contractor Phone</Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                    <InputGroup>
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText ><i className="fa fa-phone"></i></InputGroupText>
+                      </InputGroupAddon>
+                      <TextMask
+                        value={this.state.cphone}
+                        onChange={(e)=>this.setState({cphone:e.target.value})}
+                        mask={['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+                        Component={InputAdapter}
+                        className="form-control"
+                      />
+                    </InputGroup>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="text-input">Contact Person </Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="text" id="text-input" name="text-input" value={this.state.contact} onChange={(e)=>this.setState({contact:e.target.value})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="text-input">Abatement Spec or SOW Provided?</Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="checkbox" id="text-input" name="text-input" checked={this.state.spec} onChange={(e)=>this.setState({spec:e.target.checked? 1: 0})}/>
                     </Col>
                   </FormGroup>
                   </Form>
