@@ -19,6 +19,9 @@ import {
   Progress,
   Row,
   Table,
+  Input,
+  Label,
+  FormGroup
 } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { CustomTooltips } from '@coreui/coreui-plugin-chartjs-custom-tooltips';
@@ -139,10 +142,12 @@ class Dashboard extends Component {
     this.getJobs = this.getJobs.bind(this);
     this.formatEvents = this.formatEvents.bind(this);
     this.getInspectionsToday = this.getInspectionsToday.bind(this)
+    this.filterEvents = this.filterEvents.bind(this)
 
     this.state = {
       dropdownOpen: false,
       radioSelected: 2,
+      calRawData:[]
     };
   }
 
@@ -164,7 +169,10 @@ class Dashboard extends Component {
 
   formatEvents(d){
     let events = d.map( data => {
-      let color = '#4dbd74';
+      let color = '#f8cb00';
+      if(data.inspector == 1){
+        color = '#4dbd74'
+      }
       if(data.inspector == 2){
         color = '#f86c6b'
       }
@@ -173,13 +181,22 @@ class Dashboard extends Component {
       }
       console.log('test',data.inspectionDate);
       console.log('DATE', moment(data.inspectionDate).format())
+      let instime1 = moment(data.inspectionDate).format()
+      let instime2 = moment(data.inspectionDate).add(1, 'hours').format()
+      if (data.inspectionTime && data.inspectionTimeEnd){
+          console.log('DATETIME', moment(data.inspectionDate+' '+data.inspectionTime).format())
+          console.log('DATETIME2', moment(data.inspectionDate+' '+data.inspectionTimeEnd).format())
+          instime1 =  moment(data.inspectionDate+' '+data.inspectionTime).format()
+          instime2 =  moment(data.inspectionDate+' '+data.inspectionTimeEnd).format()
+      }
       return {
         title: data.name || 'inspection',
         jobId: data.id,
         color:color,
-        allDay: true,
-        start: moment(data.inspectionDate),
-        end: moment(data.inspectionDate),
+        allDay: false,
+        start: new Date(instime1),
+        end: new Date(instime2),
+        inspector: data.inspector || 0
       }
     })
     this.setState({calData:events})
@@ -187,7 +204,8 @@ class Dashboard extends Component {
   }
 
   getJobs() {
-    axios.get('/api/jobs/open').then( res => {
+    axios.get('/api/jobs/all').then( res => {
+      this.setState({calRawData:res.data})
       this.formatEvents(res.data)
     })
   }
@@ -198,16 +216,52 @@ class Dashboard extends Component {
     });
   }
 
+  filterEvents(e){
+    if( e.target.value == 4){
+      console.log("default")
+      let newCalData = this.formatEvents(this.state.calRawData)
+    }
+    else{
+      let filteredData = this.state.calRawData.filter( d => d.inspector == e.target.value )
+      let newCalData = this.formatEvents(filteredData)
+    }
+  }
+
   loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>
 
   render() {
-
     return (
       <div className="animated fadeIn">
 
         <Row>
          <Col xs="12" sm="12" lg="2">
-
+           <Card>
+             <CardHeader>
+               <strong>Filter by Inspector</strong>
+             </CardHeader>
+               <CardBody>
+                 <FormGroup row>
+                   <Col lg="6">
+                     <FormGroup check inline>
+                       <Input className="form-check-input" type="radio" id="inline-radio1" name="inline-radios" value="1" onChange={this.filterEvents}/>
+                       <Label className="form-check-label" check htmlFor="inline-radio1">Matt</Label>
+                     </FormGroup>
+                     <FormGroup check inline>
+                       <Input className="form-check-input" type="radio" id="inline-radio2" name="inline-radios" value="2" onChange={this.filterEvents}/>
+                       <Label className="form-check-label" check htmlFor="inline-radio2">Jeremy</Label>
+                     </FormGroup>
+                     <FormGroup check inline>
+                       <Input className="form-check-input" type="radio" id="inline-radio3" name="inline-radios" value="3" onChange={this.filterEvents}/>
+                       <Label className="form-check-label" check htmlFor="inline-radio3">Keith</Label>
+                     </FormGroup>
+                     <FormGroup check inline>
+                       <Input className="form-check-input" type="radio" id="inline-radio4" name="inline-radios" value="4" onChange={this.filterEvents}/>
+                       <Label className="form-check-label" check htmlFor="inline-radio4">All</Label>
+                     </FormGroup>
+                   </Col>
+                 </FormGroup>
+               </CardBody>
+            </Card>
          </Col>
           <Col xs="12" sm="12" lg="10">
             <Card>

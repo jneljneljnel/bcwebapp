@@ -64,7 +64,7 @@ class Clients extends Component {
         method: 'get'
       })
       .then( res => {
-        console.log(res)
+        console.log("clients", res)
         this.setState({clients: res.data})
       })
   }
@@ -72,6 +72,43 @@ class Clients extends Component {
   goButton(cell, row){
      return (<div><Button color="success" onClick={() =>  this.props.history.push('/client/'+row.id)}>Open</Button></div>)
   }
+
+  name(cell, row){
+    if (row.name!=="undefined" && row.name !=="null"){
+      return row.name
+    }
+  }
+
+  company(cell, row){
+    if (row.company!=="undefined" && row.company !=="null"){
+      return row.company
+    }
+  }
+
+  street(cell, row){
+    if (row.street!=="undefined" && row.street !=="null"){
+      return row.street
+    }
+  }
+
+  city(cell, row){
+    if (row.city!=="undefined" && row.city !=="null"){
+      return row.city
+    }
+  }
+
+  phone1(cell, row){
+    if (row.phone1!=="undefined" && row.phone1 !=="null"){
+      return row.phone1
+    }
+  }
+
+  email(cell, row){
+    if (row.email!=="undefined" && row.email !=="null"){
+      return row.email
+    }
+  }
+
 
   render() {
     return (
@@ -83,9 +120,12 @@ class Clients extends Component {
             <CardBody>
               <BootstrapTable data={this.state.clients} version="4" striped hover search options={this.options}>
               <TableHeaderColumn dataFormat={this.goButton}></TableHeaderColumn>
-                <TableHeaderColumn isKey dataField="name" dataSort>Name</TableHeaderColumn>
-                <TableHeaderColumn dataField="phone1">Primary phone</TableHeaderColumn>
-                <TableHeaderColumn dataField="email">Email</TableHeaderColumn>
+                <TableHeaderColumn isKey dataField="name" dataFormat={this.name}dataSort>Name</TableHeaderColumn>
+                <TableHeaderColumn dataField="company" dataFormat={this.company} dataSort>Company Name</TableHeaderColumn>
+                <TableHeaderColumn dataField="street" dataFormat={this.street} dataSort>Street</TableHeaderColumn>
+                <TableHeaderColumn dataField="city" dataFormat={this.city}dataSort>City</TableHeaderColumn>
+                <TableHeaderColumn dataField="phone1" dataFormat={this.phone1}>Primary phone</TableHeaderColumn>
+                <TableHeaderColumn dataField="email" dataFormat={this.email}>Email</TableHeaderColumn>
               </BootstrapTable>
             </CardBody>
           </Card>

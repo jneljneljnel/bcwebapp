@@ -64,7 +64,13 @@ router.post('/update', (req, res, next) => {
                   bemail = "`+req.body.bemail+`",
                   cname = "`+req.body.cname+`",
                   cnumber = "`+req.body.cnumber+`",
-                  cemail = "`+req.body.cemail+`"
+                  cemail = "`+req.body.cemail+`",
+                  cname2 = "`+req.body.cname2+`",
+                  cnumber2 = "`+req.body.cnumber2+`",
+                  cemail2 = "`+req.body.cemail2+`",
+                  cname3 = "`+req.body.cname3+`",
+                  cnumber3 = "`+req.body.cnumber3+`",
+                  cemail3 = "`+req.body.cemail3+`"
                   WHERE id =`+req.body.id+` ;`
     console.log(sql)
     db.getConnection((error, connection) => {
@@ -98,7 +104,13 @@ router.post('/new', (req, res, next) => {
                 bemail,
                 cname,
                 cnumber,
-                cemail)
+                cemail,
+                cname2,
+                cnumber2,
+                cemail2,
+                cname3,
+                cnumber3,
+                cemail3)
               VALUES
                 ("`+req.body.name+`",
                 "`+req.body.company+`",
@@ -114,7 +126,13 @@ router.post('/new', (req, res, next) => {
                 "`+req.body.bemail+`",
                 "`+req.body.cname+`",
                 "`+req.body.cnumber+`",
-                "`+req.body.cemail+`");`
+                "`+req.body.cemail+`",
+                "`+req.body.cname2+`",
+                "`+req.body.cnumber2+`",
+                "`+req.body.cemail2+`",
+                "`+req.body.cname3+`",
+                "`+req.body.cnumber3+`",
+                "`+req.body.cemail3+`");`
     console.log(sql)
     db.getConnection((error, connection) => {
       if (error) console.log('err', error);

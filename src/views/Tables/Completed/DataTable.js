@@ -67,6 +67,12 @@ class DataTable extends Component {
             <TableHeaderColumn dataFormat={this.goButton}></TableHeaderColumn>
             <TableHeaderColumn isKey dataField="id" dataSort>JobId</TableHeaderColumn>
             <TableHeaderColumn dataField="name">Job Name</TableHeaderColumn>
+            <TableHeaderColumn dataField="homeownerName">Homeowner Name</TableHeaderColumn>
+            <TableHeaderColumn dataField="contact" hidden={true}>Site Contact</TableHeaderColumn>
+            <TableHeaderColumn dataField="cname" hidden={true}>Client Name</TableHeaderColumn>
+            <TableHeaderColumn dataField="cphone" hidden={true}>Client Phone</TableHeaderColumn>
+            <TableHeaderColumn dataField="street"hidden={true}>Street Address</TableHeaderColumn>
+            <TableHeaderColumn dataField="cost" hidden={true}>cost</TableHeaderColumn>
             <TableHeaderColumn dataFormat={this.address} dataSort>Address</TableHeaderColumn>
             <TableHeaderColumn dataField='siteNumber' dataSort>Phone</TableHeaderColumn>
             <TableHeaderColumn dataField="comments" dataSort>Comments</TableHeaderColumn>

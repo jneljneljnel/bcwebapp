@@ -30,8 +30,9 @@ class DataTable extends Component {
     console.log('filter2', this.props.data)
   }
 
-  address(props){
-   return(this.props.street +' '+ this.props.city +' '+ this.props.state +' '+ this.props.postal)
+  address(cell, row){
+    console.log('address props', cell, row)
+   return(row.street +' '+ row.city +' '+ row.state +' '+ row.postal)
   }
 
   render() {
@@ -46,9 +47,11 @@ class DataTable extends Component {
             <BootstrapTable data={this.props.data} version="4" striped hover pagination search options={this.options}>
               <TableHeaderColumn isKey dataField="id" dataSort>JobId</TableHeaderColumn>
               <TableHeaderColumn dataField="name">Job Name</TableHeaderColumn>
-              <TableHeaderColumn dataField="address" dataFormat={() => this.address(this.props)}dataSort></TableHeaderColumn>
+              <TableHeaderColumn dataField="company">Company</TableHeaderColumn>
+              <TableHeaderColumn dataField="homeownerName">Homeowner Name</TableHeaderColumn>
+              <TableHeaderColumn dataField="homeownerNumber">Homeowner Phone</TableHeaderColumn>
+              <TableHeaderColumn dataField="address" dataFormat={this.address} dataSort></TableHeaderColumn>
               <TableHeaderColumn dataField="comments" dataSort>Comments</TableHeaderColumn>
-              <TableHeaderColumn dataSort>Done</TableHeaderColumn>
             </BootstrapTable>
           </CardBody>
         </Card>

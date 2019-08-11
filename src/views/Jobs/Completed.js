@@ -56,7 +56,7 @@ class Completed extends Component {
   getDoneJobs(){
     console.log('getdone')
     axios.get('/api/jobs/done').then( res => {
-      console.log(res.data)
+      console.log("done", res.data)
       this.setState({data:res.data})
     })
   }

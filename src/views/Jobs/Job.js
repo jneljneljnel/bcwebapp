@@ -46,6 +46,7 @@ import fs from 'fs';
 import path from 'path';
 
 import Summary from './Summary/Summary.js'
+import Samples from './Samples/Samples.js'
 
 
 const defaultZoom = 11;
@@ -182,7 +183,7 @@ const Insrow = (props) => {
     location = 'Interior'
   }
   else if(props.unit == 'Calibration'){
-    location = 'Common'
+    location = 'Calibration'
   }
   else {
     location = 'Exterior'
@@ -206,7 +207,7 @@ const Insrow = (props) => {
       <td>{props.condition || ''}</td>
       <td>{props.reading || '0'}</td>
       <td>{props.result || ' '}</td>
-      <td>{props.type? props.type+' ': ""}{props.comments || ' '}</td>
+      <td>{props.type? props.type+' ': ""}{props.component!= "Other Item" ? props.comments || '' : ''}</td>
       <td>  <Button onClick={() => props.openModal(props)}>edit</Button></td>
     </tr>)
 }
@@ -260,9 +261,14 @@ class Job extends Component {
     this.get8552Content = this.get8552Content.bind(this);
 
     this.openModal = this.openModal.bind(this);
+    this.openPropModal = this.openPropModal.bind(this);
+    this.afterOpenPropModal = this.afterOpenPropModal.bind(this);
     this.afterOpenModal = this.afterOpenModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
+    this.closePropModal = this.closePropModal.bind(this);
     this.saveModal = this.saveModal.bind(this);
+    this.savePropModal = this.savePropModal.bind(this);
+    this.deleteItemModal = this.deleteItemModal.bind(this);
 
 
     this.state = {
@@ -270,42 +276,65 @@ class Job extends Component {
       collapse: true,
       fadeIn: true,
       timeout: 300,
-      actionlevel: 0.7,
+      actionLevel: 0.7,
       locations:[],
-      modalIsOpen: false
+      modalIsOpen: false,
+      samples:[]
     };
   }
 
   openModal(props) {
-    console.log("yo",props)
     this.setState({modalStuff: props});
+    this.setState({modalStuffPreSave: props});
     this.setState({modalIsOpen: true});
+    console.log('modalprops', props)
+  }
+
+  openPropModal(props) {
+    console.log("yi",props)
+    this.setState({propModalStuff: props});
+    this.setState({propModalIsOpen: true});
+    console.log("yar", this.state.propModalStuff)
   }
 
   afterOpenModal() {
    // references are now sync'd and can be accessed.
+   console.log('mdata', this.state)
    this.subtitle.style.color = '#f00';
   }
 
-  saveModal() {
-    let { sheetIndex, inspectionId, stateId, sheetId, itemId, property, condition, comments, reading, item, material, side, type, room, unit } = this.state.modalStuff
+  afterOpenPropModal() {
+   // references are now sync'd and can be accessed.
+   this.subtitle.style.color = '#f00';
+  }
+
+  editSample(props) {
+    console.log("editSample from here", this.props)
+  }
+
+
+  deleteItemModal() {
+   let { sheetIndex, inspectionId, stateId, sheetId, itemId, property, condition, comments, reading, item, material, side, type, room, unit } = this.state.modalStuff
    this.setState({modalIsOpen: false});
-   console.log('save newstuff',this.state.modalStuff)
-   console.log('save data',this.state.data)
-   console.log('save',this.state.modalStuff.stateId)
-   console.log('save',this.state.modalStuff.sheetId)
-   console.log('save',this.state.modalStuff.itemId)
-   console.log('save',this.state.modalStuff.property)
+   let origIndex = this.state.modalStuffPreSave.sheetIndex
+   console.log("origionalIndex", origIndex)
+   // console.log('save newstuff',this.state.modalStuff)
+   // console.log('save data',this.state.modalStuffData)
+   // console.log('save',this.state.modalStuff.stateId)
+   // console.log('save',this.state.modalStuff.sheetId)
+   // console.log('save room',this.state.modalStuff.room)
+   // console.log('save',this.state.modalStuff.itemId)
+   console.log("where it is going to bee", sheetIndex)
    let data =  this.state.data;
    let sheets = data[stateId].insSheets
-   let sheet = sheets.find((obj, i ) => obj.id == sheetId)
-   let origIndex = sheets.indexOf(sheet)
+   let sheet = sheets.find((obj, i ) => i == origIndex)
+   //let origIndex = sheets.indexOf(sheet)
+   //console.log("obj sheet index", sheets, sheets.indexOf(sheet))
+   //console.log("obj sheet", sheet)
    if (origIndex != sheetIndex  && sheetIndex <= sheets.length){
-     console.log("obj MOVE")
+     console.log("obj MOVE",sheets, origIndex, sheetIndex)
      sheets = move(sheets, origIndex, sheetIndex)
    }
-   console.log("obj sheet index", sheets.indexOf(sheet))
-   console.log("obj sheet", sheet)
    let loc = sheet.type
    if(loc !== "ExtSheet" ){
      sheet.name = room
@@ -319,7 +348,7 @@ class Job extends Component {
         obj.comments = comments
         obj.doorType = type
         obj[property].name = item
-        obj[property].R = reading
+        obj[property].R = null
         obj[property].M = material
         if(condition == "Intact"){
           obj[property].I = true
@@ -348,7 +377,6 @@ class Job extends Component {
         console.log('obj',obj)
         console.log('obj obj side', obj.side)
         console.log('obj side', side)
-        //window.location.reload();
      }
    })
 
@@ -379,6 +407,206 @@ class Job extends Component {
        })
      }).then(res => {
        console.log('update', res)
+       window.location.reload();
+     })
+
+   console.log("save newstate", data)
+
+  }
+
+  savePropModal() {
+    console.log(this.state.property_detail)
+    let { bathnums,
+    bay,
+    bednums,
+    brick,
+    buildings,
+    buildingstories,
+    builtOther,
+    builtover,
+    children,
+    done,
+    dustnums,
+    dwelling,
+    dwellingOther,
+    exterior,
+    garage,
+    garages,
+    id,
+    laundry,
+    noaccess,
+    paint,
+    payment,
+    serial,
+    soilnums,
+    stories,
+    tested,
+    title,
+    type,
+    units,
+    unitstories,
+    year } = this.state.propModalStuff
+    console.log('pm save newstuff',this.state.propModalStuff)
+    console.log('pm save data',this.state.data)
+    let inspectionId
+    let newdata = this.state.data;
+    newdata.map( x => {
+      x.data.map( sheet => {
+      console.log("sjeet", sheet)
+      inspectionId = sheet.inspectionId
+      if(sheet.type == "property details"){
+        sheet.bay = bay
+        sheet.bednums = bednums
+        sheet.brick = brick
+        sheet.buildings = buildings
+        sheet.buildingstories = buildingstories
+        sheet.builtOther = builtOther
+        sheet.builtover = builtover
+        sheet.children = children
+        sheet.done = done
+        sheet.dustnums = dustnums
+        sheet.dwelling = dwelling
+        sheet.dwellingOther = dwellingOther
+        sheet.exterior = exterior
+        sheet.garage = garage
+        sheet.garages = garages
+        sheet.id = id
+        sheet.laundry = laundry
+        sheet.noaccess = noaccess
+        sheet.paint = paint
+        sheet.payment = payment
+        sheet.serial = serial
+        sheet.soilnums = soilnums
+        sheet.stories = stories
+        sheet.tested = tested
+        sheet.title = title
+        sheet.type = type
+        sheet.units = units
+        sheet.unitstories = unitstories
+        sheet.year = year
+      }
+    })
+    axios(
+      {
+        url: '/edit',
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        data: JSON.stringify({
+          id: x.inspectionId,
+          state: newdata
+        })
+      }).then(res => {
+        console.log('update', res)
+        //window.location.reload();
+      })
+   })
+    this.setState({propModalIsOpen: false});
+    console.log("new deets",newdata)
+    console.log("new deets ins", this.state.propModalStuff.inspectionId)
+    this.setState(newdata)
+  }
+
+  saveModal() {
+   let { sheetIndex, inspectionId, stateId, sheetId, itemId, property, condition, comments, reading, item, material, side, type, room, unit } = this.state.modalStuff
+   let origIndex = this.state.modalStuffPreSave.sheetIndex
+   console.log("origionalIndex", origIndex)
+   // console.log('save newstuff',this.state.modalStuff)
+   // console.log('save data',this.state.modalStuffData)
+   // console.log('save',this.state.modalStuff.stateId)
+   // console.log('save',this.state.modalStuff.sheetId)
+   // console.log('save room',this.state.modalStuff.room)
+   // console.log('save',this.state.modalStuff.itemId)
+   console.log("where it is going to bee", sheetIndex)
+   let data =  this.state.data;
+   let sheets = data[stateId].insSheets
+   let sheet = sheets.find((obj, i ) => i == origIndex)
+   //let origIndex = sheets.indexOf(sheet)
+   //console.log("obj sheet index", sheets, sheets.indexOf(sheet))
+   //console.log("obj sheet", sheet)
+   if (origIndex != sheetIndex  && sheetIndex <= sheets.length){
+     console.log("obj MOVE",sheets, origIndex, sheetIndex)
+     sheets = move(sheets, origIndex, sheetIndex)
+   }
+   let loc = sheet.type
+   if(loc !== "ExtSheet" ){
+     sheet.name = room
+   }
+   sheet.data.forEach((obj, i) => {
+     console.log('property',this.state.modalStuff.property, obj )
+     //INTERIOR SHEET UNIT
+     if(obj.title == "Sheet Details" && loc !== "ExtSheet" ){
+       obj.unit = unit
+     }
+     //EXTERIOR SHEET ROOM EQUIVALENT
+     if(obj.title == "Sheet Details" && loc == "ExtSheet" ){
+
+     }
+
+     if(obj.id == itemId){
+
+        obj.comments = comments
+        obj.doorType = type
+        if(obj[property]){
+          obj[property].name = item
+          obj[property].R = reading
+          obj[property].M = material
+          if(condition == "Intact"){
+            obj[property].I = true
+          } else {
+            obj[property].I = false
+          }
+        }
+       if (obj.hasOwnProperty("side") && loc !== "ExtSheet") {
+          console.log('obj changed side', loc)
+          obj.side = side
+        }
+        else {
+          if(obj[property] && obj[property].hasOwnProperty("S")){
+            obj[property].S = side
+          }
+          sheet.data.forEach(d => {
+            if (d.title == 'Exterior Sheet Details'){
+              console.log("obj CHANGE EXT SIDE", d)
+              d.direction = room
+              d.side = side
+            }
+           })
+        }
+     }
+   })
+
+   sheets.forEach(obj => {
+     if(obj.id == sheetId){
+       obj = sheet
+    }})
+
+    data.forEach(obj => {
+       if(obj.id == stateId){
+          obj.insSheets = sheets
+       }
+    })
+   //console.log("newdata", data)
+   this.setState({modalIsOpen: false});
+
+
+   axios(
+     {
+       url: '/edit',
+       method: 'POST',
+       headers: {
+         Accept: 'application/json',
+         'Content-Type': 'application/json',
+       },
+       data: JSON.stringify({
+         id: inspectionId,
+         state: data
+       })
+     }).then(res => {
+       console.log('update', res)
+       window.location.reload();
      })
 
    console.log("save newstate", data)
@@ -386,7 +614,14 @@ class Job extends Component {
   }
 
   closeModal() {
+   this.setState({modalStuff: []});
+   this.setState({modalStuffPreSave: []});
    this.setState({modalIsOpen: false});
+  }
+
+  closePropModal() {
+   this.setState({propModalStuff: []});
+   this.setState({propModalIsOpen: false});
   }
 
   EditModal(){
@@ -400,8 +635,8 @@ class Job extends Component {
     const groupBylocation= groupBy('location');
     const groupByMaterial= groupBy('material');
     const groupByName= groupBy('name');
-    if(groupBylocation(data).Common){
-      let material = groupByMaterial(groupBylocation(data).Common)
+    if(groupBylocation(data).Calibration){
+      let material = groupByMaterial(groupBylocation(data).Calibration)
       //console.log('BIGDATA', material)
       //console.log('BIGDATA COmp', groupByName(material.Wood))
       let wood = groupByName(material.Wood)
@@ -472,6 +707,21 @@ class Job extends Component {
        })
       })
     }
+    if(groupBylocation(fdat).PermitSheet){
+      let material = groupByMaterial(groupBylocation(fdat).PermitSheet)
+      //console.log('BIGINS', material)
+      Object.keys(material).map( m => {
+       //console.log('BIGINS COmp', groupByName(material[m]))
+       let mat = groupByName(material[m])
+       Object.keys(groupByName(material[m])).map(k => {
+         let pos = []
+         let neg = []
+         mat[k].map( x => x.result == 'Negative'? neg.push(x): pos.push(x))
+         final.push({component:mat[k][0].material + ' '+ k, material: mat[k][0].material, number:mat[k].length, numpos:pos.length, numneg:neg.length, percentpos:((pos.length * 100) / mat[k].length).toFixed(2), percentneg:((neg.length * 100) / mat[k].length).toFixed(2)})
+         //console.log('BIGDATA fin', final)
+       })
+      })
+    }
     return final
   }
 
@@ -483,16 +733,32 @@ class Job extends Component {
   }
 
   getJobInfo(){
+    console.log('RUNNING')
+    let jobid = this.props.match.params.id
+    let that = this
+    return new Promise(function(resolve, reject) {
     axios(
       {
         url: '/api/jobs/get',
         method: 'post',
         data: {
-         id: this.props.match.params.id
+         id: jobid
         }
       })
       .then( res => {
-        this.setState({jobInfo:res.data[0]})
+        axios(
+          {
+            url: '/api/clients/get',
+            method: 'post',
+            data: {
+             id: res.data[0].clientId
+            }
+          }).then(res2 => {
+                that.state.jobInfo.clientInfo = res2
+                that.setState({jobInfo:that.state.jobInfo})
+          })
+        //console.log('at this point',this.state.actionLevel, res.data[0].actionLevel)
+        that.setState({jobInfo:res.data[0]})
         console.log(res.data[0])
         console.log(res.data[0].street)
         let image
@@ -507,7 +773,8 @@ class Job extends Component {
          image = 'http://maps.google.com/mapfiles/ms/icons/blue.png';
         }
         ////action level async isue
-        this.setState({actionLevel:res.data[0].actionLevel})
+        that.setState({actionLevel:res.data[0].actionLevel})
+        resolve('setActionlvl')
         axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${res.data[0].street+ ' ' + res.data[0].city}&key=AIzaSyA3FkbIxQAgVDWNej22DnBn6XzhHjoK5nc`).then(results => {
           if( results.data.results[0] && results.data.results.length){
             let loc = {
@@ -522,11 +789,12 @@ class Job extends Component {
 
             }
             //console.log(loc)
-            this.setState({locations:[loc]})
+            that.setState({locations:[loc]})
           }
         })
       })
-  }
+    })
+}
 
   getInspections(){
     //console.log('called get')
@@ -546,6 +814,7 @@ class Job extends Component {
       console.log(states)
       this.setState({data:states})
       let rows = [];
+      let samples = [];
       let calibrationStart = []
       let calibrationEnd = []
       states.map((x,i) => {
@@ -555,15 +824,15 @@ class Job extends Component {
           if(checklist.type=='calibration'){
             if( checklist.startone){
               let result = (Math.round(checklist.startone * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-              rows.push({reading: checklist.startone || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Common', room: 'Start of Job', side:' ', condition:'Intact'})
+              rows.push({reading: checklist.startone || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Calibration', room: 'Start of Job', side:' ', condition:'Intact'})
             }
             if( checklist.starttwo){
               let result = (Math.round(checklist.starttwo * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-              rows.push({reading: checklist.starttwo || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Common',  room: 'Start of Job', side:' ', condition:'Intact'})
+              rows.push({reading: checklist.starttwo || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Calibration',  room: 'Start of Job', side:' ', condition:'Intact'})
             }
             if( checklist.startthree){
               let result = (Math.round(checklist.startthree * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-              rows.push({reading: checklist.startthree || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Common', room: 'Start of Job', side:' ', condition:'Intact'})
+              rows.push({reading: checklist.startthree || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Calibration', room: 'Start of Job', side:' ', condition:'Intact'})
             }
           }
           if(checklist.type == "property details"){
@@ -614,7 +883,7 @@ class Job extends Component {
 
             let component = d.title
             let type = d.doorType || d.type
-            console.log("Dee",d )
+            //console.log("Dee",d )
             if(d.title == 'Other Item'){
               d.other.name = d.comments
             }
@@ -640,6 +909,7 @@ class Job extends Component {
                   let reading = d[obj].R
                   let name = d[obj].name
                   if(reading != null){
+                    console.log('action.level',this.state.actionLevel, reading)
                     let result = (Math.round(reading * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
                     //console.log(item, material, condition, reading, side, result, room, name,location, component, comments, type, unit, sheetId)
                     //console.log('r', reading)
@@ -649,28 +919,32 @@ class Job extends Component {
                 }
               })
             }
+            else if(d.type == 'sample'){
+              console.log('sample', d)
+              samples.push(d)
+            }
           })
         })
         x.data.map( checklist => {
           if(checklist.type=='calibration'){
             if(checklist.endone){
               let result = (Math.round(checklist.endone * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-              rows.push({reading: checklist.endone, result:result,  name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Common',  room: 'End of Job', side:' ', condition:'Intact'})
+              rows.push({reading: checklist.endone, result:result,  name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Calibration',  room: 'End of Job', side:' ', condition:'Intact'})
             }
             if(checklist.endtwo){
               let result = (Math.round(checklist.endtwo* 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-              rows.push({reading: checklist.endtwo, result:result,  name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Common',  room: 'End of Job', side:' ', condition:'Intact'})
+              rows.push({reading: checklist.endtwo, result:result,  name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Calibration',  room: 'End of Job', side:' ', condition:'Intact'})
             }
             if(checklist.endthree){
               let result = (Math.round(checklist.endthree * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-              rows.push({reading: checklist.endthree, result:result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Common', room: 'End of Job', side:' ', condition:'Intact'})
+              rows.push({reading: checklist.endthree, result:result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Calibration', room: 'End of Job', side:' ', condition:'Intact'})
 
             }
           }
         })
       })
       //console.log(rows)
-      this.setState({rows:rows})
+      this.setState({rows:rows, samples:samples})
       //console.log(this.state.rows)
     })
   }
@@ -683,10 +957,11 @@ class Job extends Component {
     this.setState((prevState) => { return { fadeIn: !prevState }});
   }
 
-  async componentDidMount(){
-    await this.getJobInfo()
-    await this.getInspections()
-
+  componentDidMount(){
+    this.getJobInfo().then( res => {
+      console.log('DONE')
+      this.getInspections()
+    })
   }
 
   async print8552() {
@@ -1847,6 +2122,7 @@ class Job extends Component {
       if(report) {
         for( i = startIndex; i < report.length; i ++ )
         {
+          console.log("ss",x)
           if(i >= startIndex + landscapePageSize)
             break;
           var x = report[i];
@@ -1861,7 +2137,7 @@ class Job extends Component {
             location = 'Interior'
           }
           else if(x.unit == 'Calibration'){
-            location = 'Common'
+            location = 'Calibration'
           }
           else {
             location = 'Exterior'
@@ -1949,7 +2225,7 @@ class Job extends Component {
             location = 'Interior'
           }
           else if(x.unit == 'Calibration'){
-            location = 'Common'
+            location = 'Calibration'
           }
           else {
             location = 'Exterior'
@@ -2030,7 +2306,7 @@ class Job extends Component {
             location = 'Interior'
           }
           else if(x.unit == 'Calibration'){
-            location = 'Common'
+            location = 'Calibration'
           }
           else {
             location = 'Exterior'
@@ -2096,24 +2372,48 @@ class Job extends Component {
             <dl className="row">
               <dd className="col-sm-3">Job Id:</dd>
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.id : ''}</dt>
-              <dd className="col-sm-3">Project Name</dd>
+              <dd className="col-sm-3">Job Name</dd>
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.name : ''}</dt>
+              <dd className="col-sm-3">Homeowner Name</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.homeownerName : ''}</dt>
+              <dd className="col-sm-3">Homeowner Number</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.homeownerNumber : ''}</dt>
+              <dd className="col-sm-3">Client</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.clientInfo? this.state.jobInfo.clientInfo.data[0].name:'' : ''}</dt>
               <dd className="col-sm-3">Address</dd>
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.street + ' ' +this.state.jobInfo.city+', '+this.state.jobInfo.state: ''}</dt>
               <dd className="col-sm-3">Site Contact</dd>
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.siteName : ''}</dt>
               <dd className="col-sm-3">Site Contact Number</dd>
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.siteNumber : ''}</dt>
-              <dd className="col-sm-3">Homeowner Name</dd>
-              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.homeownerName : ''}</dt>
-              <dd className="col-sm-3">Homeowner Number</dd>
-              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.homeownerNumber : ''}</dt>
-              <dd className="col-sm-3">Action Level</dd>
-              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.actionLevel : ''}</dt>
-              <dd className="col-sm-3">Recieved date</dd>
-              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.recievedDate : ''}</dt>
               <dd className="col-sm-3">Intake notes</dd>
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.comments : ''}</dt>
+              <dd className="col-sm-3">Inspector</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.inspector : ''}</dt>
+              <dd className="col-sm-3">Inspection Type</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.jobtype : ''}</dt>
+              <dd className="col-sm-3">Arrive early</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.early? "Yes":"No" : ''}</dt>
+              <dd className="col-sm-3">Dogs</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.dogs? "Yes":"No" : ''}</dt>
+              <dd className="col-sm-3">Gates</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.gates? "Yes":"No" : ''}</dt>
+              <dd className="col-sm-3">Cost</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.cost: ''}</dt>
+              <dd className="col-sm-3">COD</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.cod: ''}</dt>
+              <dd className="col-sm-3">Dust</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.numdust : ''}</dt>
+              <dd className="col-sm-3">Soil</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.numsoil : ''}</dt>
+
+              <dd className="col-sm-3">Parking inst.</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.parking : ''}</dt>
+              <dd className="col-sm-3">Abatement contractor name</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.cname : ''}</dt>
+              <dd className="col-sm-3">Abatement contractor phone</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.cphone : ''}</dt>
+
               <br></br>
               <br></br>
               <br></br>
@@ -2226,18 +2526,11 @@ class Job extends Component {
                 <dl className="row">
                   <dd className="col-sm-3">Sheet Order</dd>
                   <dt className="col-sm-9">
-                    <Input value={this.state.modalStuff.sheetIndex+1} onChange={(e) => {
+                    <Input type="number" value={this.state.modalStuff.sheetIndex+1} onChange={(e) => {
                       let modalStuff = {...this.state.modalStuff};
                       modalStuff.sheetIndex = e.target.value -1
                       this.setState({modalStuff})
                     }}/>
-                  </dt>
-                </dl>
-
-                <dl className="row">
-                  <dd className="col-sm-3">Sample Id</dd>
-                  <dt className="col-sm-9">
-                  <Input value={this.state.modalStuff.sheetId}/>
                   </dt>
                 </dl>
 
@@ -2252,12 +2545,15 @@ class Job extends Component {
                   </dt>
                 </dl>
 
-                <dl className="row">
-                  <dd className="col-sm-3">location</dd>
-                  <dt className="col-sm-9">
-                  <Input value={this.state.modalStuff.location}/>
-                  </dt>
-                </dl>
+                {
+                  //<dl className="row">
+                //   <dd className="col-sm-3">location</dd>
+                //   <dt className="col-sm-9">
+                //   <Input value={this.state.modalStuff.location}/>
+                //   </dt>
+                // </dl>
+                }
+
                 <dl className="row">
                   <dd className="col-sm-3">room</dd>
                   <dt className="col-sm-9">
@@ -2315,9 +2611,12 @@ class Job extends Component {
                 <dl className="row">
                   <dd className="col-sm-3">Reading</dd>
                   <dt className="col-sm-9">
-                  <Input value={this.state.modalStuff.reading} onChange={(e) => {
+                  <Input type="number" value={this.state.modalStuff.reading} onChange={(e) => {
                     let modalStuff = {...this.state.modalStuff};
                     modalStuff.reading = e.target.value
+                    if(e.target.value == 999){
+                      modalStuff.reading = null
+                    }
                     this.setState({modalStuff})
                   }}/>
                   </dt>
@@ -2346,6 +2645,211 @@ class Job extends Component {
                 </form>
                 <Button onClick={this.saveModal}>Save</Button>
 
+                  <Button style={{backgroundColor:"#e29898", margin: "20px" }} danger onClick={this.deleteItemModal}>Delete</Button>
+
+
+              </Modal>
+              :
+              ''
+            }
+
+
+            {
+              ////PROP Modal
+            }
+            { this.state.propModalStuff ?
+              <Modal
+                isOpen={this.state.propModalIsOpen}
+                onAfterOpen={this.afterOpenPropModal}
+                onRequestClose={this.closePropModal}
+                style={customStyles}
+                contentLabel="Example Modal"
+              >
+                <h2 ref={subtitle => this.subtitle = subtitle}>Edit</h2>
+                <form>
+
+                <dl className="row">
+
+                  <dd className="col-lg-1">Type of dwelling</dd>
+                  <dt className="col-lg-3">
+                    <Input value={ this.state.propModalStuff.dwelling } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.dwelling = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+
+                  <dd className="col-lg-1">Year Build</dd>
+                  <dt className="col-lg-3">
+                    <Input type="number" value={ this.state.propModalStuff.year } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.year = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+
+                  <dd className="col-lg-1">Built over</dd>
+                  <dt className="col-lg-3">
+                    <Input value={ this.state.propModalStuff.builtover } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.builtover = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+                </dl>
+
+                <dl className="row">
+                  <dd className="col-lg-1">Type of Payment</dd>
+                  <dt className="col-lg-3">
+                    <Input value={ this.state.propModalStuff.payment } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.payment = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+
+                  <dd className="col-lg-1">Number of units</dd>
+                  <dt className="col-lg-3">
+                    <Input value={ this.state.propModalStuff.units } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.units = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+
+                  <dd className="col-lg-1">Number of stories</dd>
+                  <dt className="col-lg-3">
+                    <Input value={ this.state.propModalStuff.stories } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.stories = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+                </dl>
+
+                <dl className="row">
+                  <dd className="col-lg-1">Number of laundry</dd>
+                  <dt className="col-lg-3">
+                    <Input value={ this.state.propModalStuff.laundry } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.laundry = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+
+                  <dd className="col-lg-1">Number of garages</dd>
+                  <dt className="col-lg-3">
+                    <Input value={ this.state.propModalStuff.garages } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.garages = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+
+                  <dd className="col-lg-1">garage</dd>
+                  <dt className="col-lg-3">
+                    <Input value={ this.state.propModalStuff.garage } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.garage = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+                </dl>
+
+               <dl className="row">
+                  <dd className="col-lg-1">Units accessed via</dd>
+                  <dt className="col-lg-3">
+                    <Input value={ this.state.propModalStuff.exterior } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.exterior = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+
+
+                  <dd className="col-lg-1">Areas not accessable</dd>
+                  <dt className="col-lg-3">
+                    <Input value={ this.state.propModalStuff.noaccess } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.noaccess = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+
+                  <dd className="col-lg-1">Number of stories in building</dd>
+                  <dt className="col-lg-3">
+                    <Input value={ this.state.propModalStuff.buildingstories } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.buildingstories = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+                </dl>
+
+              <dl className="row">
+                  <dd className="col-lg-1">Number of stories in unit</dd>
+                  <dt className="col-lg-3">
+                    <Input value={ this.state.propModalStuff.unitstories } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.unitstories = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+
+                  <dd className="col-lg-1">Number of beds</dd>
+                  <dt className="col-lg-3">
+                    <Input value={ this.state.propModalStuff.bednums } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.bednums = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+
+                  <dd className="col-lg-1">Number of baths</dd>
+                  <dt className="col-lg-3">
+                    <Input value={ this.state.propModalStuff.bathnums } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.bathnums = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+                </dl>
+
+                <dl className="row">
+                  <dd className="col-lg-1">Number of dust samples</dd>
+                  <dt className="col-lg-3">
+                    <Input value={ this.state.propModalStuff.dustnums } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.dustnums = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+
+                  <dd className="col-lg-1">Number of soil samples</dd>
+                  <dt className="col-lg-3">
+                    <Input value={ this.state.propModalStuff.soilnums } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.soilnums = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+
+                  <dd className="col-lg-1">Do children live in the home</dd>
+                  <dt className="col-lg-3">
+                    <Input value={ this.state.propModalStuff.children } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.children = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+                </dl>
+
+                </form>
+                <Button onClick={this.savePropModal}>Save</Button>
+                {
+                  //<Button style={{backgroundColor:"#e29898", margin: "20px" }} danger onClick={this.deleteItemModal}>Delete</Button>
+                }
+
               </Modal>
               :
               ''
@@ -2353,6 +2857,13 @@ class Job extends Component {
 
 
         </Row>
+              {
+                this.state.samples ?
+                <Samples editSample={this.editSample()} data={this.state.samples}/>
+              :
+              ''
+            }
+
               {this.state.rows ?
                 <div>
                 <Summary name={'SUMMARY OF INTERIOR'} data={this.formatIntData(this.state.rows)}/>
@@ -2367,9 +2878,11 @@ class Job extends Component {
                 <div className="card">
                   <div className="card-header">
                   Property Details
-                    <div className="card-header-actions">
-                      <Button onClick={()=>{this.props.history.push('/create/'+this.state.jobInfo.id) }}>Edit</Button>
-                    </div>
+                  <div className="card-header-actions">
+                    {
+                         <Button onClick={()=>{this.openPropModal(this.state.property_detail)}}>Edit</Button>
+                    }
+                  </div>
                   </div>
                   <div className="card-body">
                     <div className="bd-example">
@@ -2437,9 +2950,6 @@ class Job extends Component {
                         <br></br>
                         <br></br>
                         <br></br>
-                        :
-                      ''}
-
                       </dl>
                       <dl>
                       </dl>

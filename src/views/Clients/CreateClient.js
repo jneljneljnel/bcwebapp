@@ -79,7 +79,13 @@ class Client extends Component {
           bemail:client.bemail,
           cname:client.cname,
           cnumber:client.cnumber,
-          cemail:client.cemail
+          cemail:client.cemail,
+          cname2:client.cname2,
+          cnumber2:client.cnumber2,
+          cemail2:client.cemail2,
+          cname3:client.cname3,
+          cnumber3:client.cnumber3,
+          cemail3:client.cemail3
         })
       })
   }
@@ -104,7 +110,13 @@ class Client extends Component {
       bemail:'',
       cname:'',
       cnumber:'',
-      cemail:''
+      cemail:'',
+      cname2:'',
+      cnumber2:'',
+      cemail2:'',
+      cname3:'',
+      cnumber3:'',
+      cemail3:''
     })
     console.log(this.state.clientName)
   }
@@ -112,6 +124,9 @@ class Client extends Component {
   post() {
     console.log('submit', this.props)
     console.log(this.state.name, this.state.email, this.state.phone1, this.state.street, this.state.city)
+    if(!this.state.name && this.state.companyName){
+      this.state.name = this.state.companyName
+    }
     if(this.props.match.params.id){
      axios.post('/api/clients/update', {
        id:this.props.match.params.id,
@@ -129,7 +144,13 @@ class Client extends Component {
        bemail: this.state.bemail,
        cname: this.state.cname,
        cnumber: this.state.cnumber,
-       cemail: this.state.cemail
+       cemail: this.state.cemail,
+       cname2: this.state.cname2,
+       cnumber2: this.state.cnumber2,
+       cemail2: this.state.cemail2,
+       cname3: this.state.cname3,
+       cnumber3: this.state.cnumber3,
+       cemail3: this.state.cemail3
      }).then(function (response) {
          alert('sucessfully updated!')
        })
@@ -138,7 +159,7 @@ class Client extends Component {
        });
        this.props.history.push('/clients')
     }
-    else if(this.state.name && this.state.email && this.state.phone1 && this.state.street && this.state.city)
+    else if((this.state.name || this.state.companyName)  && this.state.email && this.state.phone1 && this.state.street && this.state.city)
     {
       console.log('new')
       axios.post('/api/clients/new', {
@@ -156,17 +177,24 @@ class Client extends Component {
         bemail: this.state.bemail,
         cname: this.state.cname,
         cnumber: this.state.cnumber,
-        cemail: this.state.cemail
+        cemail: this.state.cemail,
+        cname2: this.state.cname2,
+        cnumber2: this.state.cnumber2,
+        cemail2: this.state.cemail2,
+        cname3: this.state.cname3,
+        cnumber3: this.state.cnumber3,
+        cemail3: this.state.cemail3
       })
       .then(function (response) {
         console.log(response);
-        //alert('sucessfully added new client!')
-        this.props.history.push('/dashboard')
+        alert('sucessfully added new client!')
+
       })
       .catch(function (error) {
         console.log(error);
       });
       this.clearInputs()
+      this.props.history.push('/dashboard')
     }
   }
 
@@ -304,6 +332,56 @@ class Client extends Component {
               <FormGroup>
                 <Label htmlFor="email">Contact Email</Label>
                 <Input type="text" id="email"  value={this.state.cemail} onChange={(e)=>this.setState({cemail:e.target.value})}/>
+              </FormGroup>
+
+              <FormGroup>
+                <Label htmlFor="company">Contact Name 2</Label>
+                <Input type="text" id="company"  value={this.state.cname2} onChange={(e)=>this.setState({cname2:e.target.value})}/>
+              </FormGroup>
+
+              <FormGroup>
+                <Label>Contact Phone 2</Label>
+                <InputGroup>
+                  <InputGroupAddon addonType="prepend">
+                    <InputGroupText><i className="fa fa-phone"></i></InputGroupText>
+                  </InputGroupAddon>
+                <TextMask
+                    value={this.state.cnumber2}
+                    onChange={(e)=>this.setState({cnumber2:e.target.value})}
+                    mask={['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+                    Component={InputAdapter}
+                    className="form-control"
+                  />
+                </InputGroup>
+              </FormGroup>
+              <FormGroup>
+                <Label htmlFor="email">Contact Email 2</Label>
+                <Input type="text" id="email"  value={this.state.cemail2} onChange={(e)=>this.setState({cemail2:e.target.value})}/>
+              </FormGroup>
+
+              <FormGroup>
+                <Label htmlFor="company">Contact Name 3</Label>
+                <Input type="text" id="company"  value={this.state.cname3} onChange={(e)=>this.setState({cname3:e.target.value})}/>
+              </FormGroup>
+
+              <FormGroup>
+                <Label>Contact Phone 3</Label>
+                <InputGroup>
+                  <InputGroupAddon addonType="prepend">
+                    <InputGroupText><i className="fa fa-phone"></i></InputGroupText>
+                  </InputGroupAddon>
+                <TextMask
+                    value={this.state.cnumber3}
+                    onChange={(e)=>this.setState({cnumber3:e.target.value})}
+                    mask={['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+                    Component={InputAdapter}
+                    className="form-control"
+                  />
+                </InputGroup>
+              </FormGroup>
+              <FormGroup>
+                <Label htmlFor="email">Contact Email 3</Label>
+                <Input type="text" id="email"  value={this.state.cemail3} onChange={(e)=>this.setState({cemail3:e.target.value})}/>
               </FormGroup>
 
             </CardBody>

@@ -34,18 +34,18 @@ class DefaultLayout extends Component {
   render() {
       console.log('props', this.props)
     return (
-      <div className="app">
+      <div className="app ">
         <AppHeader fixed>
           <Suspense fallback={this.loading()}>
             <DefaultHeader onLogout={e=>this.signOut(e)}/>
           </Suspense>
         </AppHeader>
-        <div className="app-body">
-          <AppSidebar fixed display="lg" className={"sidebar-minimized brand-minimized"}>
+        <div className="app-body toggled">
+          <AppSidebar fixed display="lg" className={" brand-minimized"}>
             <AppSidebarHeader />
             <AppSidebarForm />
             <Suspense>
-            <AppSidebarNav className={"sidebar-minimized brand-minimized"} navConfig={navigation} {...this.props} />
+            <AppSidebarNav className={"brand-minimized"} navConfig={navigation} {...this.props} />
             </Suspense>
             <AppSidebarFooter />
             <AppSidebarMinimizer />
@@ -78,7 +78,7 @@ class DefaultLayout extends Component {
             </Suspense>
           </AppAside>
         </div>
-      
+
       </div>
     );
   }

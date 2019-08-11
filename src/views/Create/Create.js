@@ -87,8 +87,10 @@ class Create extends Component {
       cname:'',
       cphone:'',
       contact:'',
-      spec:0
-
+      spec:0,
+      jobtype:'',
+      inspectionTime:'',
+      inspectionTimeEnd:''
     };
   }
 
@@ -104,7 +106,7 @@ class Create extends Component {
   matchStateToTerm(state, value) {
     if(state && value){
       return (
-        state.name.toLowerCase().indexOf(value.toLowerCase()) !== -1
+        state.name.toLowerCase().indexOf(value.toLowerCase()) !== -1 || state.company.toLowerCase().indexOf(value.toLowerCase()) !== -1
       )
     }
   }
@@ -168,7 +170,10 @@ class Create extends Component {
         cname:this.state.cname,
         cphone:this.state.cphone,
         contact:this.state.contact,
-        spec:this.state.spec
+        spec:this.state.spec,
+        jobtype:this.state.jobtype,
+        inspectionTime:this.state.inspectionTime,
+        inspectionTimeEnd:this.state.inspectionTimeEnd
       })
       .then(function (response) {
         console.log(response);
@@ -177,7 +182,7 @@ class Create extends Component {
       .catch(function (error) {
         console.log(error);
       });
-      this.props.history.push('/dashboard')
+      this.props.history.push('/jobs/'+id)
     }
     else{
       axios.post('/api/jobs/new', {
@@ -218,7 +223,10 @@ class Create extends Component {
         cname:this.state.cname,
         cphone:this.state.cphone,
         contact:this.state.contact,
-        spec:this.state.spec
+        spec:this.state.spec,
+        jobtype:this.state.jobtype,
+        inspectionTime:this.state.inspectionTime,
+        inspectionTimeEnd:this.state.inspectionTimeEnd
       })
       .then(function (response) {
         console.log(response);
@@ -295,6 +303,9 @@ class Create extends Component {
           this.setState({cphone:res.data[0].cphone})
           this.setState({contact:res.data[0].contact})
           this.setState({spec:res.data[0].spec})
+          this.setState({jobtype:res.data[0].jobtype})
+          this.setState({inspectionTime:res.data[0].inspectionTime})
+          this.setState({inspectionTimeEnd:res.data[0].inspectionTimeEnd})
             console.log('res', res.data[0])
             console.log('job', this.state.jobInfo)
         })
@@ -373,6 +384,22 @@ class Create extends Component {
                     </Col>
                     <Col xs="12" md="9">
                       <Input type="date" id="date-input" name="date-input" placeholder="date" value={this.state.inspectionDate} onChange={(e)=>this.setState({inspectionDate:e.target.value})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="date-input">Arrival window start</Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="time" name="time-input" placeholder="time" value={this.state.inspectionTime} onChange={(e)=>this.setState({inspectionTime:e.target.value})}/>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="date-input">Arrival window end</Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="time" name="time-input" placeholder="time" value={this.state.inspectionTimeEnd} onChange={(e)=>this.setState({inspectionTimeEnd:e.target.value})}/>
                     </Col>
                   </FormGroup>
                   <FormGroup row>
@@ -514,7 +541,7 @@ class Create extends Component {
                   </FormGroup>
                   <FormGroup row>
                     <Col md="3">
-                      <Label htmlFor="select">Inspection Type</Label>
+                      <Label htmlFor="select">Type of Lead Inspection</Label>
                     </Col>
                     <Col xs="12" md="9">
                       <Input id="type" value={this.state.type} onChange={(e)=> {this.setState({type:e.target.value})}} type="select" name="type">
@@ -523,6 +550,14 @@ class Create extends Component {
                         <option value="2">Comprehensive</option>
                         <option value="3">Windows and Doors</option>
                       </Input>
+                    </Col>
+                  </FormGroup>
+                  <FormGroup row>
+                    <Col md="3">
+                      <Label htmlFor="text-input">Type of Job</Label>
+                    </Col>
+                    <Col xs="12" md="9">
+                      <Input type="text" id="text-input" name="text-input" value={this.state.jobtype} onChange={(e)=>this.setState({jobtype:e.target.value})}/>
                     </Col>
                   </FormGroup>
                   <FormGroup row>

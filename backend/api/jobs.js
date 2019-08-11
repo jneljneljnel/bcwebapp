@@ -46,7 +46,10 @@ router.post('/update', (req, res, next) => {
                   cname = "`+req.body.cname+`",
                   cphone = "`+req.body.cphone+`",
                   contact = "`+req.body.contact+`",
-                  spec = "`+req.body.spec+`"
+                  spec = "`+req.body.spec+`",
+                  jobtype = "`+req.body.jobtype+`",
+                  inspectionTime = "`+req.body.inspectionTime+`",
+                  inspectionTimeEnd = "`+req.body.inspectionTimeEnd+`"
                   WHERE id =`+req.body.id+` ;`
     console.log(sql)
     db.getConnection((error, connection) => {
@@ -106,7 +109,10 @@ router.post('/new', (req, res, next) => {
                     cname,
                     cphone,
                     contact,
-                    spec)
+                    spec,
+                    jobtype,
+                    inspectionTime,
+                    inspectionTimeEnd)
                 VALUES
                   ("`+req.body.name+`",
                   "`+req.body.recievedDate+`",
@@ -145,7 +151,10 @@ router.post('/new', (req, res, next) => {
                   "`+req.body.cname+`",
                   "`+req.body.cphone+`",
                   "`+req.body.contact+`",
-                  "`+req.body.spec+`"
+                  "`+req.body.spec+`",
+                  "`+req.body.jobtype+`",
+                  "`+req.body.inspectionTime+`",
+                  "`+req.body.inspectionTimeEnd+`"
                 );`
     db.getConnection((error, connection) => {
         if (error) console.log('err', error);
@@ -210,11 +219,10 @@ router.get('/inspected', (req, res, next) => {
   });
 })
 
-router.get('/open', (req, res, next) => {
-  console.log('open open')
+router.get('/all', (req, res, next) => {
   db.getConnection((error, connection) => {
     if (error) console.log('err', error);
-    let sql = "SELECT * From bandc.jobs WHERE completed=0 AND inspected=0"
+    let sql = "SELECT * From bandc.jobs"
     connection.query(sql, (err, rows) => {
       if (err) {
         return res.status(500).send(err);
