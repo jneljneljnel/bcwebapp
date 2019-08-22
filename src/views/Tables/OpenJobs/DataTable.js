@@ -12,12 +12,16 @@ import FileBase64 from 'react-file-base64';
 import htmlDocx from 'html-docx-js/dist/html-docx';
 import { saveAs } from 'file-saver';
 import juice from 'juice';
+import domtoimage from 'dom-to-image';
+import jsPDF from "jspdf";
 
 const fetch64 = require('fetch-base64');
 const axios = require('axios')
 const history = createBrowserHistory();
 
 const portraitPageSize = 13;
+
+
 
 class DataTable extends Component {
   constructor(props) {
@@ -34,6 +38,9 @@ class DataTable extends Component {
     this.state = {
       data:'',
       samples:'',
+      isPrintPreview: false,
+      heightArr: [],
+      pdfTitle: ''
     }
     this.options = {
       sortIndicator: true,
@@ -44,6 +51,22 @@ class DataTable extends Component {
       alwaysShowAllBtns: false,
       withFirstAndLast: false
     }
+  }
+
+  updateDimensions = () =>{
+    var all = document.getElementsByClassName('pages');
+    for (var i = 0; i < all.length; i++) {
+      let strWidth = all[i].offsetWidth + 80;
+      all[i].style.height = (strWidth / 595 * 842) + "px";
+    }
+  }
+  
+  componentDidMount() {
+    // window.addEventListener("resize", this.updateDimensions);
+  }
+
+  componentWillUnmount() {
+    // window.removeEventListener("resize", this.updateDimensions);
   }
 
   sendBack(id){
@@ -214,8 +237,6 @@ async getReport(row){
   })
   console.log('rows', rows);
   this.setState({samples:rows})
-  //console.log(rows)
-  console.log('doc create');
 
   let css = `
       * {
@@ -225,13 +246,21 @@ async getReport(row){
         font-family: Times New Roman ;
       }
 
+      h2{
+        font-size: 18pt;
+      }
+
       .heading {
         text-align:center;
       }
 
       .header {
         text-align:left;
-        font-size: 8px;
+        font-size: 12pt;
+        font-weight: bold;
+        line-height: normal;
+        padding-top:15px;
+        padding-bottom:20px;
       }
 
       hr {
@@ -250,6 +279,12 @@ async getReport(row){
 
       .footer div {
         display: block;
+      }
+      .footer p {
+        letter-spacing: 1px;
+        font-weight: bold;
+        font-size: 9pt;
+        margin-bottom: 0px;
       }
 
       .right {
@@ -342,6 +377,7 @@ async getReport(row){
         margin-bottom:0px;
         padding-top:0px;
         padding-bottom:0px;
+        font-size: 12pt;
       }
 
       span {
@@ -357,16 +393,8 @@ async getReport(row){
       }
       p, li {
         text-align: left;
+        line-height: normal;
       }
-
-
-
-
-
-
-
-
-
       table thead tr th{
         border-bottom: 3px solid black;
         height: 50px;
@@ -393,8 +421,6 @@ async getReport(row){
         vertical-align: middle;
         text-align : center;
       }
-
-
 
       table tbody tr{
         vertical-align: middle;
@@ -567,6 +593,50 @@ async getReport(row){
         text-align: right;
         padding-right: 10px;
       }
+
+      .pages{
+        width: 100%;
+        min-height: 792pt;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border-bottom-style:solid;
+      }
+
+      h1{
+        font-size: 22pt;
+      }
+      .big-font{
+        text-align: left;
+        line-height: 200%;
+      }
+      .text-10{
+        font-size: 10pt;
+      }
+      .top-margin{
+        margin: 1rem 0px 0px 0px;
+      }
+      .padding-left-20{
+        padding-left: 20px;
+      }
+      .yellow{
+        color: #ffc000;
+      }
+      .content-wrapper{
+        width: 100%; 
+        display: flex; 
+        justify-content: space-between; 
+        padding-right: 20px;
+        align-items: center;
+      }
+      .content-title{
+        white-space: nowrap; 
+        width: 99%; 
+        overflow: hidden;
+      }
+      .content-wrapper-padding{
+        padding: 5px 20px 5px 0px;
+      }
     `;
 
     let converted = '';
@@ -587,13 +657,17 @@ async getReport(row){
     });
 
     let property_picture;
-    await this.getBase64('/assets/img/property.jpg').then((data)=>{
-      property_picture = '<img width=160 height=100 src="' + data + '"/>';
+    // src={"https://barrandclark.s3-us-west-1.amazonaws.com/uploads/"+row.id+".png"}
+    await this.getBase64("https://barrandclark.s3-us-west-1.amazonaws.com/uploads/"+row.id+".png").then((data)=>{
+      if(data!==400)
+        property_picture = '<img width=160 height=100 style = "margin-bottom: 30px;" src="' + data + '"/>';
+      else
+        property_picture = `<div style = "height: 100px;"></div>`
     });
 
     let bc3_image;
     await this.getBase64('/assets/img/BC3.png').then((data)=>{
-      bc3_image = '<img width=100 height=100 src="' + data + '"/>';
+      bc3_image = '<img width=125 height=125 src="' + data + '"/>';
     });
 
     let bc3_small_image;
@@ -604,32 +678,33 @@ async getReport(row){
     var today = new Date().toISOString().slice(0, 10);
 
     /***********************           page 1               ****************************/
-
-    let page1 = `
-    <div class="header" style="opacity: 0.5">
+    let typeInspection = (row.jobtype!=="null" && row.jobtype !== "undefined")?row.jobtype:"";
+    let firstPageTitle = row.type === 2? "LEAD-BASED PAINT INSPECTION/RISK ASSESSMENT REPORT": `LIMITED LEAD-BASED PAINT<br>INSPECTION REPORT<br>${typeInspection}`;
+    let page1 = `<div id="page1" class = "pages" style = "padding-top: 20px;"><div>
+    <div class="header">
       <table class="no-border">
       <tr>
         <td style="text-align: right;" width="40%">
           ${bc3_image}
         </td>
         <td width="60%">
-          <div class="left">
-          <h1 style="color:#71b389;">BARR & CLARK</h1>
-          <p class="nomargin nopadding">Independent Environmental Testing</p>
-          <p class="nomargin nopadding">Asbestos * Lead * Mold * Phase I</p>
+          <div class="center" style = "width: fit-content;">
+          <h1 style="color:#003300; font-weight: bold; margin-bottom: 0px;">BARR & CLARK</h1>
+          <p class="nomargin nopadding center" style = "line-height: normal;font-size:10pt;">Independent Environmental Testing</p>
+          <p class="nomargin nopadding center" style = "line-height: normal;font-size:10pt;">Asbestos • Lead • Mold • Phase I</p>
           </div>
         </td>
       </tr>
       </table>
     </div>
 
-    <div class="center">
-    <h1 style="font-style:italic;">LEAD-BASED PAINT INSPECTION/RISK ASSESSMENT REPORT</h1>
-    <p class="center" >of</p>
+    <div class="center" style = "margin-top: 15px;">
+    <h1 style="font-style:italic; font-weight: bold;">${firstPageTitle}</h1>
+    <p class="center" >OF</p>
     <p class="center nomargin nopadding italic">${this.state.client.phone1}</p>
     <p class="center nomargin nopadding">${row.name}</p>
     <p class="center nomargin nopadding">${row.address}</p>
-    <p class="center nomargin nopadding">${this.state.client.city}, ${this.state.client.state}</p>
+    <p class="center nopadding">${this.state.client.city}, ${this.state.client.state}</p>
 
     <p class="center">PROJECT NO. ${row.id}</p>
     <p class="center">${today}</p>
@@ -679,109 +754,83 @@ async getReport(row){
         <p class="nopadding nomargin">Lead Inspector / Risk Assessor</p>
       </td>
     </tr>
-
-    </table>
-    ` + this.getFooter(150);
+    </table></div>
+    ` + this.getFooter(150) + `</div>`;
 
 //    row.type = 1;
 
-    if(row.type == 2)
+    if(row.type === 2)
     {
 
   /***********************           page 2               ****************************/
 
 
-    let page2 = this.getHeader(row, bc3_small_image, 2) + `
+    let page2 = `<div id="page2" class = "pages"><div>` + this.getHeader(row, bc3_small_image, 2) + `
 
     <div class="center">
-    <h2>TABLE OF CONTENTS</h2>
-    <table class="no-border" style="text-transform: uppercase;">
-      <tr style="margin-bottom:15px;">
-        <td width="70%">
-          <h3 style="text-decoration: underline;">Description</h3>
-        </td>
-        <td width="30%">
-          <h3 style="text-decoration: underline;">PAGE NO</h3>
-        </td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">1.0 Executive Summary</span>
-        </td>
-        <td width="30%"><span>3</span></td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">2.0 Identified Lead Hazards & Summary of Results</span>
-        </td>
-        <td width="30%"><span>3</span></td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">3.0 Identifying Information & Purpose of Inspection</span>
-        </td>
-        <td width="30%"><span>5</span></td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">4.0 Ongoing Monitoring</span>
-        </td>
-        <td width="30%"><span>6</span></td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">5.0 Disclosure Regulations and Title X Requirements</span>
-        </td>
-        <td width="30%"><span>7</span></td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">6.0 Future Remodeling Precautions</span>
-        </td>
-        <td width="30%"><span>7</span></td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">7.0 Conditions & Inspection Limitations</span>
-        </td>
-        <td width="30%"><span>8</span></td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">8.0 Site Information</span>
-        </td>
-        <td width="30%"><span>8</span></td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">9.0 Lead Hazard Control Options & Recommendations</span>
-        </td>
-        <td width="30%"><span>9</span></td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">10.0 Testing Protocol</span>
-        </td>
-        <td width="30%"><span>11</span></td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">11.0 Method of Testing</span>
-        </td>
-        <td width="30%"><span>13</span></td>
-      </tr>
-    </table>
-
-    <table class="no-border" style="text-transform: uppercase;">
+    <h2 style= "font-weight: bold; padding-top: 30px;">TABLE OF CONTENTS</h2>
+    <div style = "text-transform: uppercase; width: 100%;">
+      <div class="content-wrapper">
+        <p style="text-decoration: underline;font-weight:bold;">DESCRIPTION</p>
+        <div>
+          <p style="text-decoration: underline;text-align:center;font-weight:bold;">PAGE NO</p>
+        </div>    
+      </div>
+      <div class="content-wrapper">
+        <span class="big-font content-title">1.0 Executive Summary-----------------------------------------------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">3</p></div>
+      </div>
+      <div class="content-wrapper">
+        <span class="big-font content-title">2.0 Identified Lead Hazards & Summary of Results-----------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">3</p></div>
+      </div>
+      <div class="content-wrapper">
+        <span class="big-font content-title">3.0 Identifying Information & Purpose of Inspection-----------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">5</p></div>
+      </div>
+      <div class="content-wrapper">
+        <span class="big-font content-title">4.0 Ongoing Monitoring----------------------------------------------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">6</p></div>
+      </div>
+      <div class="content-wrapper">
+        <span class="big-font content-title">5.0 Disclosure Regulations and Title X Requirements----------------------------------------------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">7</p></div>
+      </div>
+      <div class="content-wrapper">
+        <span class="big-font content-title">6.0 Future Remodeling Precautions----------------------------------------------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">7</p></div>
+      </div>
+      <div class="content-wrapper">
+        <span class="big-font content-title">7.0 Conditions & Inspection Limitations----------------------------------------------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">8</p></div>
+      </div>
+      <div class="content-wrapper">
+        <span class="big-font content-title">8.0 Site Information----------------------------------------------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">8</p></div>
+      </div>
+      <div class="content-wrapper">
+        <span class="big-font content-title">9.0 Lead Hazard Control Options & Recommendations----------------------------------------------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">9</p></div>
+      </div>
+      <div class="content-wrapper">
+        <span class="big-font content-title">10.0 Testing Protocol----------------------------------------------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">11</p></div>
+      </div>
+      <div class="content-wrapper">
+        <span class="big-font content-title">11.0 Method of Testing----------------------------------------------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">13</p></div>
+      </div>
+    </div>
+    <table class="no-border" style="text-transform: uppercase;margin-top:20px;">
       <tr>
         <td width="30%">
-          <h3 style="text-decoration: underline;">Appendicies</h3>
+          <p style="text-decoration: underline;">Appendicies</p>
         </td>
         <td width="70%">
         </td>
       </tr>
       <tr>
-        <td width="30% vertical-align: top;">
+        <td width="30%" style = "vertical-align: top;">
           <span class="big-font">APPENDIX A </span>
         </td>
         <td width="70%">
@@ -821,19 +870,19 @@ async getReport(row){
           <p class="nomargin nopadding">DUST WIPE & SOIL SAMPLE LABORATORY MANIFESTS AND RESULTS</p>
          </td>
       </tr>
-    </table>
-    ` + this.getFooter(100);
+    </table></div></div>
+    ` + this.getFooter(100) + `</div>`;
 
 
 
 /***********************           page 3              ****************************/
 
 
-    let page3 = this.getHeader(row, bc3_small_image, 3) + `
+    let page3 = `<div id="page3" class = "pages"><div>` + this.getHeader(row, bc3_small_image, 3) + `
 
     <div style="text-transform: uppercase;">
-    <h1 class="center italic" style="font-size:25px;">LEAD-BASED PAINT INSPECTION/RISK ASSESSMENT REPORT</h1>
-    <h3 class="center"> 1.0 Executive Summary</h3>
+    <h1 class="center italic bold" style="font-size:16pt;">LEAD-BASED PAINT INSPECTION/RISK ASSESSMENT REPORT</h1>
+    <p class="center bold"> 1.0 Executive Summary</p>
     </div>
     <p class="left">
     This report presents the results of Barr and Clark Lead-Based Paint (LBP) Inspection/Risk
@@ -868,7 +917,7 @@ async getReport(row){
       </p>`;
     }
 
-    page3 += `<h3 class="center">2.0 IDENTIFIED LEAD HAZARDS & SUMMARY OF RESULTS </h3>`;
+    page3 += `<p class="center bold">2.0 IDENTIFIED LEAD HAZARDS & SUMMARY OF RESULTS </p>`;
     if (hot.length){
       page3 += `<p class="left">
           <font class="text-underline bold">Paint Sampling:</font> Throughout the subject property, several of the painted components
@@ -876,7 +925,7 @@ async getReport(row){
           The following summary lists the specific components that tested above the action level and their respective locations:
         </p>`;
 
-      page3 += `<h3 class="text-underline italic bold left">Interior</h3>`;
+      page3 += `<p class="text-underline italic bold left nomargin">Interior</p>`;
       page3 += '<ul>';
       hot.map( h => {
         if(h.loc == 'InsSheet')
@@ -893,7 +942,7 @@ async getReport(row){
         page3 += `also tested positive for lead. These surfaces were not painted and the lead is most likely in the glazing or the matrix of the tile itself</p>`;
       }
 
-      page3 += `<h3 class="text-underline italic bold left">Exterior</h3>`;
+      page3 += `<p class="text-underline italic bold left nomargin">Exterior</p>`;
 
 
       hot.map( h => {
@@ -967,21 +1016,20 @@ async getReport(row){
 
     }
 
-    page3 +=  this.getFooter(100);
+    page3 += `</div>` + this.getFooter(100) + `</div>`;
 
 
+/***********************           page 5               ****************************/
 
-/***********************           page 4               ****************************/
-
-    let page5 = this.getHeader(row, bc3_small_image, 5) + `
-    <p class="left text-underline italic bold">Laboratory Information:</p>
+    let page5 = `<div id="page5" class = "pages"><div>` + this.getHeader(row, bc3_small_image, 4) + `
+    <p class="left text-underline italic bold top-margin">Laboratory Information:</p>
     <p class="left nopadding nomargin">Laboratory: <font class="italic">LA Testing</font></p>
     <p class="left nopadding nomargin"><font class="italic">5431 Industrial Drive, Huntington Beach, CA 92649</font></p>
     <p class="left nopadding nomargin">Dust Wipe Analysis Protocol: <font class="italic">EPA 3050B/7000A</font></p>
     <p class="left nopadding nomargin">Dust Wipe Media: <font class="italic">Lead-Wipes ASTM E1792</font></p>
     <p class="left nopadding nomargin">Accreditation Program Number: <font class="italic">DOSH ELAP No. 1406</font></p>
 
-    <h3 class="center">3.0 IDENTIFYING INFORMATION & PURPOSE OF INSPECTION/RISK ASSESSMENT</h3>
+    <p class="center bold" style = "margin-top:20px;">3.0 IDENTIFYING INFORMATION & PURPOSE OF INSPECTION/RISK ASSESSMENT</p>
 
     <p class="left">
     The purpose of this inspection/risk assessment is to identify and assess the presence of Lead Hazards and Lead-Based Paint (LBP)
@@ -1013,11 +1061,11 @@ async getReport(row){
       At the time of this report, the California Department of Health Services, Childhood Lead Poisoning Branch,
       has implemented a State Certification Model Accreditation Plan adopted from the EPA. ${this.state.inspector.name} has received certification.
       Personnel certificate(s) have been provided in <font class="italic bold">Appendix B</font>.
-    </p>
+    </p></div>
     `;
 
 
-    page5 +=  this.getFooter(100);
+    page5 +=  this.getFooter(100) + `</div>`;
 
 
 
@@ -1025,9 +1073,9 @@ async getReport(row){
 
 
 
-    let page6 = this.getHeader(row, bc3_small_image, 6) + `
+    let page6 = `<div id="page6" class = "pages"><div>` + this.getHeader(row, bc3_small_image, 5) + `
 
-    <h3 class="center">4.0 ONGOING MONITORING</h3>
+    <p class="center bold">4.0 ONGOING MONITORING</p>
 
     <p class="left">
       Ongoing monitoring is necessary in all dwellings in which LBP is known or presumed to be present. At these dwellings, the very real potential exists for LBP hazards to develop. Hazards can develop by means such as, but not limited to: the failure of lead hazard control measures; previously intact LBP becoming deteriorated; dangerous levels of lead-in-dust (dust lead) re-accumulating through friction, impact, and deterioration of paint; or, through the introduction of contaminated exterior dust and soil into the interior of the structure. Ongoing monitoring typically includes two different activities: re-evaluation and annual visual assessments. A re-evaluation is a risk assessment that includes limited soil and dust sampling and a visual evaluation of paint films and any existing lead hazard controls. Re-evaluations are supplemented with visual assessments by the Client, which should be conducted at least once a year, when the Client or its management agent (if th housing is rented in the future) receives complaints from residents about deteriorated paint or other potential lead hazards, when the residence (or if, in the future, the house will have more than one dwelling unit, any unit that turns over or becomes vacant), or when significant damage occurs that could affect the integrity of hazard control treatments (e.g., flooding, vandalism, fire). The visual assessment should cover the dwelling unit (if, in the future, the housing will have more than one dwelling unit, each unit and each common area used by residents), exterior painted surfaces, and ground cover (if control of soil-lead hazards is required or recommended). Visual assessments should confirm that all Paint with known or suspected LBP is not deteriorating, that lead hazard control methods have not failed, and that structural problems do not threaten the integrity of any remaining known, presumed or suspected LBP.
@@ -1041,21 +1089,21 @@ async getReport(row){
       <li class="left">A report describing the findings of the reevaluation, including the location of any lead-based paint hazards, the location of any failures of previous hazard controls, and, as needed, acceptable options for the control of hazards, the repair of previous controls, and modification of monitoring and maintenance practices.</li>
     </ol>
     </p>
-
+    </div>
 
     `;
 
 
-    page6 +=  this.getFooter(100);
+    page6 +=  this.getFooter(100) + `</div>`;
 
 
 
 /***********************           page 7              ****************************/
 
 
-    let page7 = this.getHeader(row, bc3_small_image, 7) + `
+    let page7 = `<div id="page7" class = "pages"><div>` + this.getHeader(row, bc3_small_image, 6) + `
 
-    <h3 class="center">5.0 DISCLOSURE REGULATIONS & TITLE X REQUIREMENTS</h3>`;
+    <p class="center bold">5.0 DISCLOSURE REGULATIONS & TITLE X REQUIREMENTS</p>`;
 
     if (hot.length){
       page7 += `<p class="left">
@@ -1080,7 +1128,7 @@ async getReport(row){
       </p>`
     }
 
-    page7 += `<h3 class="center">6.0 FUTURE REMODELING PRECAUTIONS</h3>`;
+    page7 += `<p class="center bold">6.0 FUTURE REMODELING PRECAUTIONS</p>`;
 
     page7 += `<p class="left">
       It should be noted that during this Assessment, a number of areas were tested for the presence of LBP. All LBP, dust, and soil hazards that were identified are addressed in this report.
@@ -1095,19 +1143,19 @@ async getReport(row){
       Lead-based paint abatement or lead-based paint hazard abatement at the residence must be conducted in accordance with the EPA's Lead Abatement Rule (also within 40 CFR 745);
       see the EPA's website for Lead Abatement Professionals at <font class="italic" style="color: #1b9bc1">http://www.epa.gov/lead/pubs/traincert.htm</font>.
     </p>
-
+    </div>
     `;
 
-    page7 +=  this.getFooter(100);
+    page7 +=  this.getFooter(100) + `</div>`;
 
 
 /***********************           page 8              ****************************/
 
 
 
-    let page8 = this.getHeader(row, bc3_small_image, 8) + `
+    let page8 = `<div id="page8" class = "pages"><div>` + this.getHeader(row, bc3_small_image, 7) + `
 
-    <h3 class="center">7.0 CONDITIONS & INSPECTION LIMITATIONS</h3>`;
+    <p class="center bold">7.0 CONDITIONS & INSPECTION LIMITATIONS</p>`;
 
 
     page8 += `<p class="left">
@@ -1137,7 +1185,7 @@ async getReport(row){
     </p>
     `;
 
-    page8 += `<h3 class="center">8.0 SITE INFORMATION</h3>`;
+    page8 += `<p class="center bold">8.0 SITE INFORMATION</p>`;
 
     if(this.state.details){
       let windows = [];
@@ -1200,7 +1248,7 @@ async getReport(row){
     }
 
 
-    page8 +=  this.getFooter(100);
+    page8 += `</div>` + this.getFooter(100) + `</div>`;
 
 
 
@@ -1208,9 +1256,9 @@ async getReport(row){
 
 
 
-    let page9 = this.getHeader(row, bc3_small_image, 9) + `
+    let page9 = `<div id="page9" class = "pages"><div>` + this.getHeader(row, bc3_small_image, 8) + `
 
-    <h3 class="center">9.0 LEAD HAZARD CONTROL OPTIONS & RECOMMENDATIONS</h3>`;
+    <p class="center bold">9.0 LEAD HAZARD CONTROL OPTIONS & RECOMMENDATIONS</p>`;
 
     if (hot.length){
       page9 += `<p class="left">
@@ -1247,13 +1295,13 @@ async getReport(row){
         (EPA's definition is substantively the same.)
       </p>`;
 
-      page9 += `<p class="left">The greatest potential for lead exposure from lead painted architectural components occurs when:</p>`;
+      page9 += `<p class="left nomargin">The greatest potential for lead exposure from lead painted architectural components occurs when:</p>`;
 
       page9 += `<ul><li class="left">the paint has become defective; or</li>`;
       page9 += `<li class="left">when the paint is applied to a friction / impact component where the paint is continually disturbed; or</li>`;
       page9 += `<li class="left">when the paint is disturbed through routine maintenance or renovation activities.</li></ul>`;
 
-      page9 += `<p class="left">With this in mind, the following are our recommendations for this property:</p>`;
+      page9 += `<p class="left nomargin">With this in mind, the following are our recommendations for this property:</p>`;
 
       page9 += `<ul><li class="left">The results from this inspection should be provided to any individuals that may disturb the painted surfaces. It is encouraged to utilize certified professionals that have experience working with LBP if the work is performed by someone other than the homeowner.</li>`;
       page9 += `<li class="left">If renovation is scheduled in the near future (less than three months), all lead painted components that have been previously targeted for replacement should be replaced utilizing "lead safe" containment and work practices.</li>`;
@@ -1278,7 +1326,7 @@ async getReport(row){
       </p>`;
     }
 
-    page9 +=  this.getFooter(100);
+    page9 +=  `</div>` + this.getFooter(100) + `</div>`;
 
 
 
@@ -1286,9 +1334,9 @@ async getReport(row){
 
 
 
-    let page11 = this.getHeader(row, bc3_small_image, 11) + `
+    let page11 = `<div id="page11" class = "pages"><div>` + this.getHeader(row, bc3_small_image, 9) + `
 
-    <h3 class="center">10.0 TESTING PROTOCOL</h3>`;
+    <p class="center bold">10.0 TESTING PROTOCOL</p>`;
 
 
     page11 += `<p class="left">
@@ -1317,7 +1365,7 @@ async getReport(row){
 
     if(row.actionLevel == '0.7'){
       page11 += `
-      <tr class="nomargin nopadding">
+      <tr class="nomargin nopadding text-10">
         <td>San Diego Lead Ordinance </td>
         <td>Section 54.1005-1015  </td>
         <td>0.5 mg / cm<sup>2</sup></td>
@@ -1325,7 +1373,7 @@ async getReport(row){
       </tr>`;
 
       page11 += `
-      <tr class="nomargin nopadding">
+      <tr class="nomargin nopadding text-10">
         <td>L.A. County</td>
         <td>Title 11, 11.28.010</td>
         <td>0.7 mg / cm<sup>2</sup></td>
@@ -1333,16 +1381,16 @@ async getReport(row){
       </tr>`;
 
       page11 += `
-      <tr class="nomargin nopadding">
-        <td>HUD / EPA</td>
+      <tr class="nomargin nopadding text-10">
+        <td class="bold">HUD / EPA</td>
         <td>24 CFR 35.86 & 40 CFR 745.103</td>
         <td>1.0 mg / cm<sup>2</sup></td>
         <td>5,000 ppm</td>
       </tr>`;
 
       page11 += `
-      <tr class="nomargin nopadding">
-        <td>OSHA / CAL OSHA</td>
+      <tr class="nomargin nopadding text-10">
+        <td class="bold">OSHA / CAL OSHA</td>
         <td>29 CFR 1926.62 & Title 8, 1532.1</td>
         <td class="italic">Not Specified</td>
         <td>600 ppm<sup>5</sup></td>
@@ -1350,45 +1398,45 @@ async getReport(row){
     }
     page11 += `</table>`;
 
-    page11 += `<div style="border: 1px solid black; font-size: 13px;">`;
-    page11 += `<p class="left text-underline">HUD / EPA have recently issued the following guidance regarding units of measurement for paint samples:</p>`;
-    page11 += `<p class="left">
+    page11 += `<div style="border: 1px solid black; font-size: 10pt; line-height:normal; padding:5px; margin-top:5px;">`;
+    page11 += `<p class="left text-underline" style="margin-bottom: 10px;">HUD / EPA have recently issued the following guidance regarding units of measurement for paint samples:</p>`;
+    page11 += `<p class="left nomargin">
     "Report lead paint amounts in mg/cm<sup>2</sup> because this unit of measurement does not depend on the number of layers of non-lead-based paint and
     can usually be obtained without damaging the painted surface. All measurements of lead in paint should be in mg/cm<sup>2</sup>,
     unless the surface area cannot be measured or if all paint cannot be removed from the measured surface area.
     In such cases, concentrations may be reported in weight percent (%) or parts per million by weight (ppm)."<sup>6</sup>
         </p>`;
 
-    page11 += `<p class="left text-underline">Furthermore, EPA has previously issued guidance on lead content classification as follows:</p>`;
-    page11 += `<p class="left">
+    page11 += `<p class="left text-underline nomargin" style="margin-bottom: 10px;margin-top: 10px;">Furthermore, EPA has previously issued guidance on lead content classification as follows:</p>`;
+    page11 += `<p class="left nomargin">
     "... The rule, at 24 CFR 35.86 and 40 CFR 745.103 states that a lead-based paint free finding must demonstrate that the building is free of
     'paint or other surface coatings that contain lead in excess of 1.0 milligrams per square centimeter (1.0 mg / cm<sup>2</sup>) or 0.5 percent by weight (5000 ppm).'
-    The State standards are not applicable, whether more or less stringent, since a State cannot amend Federal requirements."<sup>7</sup>
-        </p>`;
+    <u>The State standards are not applicable, whether more or less stringent, since a State cannot amend Federal requirements."<sup>7</sup>
+        </u></p>`;
     page11 += `</div>`;
 
 
     page11 += `
     <hr class="left" style="height:1px; width: 230px;"/>
-    <div style="font-size: 9px;">
-      <p class="nopadding nomargin">1. &nbsp; &nbsp; &nbsp; &nbsp; 2012 Revision</p>
-      <p class="nopadding nomargin">2. &nbsp; &nbsp; &nbsp; &nbsp; Parts per million</p>
-      <p class="nopadding nomargin">3. &nbsp; &nbsp; &nbsp; &nbsp; pplies to sale and application of LBP.</p>
-      <p class="nopadding nomargin">4. &nbsp; &nbsp; &nbsp; &nbsp; Applies to sale and application of LBP.</p>
-      <p class="nopadding nomargin">5. &nbsp; &nbsp; &nbsp; &nbsp; Applies to construction related activities</p>
-      <p class="nopadding nomargin">6. &nbsp; &nbsp; &nbsp; &nbsp; Chapter 7 of the HUD Guidelines for the Evaluation and Control of Lead-Based Paint Hazards in Housing (2012 Revision).</p>
-      <p class="nopadding nomargin">7. &nbsp; &nbsp; &nbsp; &nbsp; Office of Pollution Prevention and Toxics, (August 20, 1996)</p>
-    </div>
+    <div style="font-size: 8pt;">
+      <p class="nopadding nomargin" style="line-height:150%;">1. &nbsp; &nbsp; &nbsp; &nbsp; 2012 Revision</p>
+      <p class="nopadding nomargin" style="line-height:150%;">2. &nbsp; &nbsp; &nbsp; &nbsp; Parts per million</p>
+      <p class="nopadding nomargin" style="line-height:150%;">3. &nbsp; &nbsp; &nbsp; &nbsp; pplies to sale and application of LBP.</p>
+      <p class="nopadding nomargin" style="line-height:150%;">4. &nbsp; &nbsp; &nbsp; &nbsp; Applies to sale and application of LBP.</p>
+      <p class="nopadding nomargin" style="line-height:150%;">5. &nbsp; &nbsp; &nbsp; &nbsp; Applies to construction related activities</p>
+      <p class="nopadding nomargin" style="line-height:150%;">6. &nbsp; &nbsp; &nbsp; &nbsp; Chapter 7 of the HUD Guidelines for the Evaluation and Control of Lead-Based Paint Hazards in Housing (2012 Revision).</p>
+      <p class="nopadding nomargin" style="line-height:150%;">7. &nbsp; &nbsp; &nbsp; &nbsp; Office of Pollution Prevention and Toxics, (August 20, 1996)</p>
+    </div></div>
     `;
 
-    page11 +=  this.getFooter(60);
+    page11 +=  this.getFooter(60) + `</div>`;
 
 
     /***********************           page 12              ****************************/
 
 
 
-    let page12 = this.getHeader(row, bc3_small_image, 12);
+    let page12 = `<div id="page12" class = "pages"><div>` + this.getHeader(row, bc3_small_image, 10);
 
     if(row.actionLevel == '0.5'){
       page12 += `<p class="left">In recognition of the various action levels the testing results are classified as follows for this report:</p>`;
@@ -1452,19 +1500,16 @@ async getReport(row){
 
     page12 += `<p class="left">
         <font class="text-underline">New Lead Clearance Action Levels:</font> <font class="bold">Interior Floors: < 10 &#181;g/ft<sup>2</sup>; Porch Floors: < 40 &#181;g/ft<sup>2</sup>, Window Sills: < 100 &#181;g/ft<sup>2</sup>, and Window Troughs: < 100 &#181;g/ft<sup>2</sup> </font>
-      </p>`;
-    page12 +=  this.getFooter(100);
+      </p></div>`;
+    page12 +=  this.getFooter(100) + `</div>`;
 
 
     /***********************           page 13              ****************************/
 
 
 
-    let page13 = this.getHeader(row, bc3_small_image, 13) + `
-    <h3 class="center">11.0 METHOD OF TESTING</h3>`;
-
-
-
+    let page13 = `<div id="page13" class = "pages"><div>` + this.getHeader(row, bc3_small_image, 11) + `
+    <p class="center bold">11.0 METHOD OF TESTING</p>`;
     page13 += `<p class="left"><font class="text-underline bold">Paint Testing:</font> The method employed was X-ray fluorescence (XRF) using a Radiation Monitoring Device Lead Paint Analyzer (RMD LPA-1). The instrument was operated in "Quick Mode," where the duration for each test result is determined by a combination of:
       </p>`;
 
@@ -1489,39 +1534,38 @@ async getReport(row){
       <ul>
       <li><font class="text-underline">Dust Wipe Sampling</font> - The method of analysis was <font class="text-underline">Flame Atomic Absorption Spectroscopy</font> (EPA 3050B/7000A, Flame AA) performed on samples collected from measured areas.</li>
       <li><font class="text-underline">Soil Sampling</font> - The method of analysis was <font class="text-underline">Flame Atomic Absorption Spectroscopy</font> (EPA 3050B/7000A, Flame AA) performed on samples collected from the top &#189; of bare soil areas (drip line, etc.). </li>
-      </ul>
+      </ul></div>
       `;
-    page13 +=  this.getFooter(100);
+    page13 +=  this.getFooter(100) + `</div>`;
 
 
     content += page1 + page2 + page3 + page5 + page6 + page7 + page8 + page9 + page11 + page12 + page13;
 
-    content += `
+    content += `<div id="page14" class = "pages"><div>
     <div style="margin-bottom: 100px;">&nbsp;</div>
-    <p class="center bold" style="font-size:70px;">APPENDIX</p>
-    <p class="center bold" style="font-size:70px;">A</p>
+    <p class="center bold" style="font-size:72pt;">APPENDIX</p>
+    <p class="center bold" style="font-size:72pt;">A</p>
     <p class="center bold italic">XRF FIELD DATA</p>
-    <br clear="all" style="page-break-before:always" ></br>
+    <br clear="all" style="page-break-before:always" ></br></div></div>
     `;
 
-    content += this.getSummary(row);
+    // content += this.getSummary(row);
 
 
-    content += `
+    content += `<div id="page15" class = "pages"><div>
     <div style="margin-bottom: 200px;">&nbsp;</div>
-    <p class="center bold" style="font-size:70px;">APPENDIX</p>
-    <p class="center bold" style="font-size:70px;">B</p>
+    <p class="center bold" style="font-size:72pt;">APPENDIX</p>
+    <p class="center bold" style="font-size:72pt;">B</p>
     <p class="center bold italic nomargin">FLOORPLAN/MAPS</p>
     <p class="center bold italic nomargin">RESIDENT QUESTIONNAIRE</p>
     <p class="center bold italic nomargin">BUILDING CONDITIONS SURVEY</p>
     <p class="center bold italic nomargin">CDPH 8552</p>
     <p class="center bold italic nomargin">INSPECTOR'S CERTIFICATES</p>
     <p class="center bold italic nomargin">INSURANCE CERTIFICATE</p>
-    <br clear="all" style="page-break-before:always" ></br>
+    <br clear="all" style="page-break-before:always" ></br>    <br clear="all" style="page-break-before:always" ></br></div></div>
+
     `;
-
-    content += this.get8552Content(row, image1, image2, image3);
-
+    
     let b1, b2, b3, b4;
 
     await this.getBase64('/assets/img/attachments/b1.jpg').then((data)=>{
@@ -1540,19 +1584,19 @@ async getReport(row){
       b4 = '<img width=750 height=850 src="' + data + '"/>';
     });
 
-    content += this.putImage(b1);
-    content += this.putImage(b2);
-    content += this.putImage(b3);
-    content += this.putImage(b4);
+    content += this.putImage(b1, "page16");
+    content += this.putImage(b2, "page17");
+    content += this.putImage(b3, "page18");
+    content += this.putImage(b4, "page19");
 
-    content += `
+    content += `<div id = "page20" class = "pages"><div>
     <div style="margin-bottom: 200px;">&nbsp;</div>
-    <p class="center bold" style="font-size:70px;">APPENDIX</p>
-    <p class="center bold" style="font-size:70px;">C</p>
+    <p class="center bold" style="font-size:72pt;">APPENDIX</p>
+    <p class="center bold" style="font-size:72pt;">C</p>
     <p class="center bold italic nomargin">PERFORMANCE CHARACTERISTIC SHEET (PCS)</p>
     <p class="center bold italic nomargin">LEAD SPEAK – A BRIEF GLOSSARY & KEY UNITS OF MEASUREMENT</p>
     <p class="center bold italic nomargin">ADDITIONAL LEAD & LEAD SAFETY RESOURCE DATA</p>
-    <br clear="all" style="page-break-before:always" ></br>
+    <br clear="all" style="page-break-before:always" ></br></div></div>
     `;
 
     let c1, c2, c3, c4, c5, c6, c7, c8;
@@ -1589,113 +1633,90 @@ async getReport(row){
       c8 = '<img width=750 height=850 src="' + data + '"/>';
     });
 
-    content += this.putImage(c1);
-    content += this.putImage(c2);
-    content += this.putImage(c3);
-    content += this.putImage(c4);
-    content += this.putImage(c5);
-    content += this.putImage(c6);
-    content += this.putImage(c7);
-    content += this.putImage(c8);
+    content += this.putImage(c1, "page21");
+    content += this.putImage(c2, "page22");
+    content += this.putImage(c3, "page23");
+    content += this.putImage(c4, "page24");
+    content += this.putImage(c5, "page25");
+    content += this.putImage(c6, "page26");
+    content += this.putImage(c7, "page27");
+    content += this.putImage(c8, "page28");
 
-    content += `
+    content += `<div id="page29" class = "pages"><div>
     <div style="margin-bottom: 200px;">&nbsp;</div>
-    <p class="center bold" style="font-size:70px;">APPENDIX</p>
-    <p class="center bold" style="font-size:70px;">D</p>
+    <p class="center bold" style="font-size:72pt;">APPENDIX</p>
+    <p class="center bold" style="font-size:72pt;">D</p>
     <p class="center bold italic nomargin">DUST WIPE & SOIL SAMPLE LABORATORY MANIFESTS AND RESULTS</p>
-    <br clear="all" style="page-break-before:always" ></br>
+    <br clear="all" style="page-break-before:always" ></br></div></div>
     `;
-
-
-
-
 
     console.log('----state----', this.state);
     content = juice.inlineContent(content, css);
-    converted = htmlDocx.asBlob(content, {orientation: 'portrait', margins: {top: 400, left : 600, right : 400, bottom: 400}});
-    saveAs(converted, 'full.docx' );
-
+    
+    this.setState({isPrintPreview: true});
+    var node = document.querySelector('#printElement');
+    node.innerHTML = content;
+    let heightArr = [];
+    for(let i = 1; i < 30; i++){
+      let page = document.querySelector(`#page${i}`);
+      if(page) {
+        let height = page.offsetHeight;
+        heightArr.push(height);
+      }
+    }
+    this.setState({heightArr, pdfTitle: "Full HUD - Master"});
   }
-
-  else if( row.type == 1)
+  else if( row.type === 1)
   {
-    let page2 = this.getHeader(row, bc3_small_image, 2) + `
+    let page2 = `<div id="page2" class = "pages"><div>` + this.getHeader(row, bc3_small_image, 2) + `
 
     <div class="center">
-    <h2>TABLE OF CONTENTS</h2>
-    <table class="no-border">
-      <tr style="margin-bottom:15px;">
-        <td width="70%">
-          <h3 style="text-decoration: underline;">Description</h3>
-        </td>
-        <td width="30%">
-          <h3 style="text-decoration: underline;">PAGE NO</h3>
-        </td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">1.0 INTRODUCTION</span>
-        </td>
-        <td width="30%"><span>3</span></td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">2.0 SCOPE OF WORK</span>
-        </td>
-        <td width="30%"><span>3</span></td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">3.0 INSPECTOR'S QUALIFICATIONS</span>
-        </td>
-        <td width="30%"><span>3</span></td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">4.0 TESTING PROTOCOL</span>
-        </td>
-        <td width="30%"><span>4</span></td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">5.0 METHOD OF TESTING</span>
-        </td>
-        <td width="30%"><span>5</span></td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">6.0 SUMMARY OF RESULTS</span>
-        </td>
-        <td width="30%"><span>5</span></td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">7.0 RECOMMENDATIONS</span>
-        </td>
-        <td width="30%"><span>6</span></td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">8.0 TITLE X REQUIREMENTS</span>
-        </td>
-        <td width="30%"><span>7</span></td>
-      </tr>
-      <tr>
-        <td width="70%">
-          <span class="big-font">9.0 INSPECTION LIMITATIONS</span>
-        </td>
-        <td width="30%"><span>8</span></td>
-      </tr>
-    </table>
-
-
-
-
-
-
-
-
-    <table class="no-border" style="text-transform: uppercase;">
+    <h2 style= "font-weight: bold; padding-top: 30px;">TABLE OF CONTENTS</h2>
+    <div style = "text-transform: uppercase; width: 100%;">
+      <div class="content-wrapper">
+        <p style="text-decoration: underline;font-weight:bold;">DESCRIPTION</p>
+        <div>
+          <p style="text-decoration: underline;text-align:center;font-weight:bold;">PAGE NO</p>
+        </div>    
+      </div>
+      <div class="content-wrapper content-wrapper-padding">
+        <span class="big-font content-title">1.0 INTRODUCTION-----------------------------------------------------------------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">3</p></div>
+      </div>
+      <div class="content-wrapper content-wrapper-paddingr">
+        <span class="big-font content-title">2.0 SCOPE OF WORK---------------------------------------------------------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">3</p></div>
+      </div>
+      <div class="content-wrapper content-wrapper-padding">
+        <span class="big-font content-title">3.0 INSPECTOR'S QUALIFICATIONS---------------------------------------------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">3</p></div>
+      </div>
+      <div class="content-wrapper content-wrapper-padding">
+        <span class="big-font content-title">4.0 TESTING PROTOCOL----------------------------------------------------------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">4</p></div>
+      </div>
+      <div class="content-wrapper content-wrapper-padding">
+        <span class="big-font content-title">5.0 METHOD OF TESTING--------------------------------------------------------------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">5</p></div>
+      </div>
+      <div class="content-wrapper content-wrapper-padding">
+        <span class="big-font content-title">6.0 SUMMARY OF RESULTS---------------------------------------------------------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">5</p></div>
+      </div>
+      <div class="content-wrapper content-wrapper-padding">
+        <span class="big-font content-title">7.0 RECOMMENDATIONS---------------------------------------------------------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">6</p></div>
+      </div>
+      <div class="content-wrapper content-wrapper-padding">
+        <span class="big-font content-title">8.0 TITLE X REQUIREMENTS-------------------------------------------------------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">7</p></div>
+      </div>
+      <div class="content-wrapper content-wrapper-padding">
+        <span class="big-font content-title">9.0 INSPECTION LIMITATIONS----------------------------------------------------------------------------------------------------</span>
+        <div style="padding-right: 25px;"><p class = "center nomargin">8</p></div>
+      </div>
+    </div>
+    <table class="no-border" style="text-transform: uppercase;margin-top:20px;">
       <tr>
         <td width="30%">
           <p style="text-decoration: underline;">APPENDIX</p>
@@ -1716,20 +1737,19 @@ async getReport(row){
         <td width="70%">
         </td>
       </tr>
-    </table>
-    ` + this.getFooter(100);
+    </table></div></div>
+    ` + this.getFooter(100) + `</div>`;
 
 
 
 /***********************           page 3              ****************************/
 
-
-    let page3 = this.getHeader(row, bc3_small_image, 3) + `
+    let page3 = `<div id="page3" class = "pages"><div>` + this.getHeader(row, bc3_small_image, 3) + `
 
     <div style="text-transform: uppercase;">
-    <h1 class="center italic" style="font-size:30px;">LIMITED LEAD-BASED PAINT INSPECTION REPORT</h1>
-    <h1 class="center italic pink" style="font-size:30px;">(TYPE OF INSPECTION)</h1>
-    <h3 class="center"> 1.0 Introduction </h3>
+      <h1 class="center italic bold" style="font-size:20pt;">LIMITED LEAD-BASED PAINT INSPECTION REPORT</h1>
+      <h1 class="center italic pink" style="font-size:20pt;">${typeInspection}</h1>
+      <p class="center bold" font> 1.0 Introduction </p>
     </div>
     <p class="left">
       This report presents the results of Barr & Clark's limited lead-based paint (LBP) inspection of the ${row.name} located at ${row.street}, ${row.city}, California (Subject Property).
@@ -1750,7 +1770,7 @@ async getReport(row){
     })
 
 
-    page3 += `<h3 class="center">2.0 SCOPE OF WORK</h3>`;
+    page3 += `<p class="center bold">2.0 SCOPE OF WORK</p>`;
     page3 += `<p class="left">
       The purpose of this limited inspection is to identify and assess the Lead-Based Paint (LBP) present on select painted components at the subject property.
     </p>`;
@@ -1771,7 +1791,7 @@ async getReport(row){
       It is important to note that other lead containing materials or surfaces may exist in this structure but were not identified and sampled.
      </p>`;
 
-    page3 += `<h3 class="center">3.0 INSPECTOR'S QUALIFICATIONS</h3>`;
+    page3 += `<p class="center bold">3.0 INSPECTOR'S QUALIFICATIONS</p>`;
     page3 += `<p class="left">
       ${this.state.inspector.name} of Barr & Clark performed the inspection/risk assessment at the site using an RMD LPA-1 XRF spectrum analyzer instrument.
       He has attended the radiation safety course for handling the instrument, and completed an EPA approved curriculum in Lead in Construction Inspector / Risk Assessor Training.
@@ -1781,19 +1801,17 @@ async getReport(row){
       At the time of this report, the California Department of Health Services, Childhood Lead Poisoning Branch,
       has implemented a State Certification Model Accreditation Plan adopted from the EPA.
       ${this.state.inspector.name} has received certification. Personnel certificate(s) have been provided.
-     </p>`;
-    page3 +=  this.getFooter(50);
+     </p></div>`;
+    page3 +=  this.getFooter(50) + `</div>`;
 
 
 
     /***********************           page 4              ****************************/
 
 
-    let page4 = this.getHeader(row, bc3_small_image, 4) + `
+    let page4 = `<div id="page4" class = "pages"><div>` + this.getHeader(row, bc3_small_image, 4) + `
 
-    <h3 class="center">4.0 TESTING PROTOCOL</h3>`;
-
-
+    <p class="center bold">4.0 TESTING PROTOCOL</p>`;
     page4 += `<p class="left">
         <font class="text-underline bold">XRF Testing:</font> Testing of the painted surfaces was patterned after the inspection protocol in Chapter 7 of
         the <font class="text-underline">HUD Guidelines for the Evaluation and Control of Lead-Based Paint Hazards in Housing<sup>1</sup><font class="italic">(2012 Revision)</font></font>.
@@ -1817,7 +1835,7 @@ async getReport(row){
 
     if(row.actionLevel == '0.7'){
       page4 += `
-      <tr class="nopadding nomargin">
+      <tr class="nopadding nomargin text-10">
         <td class="nopadding nomargin">San Diego Lead Ordinance </td>
         <td class="nopadding nomargin">Section 54.1005-1015  </td>
         <td class="nopadding nomargin">0.5 mg / cm<sup>2</sup></td>
@@ -1825,24 +1843,24 @@ async getReport(row){
       </tr>`;
 
       page4 += `
-      <tr class="nopadding nomargin">
-        <td class="nopadding nomargin">L.A. County</td>
+      <tr class="nopadding nomargin text-10">
+        <td class="nopadding nomargin bold">L.A. County</td>
         <td class="nopadding nomargin">Title 11, 11.28.010</td>
         <td class="nopadding nomargin">0.7 mg / cm<sup>2</sup></td>
         <td class="nopadding nomargin">600 ppm<sup>4</sup></td>
       </tr>`;
 
       page4 += `
-      <tr class="nomargin nopadding">
-        <td>HUD / EPA</td>
+      <tr class="nomargin nopadding text-10">
+        <td class="bold">HUD / EPA</td>
         <td>24 CFR 35.86 & 40 CFR 745.103</td>
         <td>1.0 mg / cm<sup>2</sup></td>
         <td>5,000 ppm</td>
       </tr>`;
 
       page4 += `
-      <tr class="nomargin nopadding">
-        <td>OSHA / CAL OSHA</td>
+      <tr class="nomargin nopadding text-10">
+        <td class="bold">OSHA / CAL OSHA</td>
         <td>29 CFR 1926.62 & Title 8, 1532.1</td>
         <td class="italic">Not Specified</td>
         <td>600 ppm<sup>5</sup></td>
@@ -1850,27 +1868,27 @@ async getReport(row){
     }
     page4 += `</table>`;
 
-    page4 += `<div style="border: 1px solid black; font-size: 13px;">`;
-    page4 += `<p class="left text-underline">HUD / EPA have recently issued the following guidance regarding units of measurement for paint samples:</p>`;
-    page4 += `<p class="left">
+    page4 += `<div style="border: 1px solid black;line-height:normal;" class="text-10">`;
+    page4 += `<p class="left text-underline nomargin" style="margin-bottom: 10px;">HUD / EPA have recently issued the following guidance regarding units of measurement for paint samples:</p>`;
+    page4 += `<p class="left nomargin">
     "Report lead paint amounts in mg/cm<sup>2</sup> because this unit of measurement does not depend on the number of layers of non-lead-based paint and
     can usually be obtained without damaging the painted surface. All measurements of lead in paint should be in mg/cm<sup>2</sup>,
     unless the surface area cannot be measured or if all paint cannot be removed from the measured surface area.
     In such cases, concentrations may be reported in weight percent (%) or parts per million by weight (ppm)."<sup>6</sup>
         </p>`;
 
-    page4 += `<p class="left text-underline">Furthermore, EPA has previously issued guidance on lead content classification as follows:</p>`;
-    page4 += `<p class="left">
+    page4 += `<p class="left text-underline nomargin" style="margin-bottom: 10px;margin-top: 10px;">Furthermore, EPA has previously issued guidance on lead content classification as follows:</p>`;
+    page4 += `<p class="left nomargin">
     "... The rule, at 24 CFR 35.86 and 40 CFR 745.103 states that a lead-based paint free finding must demonstrate that the building is free of
     'paint or other surface coatings that contain lead in excess of 1.0 milligrams per square centimeter (1.0 mg / cm<sup>2</sup>) or 0.5 percent by weight (5000 ppm).'
-    The State standards are not applicable, whether more or less stringent, since a State cannot amend Federal requirements."<sup>7</sup>
-        </p>`;
+    <u >The State standards are not applicable, whether more or less stringent, since a State cannot amend Federal requirements."<sup>7</sup>
+        </u></p>`;
     page4 += `</div>`;
 
     if(row.actionLevel == '0.5'){
-      page4 += `<p class="left">In recognition of the various action levels the testing results are classified as follows for this report:</p>`;
+      page4 += `<p class="left top-margin">In recognition of the various action levels the testing results are classified as follows for this report:</p>`;
 
-      page4 += `<ul>`;
+      page4 += `<ul class="padding-left-20">`;
       page4 += `<li class="left">Painted surfaces with readings at or above 0.5 mg / cm<sup>2</sup> are considered 	-	Positive</li>`;
       page4 += `<li class="left">Painted surfaces with readings at or below 0.4 mg / cm<sup>2</sup> are considered	-	Negative</li>
       </ul>`;
@@ -1878,18 +1896,18 @@ async getReport(row){
     }
 
     if(row.actionLevel == '0.7'){
-      page4 += `<p class="left">In recognition of the various action levels the testing results are classified as follows for this report:</p>`;
+      page4 += `<p class="left top-margin">In recognition of the various action levels the testing results are classified as follows for this report:</p>`;
 
-      page4 += `<ul>`;
+      page4 += `<ul class="padding-left-20">`;
       page4 += `<li class="left">Painted surfaces with readings at or above 0.7 mg / cm<sup>2</sup> are considered 	-	Positive</li>`;
       page4 += `<li class="left">Painted surfaces with readings at or below 0.6 mg / cm<sup>2</sup> are considered	-	Negative</li>
       </ul>`;
     }
 
     if(row.actionLevel == '1.0'){
-      page4 += `<p class="left">In recognition of the various action levels the testing results are classified as follows for this report:</p>`;
+      page4 += `<p class="left top-margin">In recognition of the various action levels the testing results are classified as follows for this report:</p>`;
 
-      page4 += `<ul>`;
+      page4 += `<ul class="padding-left-20">`;
       page4 += `<li class="left">Painted surfaces with readings at or above 1.0 mg / cm<sup>2</sup> are considered 	-	Positive</li>`;
       page4 += `<li class="left">Painted surfaces with readings at or below 0.9 mg / cm<sup>2</sup> are considered	-	Negative</li>
       </ul>`;
@@ -1897,34 +1915,34 @@ async getReport(row){
 
     page4 += `
     <hr class="left" style="height:1px; width: 230px;"/>
-    <div style="font-size: 9px;">
-      <p class="nopadding nomargin">1. &nbsp; &nbsp; &nbsp; &nbsp; 2012 Revision</p>
-      <p class="nopadding nomargin">2. &nbsp; &nbsp; &nbsp; &nbsp; Parts per million</p>
-      <p class="nopadding nomargin">3. &nbsp; &nbsp; &nbsp; &nbsp; pplies to sale and application of LBP.</p>
-      <p class="nopadding nomargin">4. &nbsp; &nbsp; &nbsp; &nbsp; Applies to sale and application of LBP.</p>
-      <p class="nopadding nomargin">5. &nbsp; &nbsp; &nbsp; &nbsp; Applies to construction related activities</p>
-      <p class="nopadding nomargin">6. &nbsp; &nbsp; &nbsp; &nbsp; Chapter 7 of the HUD Guidelines for the Evaluation and Control of Lead-Based Paint Hazards in Housing (2012 Revision).</p>
-      <p class="nopadding nomargin">7. &nbsp; &nbsp; &nbsp; &nbsp; Office of Pollution Prevention and Toxics, (August 20, 1996)</p>
-    </div>
+    <div style="font-size: 8pt;">
+      <p class="nopadding nomargin" style="line-height:150%;">1. &nbsp; &nbsp; &nbsp; &nbsp; 2012 Revision</p>
+      <p class="nopadding nomargin" style="line-height:150%;">2. &nbsp; &nbsp; &nbsp; &nbsp; Parts per million</p>
+      <p class="nopadding nomargin" style="line-height:150%;">3. &nbsp; &nbsp; &nbsp; &nbsp; pplies to sale and application of LBP.</p>
+      <p class="nopadding nomargin" style="line-height:150%;">4. &nbsp; &nbsp; &nbsp; &nbsp; Applies to sale and application of LBP.</p>
+      <p class="nopadding nomargin" style="line-height:150%;">5. &nbsp; &nbsp; &nbsp; &nbsp; Applies to construction related activities</p>
+      <p class="nopadding nomargin" style="line-height:150%;">6. &nbsp; &nbsp; &nbsp; &nbsp; Chapter 7 of the HUD Guidelines for the Evaluation and Control of Lead-Based Paint Hazards in Housing (2012 Revision).</p>
+      <p class="nopadding nomargin" style="line-height:150%;">7. &nbsp; &nbsp; &nbsp; &nbsp; Office of Pollution Prevention and Toxics, (August 20, 1996)</p>
+    </div></div>
     `;
 
 
 
-    page4 +=  this.getFooter(0);
+    page4 +=  this.getFooter(0) + `</div>`;
 
 
     /***********************           page 5              ****************************/
 
 
-    let page5 = this.getHeader(row, bc3_small_image, 5);
+    let page5 = `<div id="page5" class = "pages"><div>` + this.getHeader(row, bc3_small_image, 5);
 
     page5 += `<p class="left italic bold">
     The individual readings have been provided on all field data sheets. Any future change in action levels by one of the regulating agencies may affect the classification of results.
       </p>`;
-    page5 += `<h3 class="center">5.0 METHOD OF TESTING</h3>`;
+    page5 += `<p class="center bold">5.0 METHOD OF TESTING</p>`;
 
 
-    page5 += `<p class="left">
+    page5 += `<p class="left nomargin">
     <font class="text-underline bold">Paint Testing:</font> The method employed was X-ray fluorescence (XRF) using a Radiation Monitoring Device Lead Paint Analyzer (RMD LPA-1).
     The instrument was operated in "Quick Mode," where the duration for each test result is determined by a combination of:
       </p>`;
@@ -1945,14 +1963,14 @@ async getReport(row){
       The readings from this instrument produce a 95% confidence level that the "lead" reading accurately reflects the actual level of lead in the tested surfaces, relative to the federal action level.
       </p>`;
 
-      page5 += `<h3 class="center">6.0 SUMMARY OF RESULTS</h3>`;
+      page5 += `<p class="center bold">6.0 SUMMARY OF RESULTS</p>`;
 
       if (hot.length){
         page5 += `<p class="left"><font class="text-underline bold">Paint Sampling:</font> Throughout the subject property, several of the painted components
           indicated the presence of lead based paint (LBP) at or above the respective action level.
           The following summary lists the specific components that tested above the action level and their respective locations:</p>`;
 
-        page5 += `<h3 class="text-underline italic bold left">Interior</h3>`;
+        page5 += `<p class="text-underline italic bold left nomargin">Interior</p>`;
 
         page5 += '<ul>';
         hot.map( h => {
@@ -1969,7 +1987,7 @@ async getReport(row){
           page5 += `also tested positive for lead. These surfaces were not painted and the lead is most likely in the glazing or the matrix of the tile itself</p>`;
         }
 
-        page5 += `<h3 class="text-underline italic bold left">Exterior</h3>`;
+        page5 += `<p class="text-underline italic bold left nomargin">Exterior</p>`;
 
 
         hot.map( h => {
@@ -1996,11 +2014,11 @@ async getReport(row){
         page5 += `<p class="left italic bold">***Homeowner only wanted components that will be affected by replacement to be tested.***</p>`;
         page5 += `<p class="left"><font class="italic bold">Sampling for this inspection/risk assessment was representative.</font> The field data and results for paint sampling may be found in <span class="italic bold">Appendix.</span></p>`;
         page5 += `<p class="left italic bold">Only select window components and/or door components and the adjacent walls were sampled for the presence of LBP. </p>`;
-        page5 += `<p class="left italic bold">Note: This is a limited inspection - only XXX was inspected and tested.   It is important to note that other lead containing materials or surfaces may exist in this structure but were not identified and sampled. </p>`;
+        page5 += `<p class="left italic bold">Note: This is a limited inspection – only XXX was inspected and tested.   It is important to note that other lead containing materials or surfaces may exist in this structure but were not identified and sampled. </p>`;
 
       }
 
-    page5 +=  this.getFooter(50);
+    page5 +=  `</div>` + this.getFooter(50) + `</div>`;
 
 
 
@@ -2008,21 +2026,14 @@ async getReport(row){
     /***********************           page 6              ****************************/
 
 
-    let page6 = this.getHeader(row, bc3_small_image, 6);
-
-    page6 += `<h3 class="center">6.0 RECOMMENDATIONS</h3>`;
-
-
-    if (hot.length == 0){
-
-      page6 += `<p class="left">The greatest potential for lead exposure from lead painted architectural components occurs when:</p>`;
-
+    let page6 = `<div id="page6" class = "pages"><div>` + this.getHeader(row, bc3_small_image, 6);
+    page6 += `<p class="center bold">7.0 RECOMMENDATIONS</p>`;
+    if (hot.length !== 0){
+      page6 += `<p class="left nomargin">The greatest potential for lead exposure from lead painted architectural components occurs when:</p>`;
       page6 += `<ul><li class="left">the paint has become defective; or</li>`;
       page6 += `<li class="left">when the paint is applied to a friction / impact component where the paint is continually disturbed; or</li>`;
       page6 += `<li class="left">when the paint is disturbed through routine maintenance or renovation activities.</li></ul>`;
-
-      page6 += `<p class="left">With this in mind, the following are our recommendations for this property:</p>`;
-
+      page6 += `<p class="left nomargin">With this in mind, the following are our recommendations for this property:</p>`;
       page6 += `<ul><li class="left">The results from this inspection should be provided to any individuals that may disturb the painted surfaces. It is encouraged to utilize certified professionals that have experience working with LBP if the work is performed by someone other than the homeowner.</li>`;
       page6 += `<li class="left text-underline">If renovation is scheduled in the near future (less than three months), all lead painted components that have been previously targeted for replacement should be replaced utilizing "lead safe" containment and work practices.</li>`;
       page6 += `<li class="left">ALL components that have been identified with defective lead paint should have the paint repaired as soon as possible. Any paint repair should be done utilizing "lead safe" containment, work practices, and clean-up techniques.</li>`;
@@ -2046,16 +2057,16 @@ async getReport(row){
          It is important to note that other lead containing materials or surfaces may exist in this structure but were not identified and sampled. </p>`;
     }
 
-    page6 +=  this.getFooter(50);
+    page6 +=  `</div>` + this.getFooter(50) + `</div>`;
 
 
 
     /***********************           page 7              ****************************/
 
 
-    let page7 = this.getHeader(row, bc3_small_image, 7);
+    let page7 = `<div id="page7" class = "pages"><div>` + this.getHeader(row, bc3_small_image, 7);
 
-    page7 += `<h3 class="center">8.0 TITLE X REQUIREMENTS</h3>`;
+    page7 += `<p class="center bold">8.0 TITLE X REQUIREMENTS</p>`;
 
     page7 += `<p class="left">
       A copy (or summary) of this report must be provided to new lessees (tenants) and purchasers of this property under Federal law (24 CFR part 35 and 40 CFR part 745)
@@ -2064,17 +2075,17 @@ async getReport(row){
       Landlords (lessors) and sellers are also required to distribute an educational pamphlet approved by the U.S. Environmental Protection Agency and
       include standard warning language in their leases or sales contracts to ensure that parents have the information they need to protect their children
       from lead-based paint hazards. This report should be maintained and updated as a permanent maintenance record for this property.
-      </p>`;
+      </p></div>`;
 
-    page7 +=  this.getFooter(200);
+    page7 +=  this.getFooter(200) + `</div>`;
 
 
     /***********************           page 8              ****************************/
 
 
-    let page8 = this.getHeader(row, bc3_small_image, 8);
+    let page8 = `<div id="page8" class = "pages"><div>` + this.getHeader(row, bc3_small_image, 8);
 
-    page8 += `<h3 class="center">9.0 INSPECTION LIMITATIONS</h3>`;
+    page8 += `<p class="center bold">9.0 INSPECTION LIMITATIONS</p>`;
 
     page8 += `<p class="left">
       This limited inspection was planned, developed, and implemented based on Barr & Clark's previous experience in performing lead-based paint inspections.
@@ -2086,9 +2097,9 @@ async getReport(row){
 
     page8 += `<p class="left">
       Enclosed are the actual test results and all relevant certifications/licenses.
-      </p>`;
+      </p></div>`;
 
-    page8 +=  this.getFooter(200);
+    page8 +=  this.getFooter(200) + `</div>`;
 
 
 
@@ -2097,20 +2108,20 @@ async getReport(row){
 
 
 
-    content += `
+    content += `<div id="page9" class = "pages"><div>
     <div style="margin-bottom: 200px;">&nbsp;</div>
-    <p class="center bold" style="font-size:70px;">APPENDIX</p>
+    <p class="center bold" style="font-size:72pt;">APPENDIX</p>
     <p class="center bold italic nomargin">XRF FIELD DATA</p>
     <p class="center bold italic nomargin">CDPH 8552</p>
     <p class="center bold italic nomargin">INSPECTOR CERTIFICATES</p>
     <p class="center bold italic nomargin">INSURANCE</p>
     <p class="center bold italic nomargin">MAP</p>
-    <br clear="all" style="page-break-before:always" ></br>
+    <br clear="all" style="page-break-before:always" ></br></div></div>
     `;
 
-    content += this.getSummary(row);
+    // content += this.getSummary(row);
 
-    content += this.get8552Content(row, image1, image2, image3);
+    // content += this.get8552Content(row, image1, image2, image3);
 
     let b1, b2, b3, b4;
 
@@ -2130,49 +2141,175 @@ async getReport(row){
       b4 = '<img width=750 height=850 src="' + data + '"/>';
     });
 
-    content += this.putImage(b1);
-    content += this.putImage(b2);
-    content += this.putImage(b3);
-    content += this.putImage(b4);
-
+    content += this.putImage(b1, "page10");
+    content += this.putImage(b2, "page11");
+    content += this.putImage(b3, "page12");
+    content += this.putImage(b4, "page13");
 
     console.log('----state----', this.state);
     console.log('----row----', row);
     content = juice.inlineContent(content, css);
-    converted = htmlDocx.asBlob(content, {orientation: 'portrait', margins: {top: 400, left : 600, right : 400, bottom: 400}});
-    saveAs(converted, 'limited.docx' );
+    this.setState({isPrintPreview: true});
+    node = document.querySelector('#printElement');
+    node.innerHTML = content;
+    let heightArr = [];
+    for(let i = 1; i < 14; i++){
+      let page = document.querySelector(`#page${i}`);
+      if(page) {
+        let height = page.offsetHeight;
+        heightArr.push(height);
+      }
+    }
+    this.setState({heightArr, pdfTitle: "Limted LBP - Master"});
+    // converted = htmlDocx.asBlob(content, {orientation: 'portrait', margins: {top: 400, left : 600, right : 400, bottom: 400}});
+    // saveAs(converted, 'limited.docx' );
   }
 
 }
 
-putImage(image) {
-  return `<div>${image}</div><br clear="all" style="page-break-before:always" ></br>`;
+print() {
+  const filename = this.state.pdfTitle;
+  var node = document.querySelector('#printElement');
+  var heightArr = this.state.heightArr;
+  domtoimage.toPng(node)
+  .then(function (dataUrl) {
+    const paperWidth = 612;
+    const paperHeight = 792;
+    let img = new Image();
+    img.src = dataUrl;
+    img.onload = () => {
+      let imgWidth = img.width; 
+      let imgHeight = img.height;      
+      // let pdf = new jsPDF('p', 'pt', 'a4');
+      let pdf = new jsPDF({orientation: 'portrait', unit: 'pt', format: [paperWidth, paperHeight]});
+      var canvas = document.createElement("canvas");
+      canvas.width = imgWidth;
+      canvas.height = imgHeight;
+      let ctx = canvas.getContext("2d");
+      ctx.drawImage(img,0,0);
+      var nPages = heightArr.length;
+      var pageCanvas = document.createElement('canvas');
+      var pageCtx = pageCanvas.getContext('2d');
+      pageCanvas.width = canvas.width;
+      pageCanvas.height = paperHeight / 0.75
+      var headers = document.getElementsByClassName("header");
+      var footers = document.getElementsByClassName("footer");
+      var headerHeight = headers[1].offsetHeight;
+      var footerHeight = footers[1].offsetHeight;
+      var headerCanvas = document.createElement('canvas');
+      var headerCtx = headerCanvas.getContext('2d');
+      headerCanvas.width = canvas.width;
+      headerCanvas.height = headerHeight;
+      var footerCanvas = document.createElement('canvas');
+      var footerCtx = footerCanvas.getContext('2d');
+      footerCanvas.width = canvas.width;
+      footerCanvas.height = footerHeight;
+      var sHeight = 0;
+      var sHeight1 = paperHeight / 0.75;
+      for (var page=0; page<nPages; page++) {
+        var w = pageCanvas.width;
+        // Display the page.
+        let nCount = Math.ceil(heightArr[page] / paperHeight * 0.75);
+        if(page > 0){
+          pageCanvas.height = paperHeight / 0.75 - headerHeight - footerHeight;
+          headerCtx.fillStyle = 'white';
+          headerCtx.fillRect(0, 0, canvas.width, headerHeight);
+          headerCtx.drawImage(canvas, 0, sHeight1, w, headerHeight, 0, 0, w, headerHeight);
+          footerCtx.fillStyle = 'white';
+          footerCtx.fillRect(0, 0, canvas.width, footerHeight);
+          footerCtx.drawImage(canvas, 0, sHeight1 + heightArr[page] - footerHeight, w, footerHeight, 0, 0, w, footerHeight);
+          var headerData = headerCanvas.toDataURL('image/png', 0.95);
+          var footerData = footerCanvas.toDataURL('image/png', 0.95);
+          for(let j = 0; j < nCount; j++){
+            let h = pageCanvas.height;
+            if(nCount > 1 && j === nCount - 1){
+              let lastH = heightArr[page] - pageCanvas.height * j - headerHeight - footerHeight;
+              if(lastH < h){
+                h = lastH
+                pageCanvas.height = h;
+              }
+            }
+            pageCtx.fillStyle = 'white';
+            pageCtx.fillRect(0, 0, w, h);
+            pageCtx.drawImage(canvas, 0, sHeight + headerHeight, w, h, 0, 0, w, h);
+            sHeight += h;
+            if(j === nCount - 1) {
+              sHeight += headerHeight + footerHeight;
+            }
+            // Add the page to the PDF.
+            if (page) pdf.addPage();
+            let imgData = pageCanvas.toDataURL('image/png', 0.95);
+            pdf.addImage(headerData, 'image/png', 0, 0, paperWidth, headerHeight* 0.75);
+            pdf.addImage(imgData, 'image/png', 0, headerHeight * 0.75, paperWidth, h * 0.75);
+            pdf.addImage(footerData, 'image/png', 0, paperHeight - footerHeight * 0.75, paperWidth, footerHeight* 0.75);
+            if(nCount > 1 && j === nCount - 1){
+              let lastH = heightArr[page] - pageCanvas.height * j - headerHeight - footerHeight;
+              if(lastH > h){
+                sHeight = sHeight - headerHeight - footerHeight;
+                h = lastH - h;
+                pageCanvas.height = h;
+                pageCtx.fillStyle = 'white';
+                pageCtx.fillRect(0, 0, w, h);
+                pageCtx.drawImage(canvas, 0, sHeight + headerHeight, w, h, 0, 0, w, h);
+                sHeight += h + headerHeight + footerHeight;
+                // Add the page to the PDF.
+                if (page) pdf.addPage();
+                let imgData = pageCanvas.toDataURL('image/png', 0.95);
+                pdf.addImage(headerData, 'image/png', 0, 0, paperWidth, headerHeight* 0.75);
+                pdf.addImage(imgData, 'image/png', 0, headerHeight * 0.75, paperWidth, h * 0.75);
+                pdf.addImage(footerData, 'image/png', 0, paperHeight - footerHeight * 0.75, paperWidth, footerHeight* 0.75);
+
+              }
+            }
+          }
+          sHeight1 += heightArr[page];
+        }
+        else{
+          var h = pageCanvas.height;
+          pageCtx.fillStyle = 'white';
+          pageCtx.fillRect(0, 0, w, h);
+          pageCtx.drawImage(canvas, 0, sHeight, w, h, 0, 0, w, h);
+          sHeight += h;
+          // Add the page to the PDF.
+          if (page)  pdf.addPage();
+          let imgData = pageCanvas.toDataURL('image/png', 0.95);
+          pdf.addImage(imgData, 'image/png', 0, 0, paperWidth, h* 0.75);
+        }
+      }
+      pdf.save(filename);
+    }
+  });
+}
+
+putImage(image, id) {
+  return `<div id ="${id}" class = "pages"><div>${image}</div><br clear="all" style="page-break-before:always" ></br></div>`;
 }
 
 getFooter(marginHeight) {
   return `
-  <div class="footer center" style="color:#71b389;margin-top:${marginHeight}px;">
-    <p class="nopadding nomargin center">16531 Bolsa Chica, Suite 205 * Huntington Beach, CA 92649 * 714.894.5700</p>
+  <div class="footer center" style="color:#003300;padding-top:${20}px;">
+    <p class="nopadding nomargin center">16531 Bolsa Chica, Suite 205 • Huntington Beach, CA 92649 • 714.894.5700</p>
     <p class="nopadding nomargin center">www.barrandclark.com</p>
+    <br clear="all" style="page-break-before:always" ></br>
   </div>
-  <br clear="all" style="page-break-before:always" ></br>
   `;
 }
 
 getHeader(row, bc3_small_image, pageNumber) {
+  let title = row.type === 1 ? "Limited Lead Based Paint Inspection Report": "Lead-Based Paint Inspection/Risk Assessment Report";
   return `
-  <div class="header" style="opacity: 0.5">
+  <div class="header">
       <table class="no-border">
       <tr>
         <td width="60%">
           <div class="left italic">
-          <p class="nomargin nopadding">Lead-Based Paint Inspection/Risk Assessment Report</p>
-          <p class="nomargin nopadding">${row.name}</p>
-          <p class="nomargin nopadding">${row.address}</p>
-          <p class="nomargin nopadding">Project Number: ${row.id}</p>
+            <p class="nomargin nopadding">${title}</p>
+            <p class="nomargin nopadding">${row.name}</p>
+            <p class="nomargin nopadding">${row.address}</p>
+            <p class="nomargin nopadding">Project Number: ${row.id}</p>
           </div>
         </td>
-        <td style="text-align: right; opacity: 0.5; filter: alpha(opacity=50);" width="30%">
+        <td style="text-align: right; filter: alpha(opacity=50);" width="30%">
           ${bc3_small_image}
           <p class="right italic" >Page ${pageNumber} </p>
         </td>
@@ -2184,7 +2321,7 @@ getHeader(row, bc3_small_image, pageNumber) {
 }
 
 getSummary(jobInfo) {
-  var content = '';
+  var content = `<div class = "pages"><div>`;
   var page = 1;
 
   //Get current date time
@@ -2199,10 +2336,6 @@ getSummary(jobInfo) {
                   + now.getDate()  + "/"
                   + now.getFullYear() + " "
                   + time;
-
-
-  page = 1;
-  content = '';
 
   var report = this.state.samples;
 
@@ -2251,7 +2384,7 @@ getSummary(jobInfo) {
     page++;
   }
 
-
+  content += "</div></div>"
   return content;
 }
 
@@ -2320,7 +2453,7 @@ getLandscapeFooter(page, datetime) {
       </tr>
      </table>
   </div>
-  <br clear="all" style="page-break-before:always" >`;
+  <br clear="all" style="page-break-before:always" ></div>`;
 }
 
 dataReport(jobInfo, report, page, datetime, startIndex) { // data, page_number, current datetime, start index in the array
@@ -2586,7 +2719,7 @@ get8552Content(jobInfo, image1, image2, image3) {
   console.log(noneLead);
   console.log(jobInfo);
 
-  let content = '';
+  let content = `<div class = "pages"><div>`;
   content += `
   <div class="header" style="padding-bottom:0px;margin-bottom:0px;line-height:10px;">
     State of California-Health and Human Services Agency</br>
@@ -2865,12 +2998,8 @@ get8552Content(jobInfo, image1, image2, image3) {
         </td>
       </tr>
     </table>
-
-
-
     <hr/>
-
-
+    </div></div>
     `;
   return content;
 }
@@ -2883,15 +3012,15 @@ get8552Content(jobInfo, image1, image2, image3) {
     xhr.onload = function() {
       let reader = new FileReader();
       reader.onloadend = function() {
-        resolve(reader.result);
+        if(xhr.status === 200) resolve(reader.result);
+        else resolve(400);
       }
       reader.readAsDataURL(xhr.response);
-      reader.onerror = error => reject(error);
+      reader.onerror = error => reject(xhr.status);
     };
     xhr.open('GET', url);
     xhr.responseType = 'blob';
     xhr.send();
-
   });
 }
 
@@ -2911,9 +3040,9 @@ get8552Content(jobInfo, image1, image2, image3) {
 
   siteNumber
   render() {
-
     return (
       <div className="animated">
+        {!this.state.isPrintPreview && (
         <Card>
           <CardHeader>
             <i className="icon-menu"></i>{this.props.name}{' '}
@@ -2934,6 +3063,21 @@ get8552Content(jobInfo, image1, image2, image3) {
             </BootstrapTable>
           </CardBody>
         </Card>
+        )}
+        {this.state.isPrintPreview && (
+        <Card>
+          <CardHeader>
+            <div style = {{display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%"}}>
+              <Button color="success" onClick={() =>  this.print()}>Export</Button>
+              <span style = {{fontWeight: "bold", fontSize: "20px"}}>Export Preview</span>
+              <Button color="danger" onClick={() =>  this.setState({isPrintPreview: false})}>Close</Button>
+            </div>
+          </CardHeader>
+          <CardBody>
+            <div id = "printElement" style = {{padding: "0px 40px 40px 40px", width: "612pt", margin: "auto"}}></div>
+          </CardBody>
+        </Card>
+        )}
       </div>
     );
   }
