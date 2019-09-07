@@ -100,8 +100,8 @@ const groupBy = key => array =>
 
 const axios = require('axios')
 const history = createBrowserHistory();
-const portraitPageSize = 15;
-const landscapePageSize = 11;
+const portraitPageSize = 28;
+const landscapePageSize = 28;
 
 
 var MyBlobBuilder = function() {
@@ -244,6 +244,7 @@ class Job extends Component {
     this.getPortraitHeader = this.getPortraitHeader.bind(this);
     this.getPortraitFooter = this.getPortraitFooter.bind(this);
     this.getInterior = this.getInterior.bind(this);
+    this.getInterior2 = this.getInterior2.bind(this);
     this.getExterior = this.getExterior.bind(this);
     this.getCalibration = this.getCalibration.bind(this);
 
@@ -262,12 +263,16 @@ class Job extends Component {
 
     this.openModal = this.openModal.bind(this);
     this.openPropModal = this.openPropModal.bind(this);
+    this.openSampleModal = this.openSampleModal.bind(this);
     this.afterOpenPropModal = this.afterOpenPropModal.bind(this);
     this.afterOpenModal = this.afterOpenModal.bind(this);
+    this.afterOpenSampleModal = this.afterOpenSampleModal.bind(this);
+    this.closeSampleModal = this.closeSampleModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.closePropModal = this.closePropModal.bind(this);
     this.saveModal = this.saveModal.bind(this);
     this.savePropModal = this.savePropModal.bind(this);
+    this.saveSampleModal = this.saveSampleModal.bind(this);
     this.deleteItemModal = this.deleteItemModal.bind(this);
 
 
@@ -279,6 +284,7 @@ class Job extends Component {
       actionLevel: 0.7,
       locations:[],
       modalIsOpen: false,
+      sampleModalIsOpen: false,
       samples:[]
     };
   }
@@ -294,7 +300,12 @@ class Job extends Component {
     console.log("yi",props)
     this.setState({propModalStuff: props});
     this.setState({propModalIsOpen: true});
-    console.log("yar", this.state.propModalStuff)
+  }
+
+  openSampleModal(props) {
+    console.log("yi",props)
+    this.setState({sampleModalStuff: props});
+    this.setState({sampleModalIsOpen: true});
   }
 
   afterOpenModal() {
@@ -308,7 +319,13 @@ class Job extends Component {
    this.subtitle.style.color = '#f00';
   }
 
+  afterOpenSampleModal() {
+   // references are now sync'd and can be accessed.
+  console.log('idk')
+  }
+
   editSample(props) {
+    console.log('yo')
     console.log("editSample from here", this.props)
   }
 
@@ -407,11 +424,55 @@ class Job extends Component {
        })
      }).then(res => {
        console.log('update', res)
-       window.location.reload();
+       this.getJobInfo().then( res => {
+         console.log('DONE')
+         this.getInspections()
+       })
      })
 
    console.log("save newstate", data)
 
+  }
+
+  saveSampleModal() {
+    let { inspectionId, title, R } = this.state.sampleModalStuff
+    let data =  this.state.data;
+    let sheets = data[0].insSheets
+    sheets.map( sheet => {
+      console.log('sh', sheet)
+      sheet.data.map(sample => {
+        if(sample.title == title){
+          sample.R = R
+        }
+
+      })
+    })
+
+    let newdata = this.state.data
+    newdata[0].insSheets = sheets
+    console.log('newdata',newdata,this.state.jobInfo)
+    axios(
+      {
+        url: '/edit',
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        data: JSON.stringify({
+          id: inspectionId,
+          state: newdata
+        })
+      }).then(res => {
+        console.log('update', res)
+        this.getJobInfo().then( res => {
+          console.log('DONE')
+          this.getInspections()
+        })
+        //window.location.reload();
+      })
+    this.setState(newdata)
+    this.setState({sampleModalIsOpen: false});
   }
 
   savePropModal() {
@@ -500,6 +561,10 @@ class Job extends Component {
         })
       }).then(res => {
         console.log('update', res)
+        this.getJobInfo().then( res => {
+          console.log('DONE')
+          this.getInspections()
+        })
         //window.location.reload();
       })
    })
@@ -513,6 +578,7 @@ class Job extends Component {
    let { sheetIndex, inspectionId, stateId, sheetId, itemId, property, condition, comments, reading, item, material, side, type, room, unit } = this.state.modalStuff
    let origIndex = this.state.modalStuffPreSave.sheetIndex
    console.log("origionalIndex", origIndex)
+   console.log("inspectionId", inspectionId)
    // console.log('save newstuff',this.state.modalStuff)
    // console.log('save data',this.state.modalStuffData)
    // console.log('save',this.state.modalStuff.stateId)
@@ -606,7 +672,11 @@ class Job extends Component {
        })
      }).then(res => {
        console.log('update', res)
-       window.location.reload();
+       this.getJobInfo().then( res => {
+         console.log('DONE')
+         this.getInspections()
+       })
+       //window.location.reload();
      })
 
    console.log("save newstate", data)
@@ -622,6 +692,11 @@ class Job extends Component {
   closePropModal() {
    this.setState({propModalStuff: []});
    this.setState({propModalIsOpen: false});
+  }
+
+  closeSampleModal() {
+   this.setState({sampleModalStuff: []});
+   this.setState({sampleModalIsOpen: false});
   }
 
   EditModal(){
@@ -920,6 +995,7 @@ class Job extends Component {
               })
             }
             else if(d.type == 'sample'){
+              d.inspectionId = inspectionId
               console.log('sample', d)
               samples.push(d)
             }
@@ -1054,6 +1130,10 @@ class Job extends Component {
 
       .font-small {
         font-size: 11px;
+      }
+
+      .font-smaller {
+        font-size: 10px;
       }
 
       .side-border td {
@@ -1463,6 +1543,7 @@ class Job extends Component {
       }
       .heading {
         text-align:center;
+        font-family:sans-serif
       }
 
       hr {
@@ -1623,50 +1704,55 @@ class Job extends Component {
       .filter-table-responsive{
         border-spacing: 0px;
 
-        margin: 0 auto;
+        margin: 0 20 auto;
       }
 
       .filter-table-responsive table {
+        font-size:10px
+        width:95%;
         border-collapse: collapse;
       }
 
       .filter-table-responsive thead tr th{
         border-bottom: 3px solid black;
-        height: 50px;
+        margin-top:20px;
+        height: 10px;
         vertical-align: middle;
         text-align: left;
       }
 
-      .filter-table-responsive thead tr th:first-child{
+      .filter-table-responsive thead tr th:first-child {
         text-align: right;
-        width : 100px;
+        width : 60px;
         padding-right: 10px;
       }
 
       .filter-table-responsive thead tr th:nth-child(2) {
-        width : 70px;
-        text-align : center;
+        width : 135px;
+        text-align : left;
+        /*unit id*/
       }
 
       .filter-table-responsive tbody tr td:nth-child(2) {
-        text-align : center;
+        text-align : left;
       }
 
       .filter-table-responsive thead tr th:nth-child(3) {
-        width : 300px;
+        width : 140px;
       }
 
       .filter-table-responsive thead tr th:nth-child(4) {
-        width : 300;
+        width : 30px;
+        /*side*/
       }
 
       .filter-table-responsive thead tr th:nth-child(5) {
-        width : 70px;
-        text-align : center;
+        width : 165px;
       }
 
       .filter-table-responsive tbody tr td:nth-child(5) {
-        text-align : center;
+        //component
+        text-align : left;
       }
 
       .filter-table-responsive thead tr th:nth-child(6) {
@@ -1674,7 +1760,19 @@ class Job extends Component {
       }
 
       .filter-table-responsive thead tr th:nth-child(7) {
-        width : 120px;
+        width : 100px;
+      }
+
+      .filter-table-responsive thead tr th:nth-child(8) {
+        width : 50px;
+      }
+
+      .filter-table-responsive thead tr th:nth-child(9) {
+        width : 80px;
+      }
+
+      .filter-table-responsive thead tr th:nth-child(10) {
+        width : 150px;
       }
 
       .filter-table-responsive tbody tr td{
@@ -1688,6 +1786,95 @@ class Job extends Component {
       }
 
       .filter-table-responsive tbody tr td:first-child{
+        text-align: right;
+        padding-right: 10px;
+      }
+
+      .filter-table-responsive-cal{
+        border-spacing: 0px;
+
+        margin: 0 20 auto;
+      }
+
+      .filter-table-responsive-cal table {
+        font-size:10px
+        width:95%;
+        border-collapse: collapse;
+      }
+
+      .filter-table-responsive-cal thead tr th{
+        border-bottom: 3px solid black;
+        margin-top:20px;
+        height: 10px;
+        vertical-align: middle;
+        text-align: left;
+      }
+
+      .filter-table-responsive-cal thead tr th:first-child {
+        text-align: right;
+        width : 60px;
+        padding-right: 10px;
+      }
+
+      .filter-table-responsive-cal thead tr th:nth-child(2) {
+        width : 45px;
+        text-align : left;
+        /*side*/
+      }
+
+      .filter-table-responsive-cal tbody tr td:nth-child(2) {
+        text-align : left;
+      }
+
+      .filter-table-responsive-cal thead tr th:nth-child(3) {
+        width : 230px;
+      }
+
+      .filter-table-responsive-cal thead tr th:nth-child(4) {
+        width : 230px;
+        /*room*/
+      }
+
+      .filter-table-responsive-cal thead tr th:nth-child(5) {
+        width : 50px;
+      }
+
+      .filter-table-responsive-cal tbody tr td:nth-child(5) {
+        //component
+        text-align : left;
+      }
+
+      .filter-table-responsive-cal thead tr th:nth-child(6) {
+        width : 100px;
+      }
+
+      .filter-table-responsive-cal thead tr th:nth-child(7) {
+        width : 100px;
+      }
+
+      .filter-table-responsive-cal thead tr th:nth-child(8) {
+        width : 250px;
+      }
+
+      .filter-table-responsive-cal thead tr th:nth-child(9) {
+        width : 80px;
+      }
+
+      .filter-table-responsive-cal thead tr th:nth-child(10) {
+        width : 150px;
+      }
+
+      .filter-table-responsive-cal tbody tr td{
+        border-bottom: 1px solid black;
+        vertical-align: middle;
+        text-align : left;
+      }
+
+      .filter-table-responsive-cal tbody tr{
+        vertical-align: middle;
+      }
+
+      .filter-table-responsive-cal tbody tr td:first-child{
         text-align: right;
         padding-right: 10px;
       }
@@ -1709,9 +1896,30 @@ class Job extends Component {
                     + now.getFullYear() + " "
                     + time;
 
+    var intSumRows = this.state.rows
+    var intSumm = intSumRows.filter(function(x){
+      if(x.location == 'InsSheet' && x.component != 'Exterior Doorway' && x.component != 'Exterior Window' && x.component != 'Misc Exterior'){
+        return true;
+      }
+      else if(x.unit == 'Calibration'){
+        return false;
+      }
+      return x.result == "POSITIVE";
+    });
+    var intPageCount = Math.floor( ( intSumm.length - 1) / portraitPageSize ) + 1 ;
+
+
     // Interior Summary
     var content = this.getInterior(page, datetime);
     page ++;
+
+    for ( var i = 0 ; i < intPageCount; i++)
+    {
+      console.log("int",intSumm, page, datetime, i * portraitPageSize)
+      content += this.getInterior2(intSumRows, page, datetime, i * portraitPageSize);
+      page++;
+    }
+
 
     // Exterior Summary
     content += this.getExterior(page, datetime);
@@ -1721,7 +1929,7 @@ class Job extends Component {
     content += this.getCalibration(page, datetime);
 
     content = juice.inlineContent(content, css);
-    var converted = htmlDocx.asBlob(content, {orientation: 'portrait', margins: {top: 720, left : 700, right : 700, bottom: 400}});
+    var converted = htmlDocx.asBlob(content, {orientation: 'portrait', margins: {top: 720, left : 700, right : 700, footer:10, bottom: 0}});
     saveAs(converted, jobId+' Summaries.docx' );
 
 
@@ -1814,7 +2022,7 @@ class Job extends Component {
       <tr style="width : 100%;">
         <td style="width : 70%;">
             <span class="bold">Address : </span>
-            <span >` + (this.state.jobInfo? this.state.jobInfo.address : '') + `</span>
+            <span >` + (this.state.jobInfo? this.state.jobInfo.street + ' ' +this.state.jobInfo.city+', '+this.state.jobInfo.state: '') + `</span>
         </td>
         <td style="width : 30px; text-align:right">
 
@@ -1839,8 +2047,7 @@ class Job extends Component {
               <span class="bold">Barr & Clark Environmental (714) 894-5700</span>
           </td>
           <td style="width : 20%; text-align:center">
-            ` + page +
-          `</td>
+          </td>
           <td style="width : 40%; text-align:right">
             ` + datetime + `
           </td>
@@ -1858,6 +2065,75 @@ class Job extends Component {
     `</h2>
     </div>
     <br clear="all" style="page-break-before:always" >`;
+  }
+
+  getInterior2(report, page, datetime, startIndex) {
+
+    var header = this.getPortraitHeader('SUMMARY OF INTERIOR');
+    var footer = this.getPortraitFooter(page, datetime);
+    var interior = this.formatIntData(report);
+    var charSet = ' '
+
+
+    var numberSum = 0, numberposSum = 0, numbernegSum = 0 ;
+    interior.forEach( item => {
+      numberSum += item.number;
+      numberposSum += item.numpos;
+      numbernegSum += item.numneg;
+    })
+    var table = `<Table responsive>
+      <thead>
+      <tr>
+        <th>Component</th>
+        <th class="number">Number Tested</th>
+        <th class="number">Number Positive</th>
+        <th class="percent">Percent Positive</th>
+        <th class="number">Number Negative</th>
+        <th class="percent">Percent Negative</th>
+      </tr>
+      </thead>
+      <tbody>
+    `;
+
+    if(interior) {
+      for( i = startIndex; i < interior.length; i ++ ){
+        var x = interior[i];
+        console.log("is",x)
+        if(i >= startIndex + portraitPageSize)
+          break;
+
+            table += '<tr>';
+            table += '<td>' + x.component + '</td>';
+            table += '<td>' + x.number + '</td>';
+            table += '<td>' + x.numpos + '</td>';
+            table += '<td>' + show_percent(x.percentpos) + '</td>';
+            table += '<td>' + x.numneg + '</td>';
+            table += '<td>' + show_percent(x.percentneg) + '</td>';
+            table += '</tr>';
+            if (i == interior.length -1){
+              table += '<tr class="blank">';
+              table += '<td class="bold" style="text-align:right;">Total</td>';
+              table += '<td class="bold">' + numberSum + '</td>';
+              table += '<td class="bold">' + numberposSum + '</td>';
+              table += '<td> </td>';
+              table += '<td class="bold">' + numbernegSum + '</td>';
+              table += '<td> </td>';
+              table += '</tr>';
+            }
+      }
+      if( startIndex + portraitPageSize > interior.length) {
+        for(var i = 0; i < startIndex + portraitPageSize - interior.length; i ++)
+        {
+          table += '<tr class="blank">';
+          table += '<td>' + '&nbsp;' + '</td>';
+          table += '</tr>';
+        }
+      }
+    }
+    table += `</tbody>
+    </table></div>`;
+    var content = charSet + header + table + footer;
+    return content;
   }
 
   getInterior(page, datetime) {
@@ -2038,29 +2314,29 @@ class Job extends Component {
 
   getLandscapeHeader(header) {
     return `
-    <div class="heading">
-      <h2>` + header + `</h2>
+    <div style="padding-top:10px" class="heading">
+      <h3>` + header + `</h3>
     </div>
     <div class="row" style="text-align:center;">
-    <table style="width : 80%;">
+    <table style="width : 90%;">
       <tr style="width : 100%;">
-        <td style="width : 50%;">
+        <td style="width : 72%;">
             <span class="bold">Project Name : </span>
             <span >` + (this.state.jobInfo? this.state.jobInfo.name : '') + `</span>
         </td>
-        <td style="width : 50px; text-align:right">
+        <td style="width : 50px;">
             <span class="bold">Project Number : </span>
             <span >` + (this.state.jobInfo? this.state.jobInfo.id : '') + `</span>
         </td>
       </tr>
       <tr style="width : 100%;">
-        <td style="width : 50%;">
+        <td style="width : 72%;">
             <span class="bold">Address : </span>
-            <span >` + (this.state.jobInfo? this.state.jobInfo.address : '') + `</span>
+            <span >` + (this.state.jobInfo? this.state.jobInfo.street + ' ' +this.state.jobInfo.city+', '+this.state.jobInfo.state: '') + `</span>
         </td>
-        <td style="width : 50px; text-align:right">
+        <td style="width : 50px;">
             <span class="bold">Protocol : </span>
-            <span >` + 'LA County' + `</span>
+            <span >` + (this.state.jobInfo.actionLevel == 0.7? 'LA County' :this.state.jobInfo.actionLevel) + `</span>
         </td>
       </tr>
     </table>
@@ -2072,15 +2348,15 @@ class Job extends Component {
 
     return `
     <div class="footer">
-      <div> L.A. County DHS action level for lead paint is 0.7 mg/cm2.</div>
-      <div> Positive is defined as XRF sampling with levels at or above 0.7 mg/cm2.</div>
-      <hr>
+      <div style="margin:0px 20px"> ${this.state.actionLevel == 0.7? "LA County DHS action level for lead paint is 0.7" : `DHS action level for lead paint is ${this.state.actionLevel}`}</div>
+      <div style="margin:0px 20px"> Positive is defined as XRF sampling with levels at or above ${this.state.actionLevel} mg/cm2.</div>
+      <hr style="width : 95%;">
 
       <div class="row" style="text-align:center;">
-      <table style="width : 100%;">
-        <tr style="width : 100%;">
+      <table style="width : 95%;">
+        <tr style="width : 95%;">
           <td style="width : 40%; text-align:left; font-style: italic">
-              <span class="bold">Barr & Clark Environmental (714) 894-5700</span>
+              <span style="margin:30px" class="bold">Barr & Clark Environmental (714) 894-5700</span>
           </td>
           <td style="width : 20%; text-align:center">
             ` + page +
@@ -2100,17 +2376,17 @@ class Job extends Component {
     var landscapeHeader = this.getLandscapeHeader('FIELD DATA REPORT');
     var landscapeFooter = this.getLandscapeFooter(page, datetime);
 
-    var table = `<div class="table-responsive"> <table class="table">
+    var table = `<div class="filter-table-responsive"> <table class="table font-smaller">
       <thead>
-      <tr>
+      <tr style="font-size:12.5px;">
         <th>Sample</th>
         <th>Unit ID/Location</th>
         <th>Room Equivalent</th>
-        <th class="center">Side</th>
+        <th>Side</th>
         <th>Component</th>
         <th>Substrate</th>
         <th>Condition</th>
-        <th class="center">Lead</th>
+        <th>Lead</th>
         <th>Results</th>
         <th>Comments</th>
       </tr>
@@ -2129,10 +2405,25 @@ class Job extends Component {
 
           let location;
           let color = "#fff";
+          let condition = '';
+          let reading = '';
 
           if(x && x.result == 'POSITIVE'){
             color = '#acb5bc'
           }
+
+          if(x && x.condition == 'Deteriorated'){
+            condition = 'DETERIORATED'
+          } else {
+            condition = x.condition
+          }
+
+          if(x && x.reading == '1'){
+            reading = '1.0'
+          } else {
+            reading = x.reading
+          }
+
           if(x.location == 'InsSheet' && x.component != 'Exterior Doorway' && x.component != 'Exterior Window' && x.component != 'Misc Exterior'){
             location = 'Interior'
           }
@@ -2147,17 +2438,17 @@ class Job extends Component {
           if( name.startsWith("Wall") )
             name = "Wall";
 
-          table += `<tr style="background-color:` + color + `">
-              <td>` + (i+1) + `</td>
-              <td>` + (x.unit|| '') + `</td>
-              <td>` + (location + ' ' + x.room) + `</td>
-              <td class="center">` + (x.side|| '') + `</td>
-              <td>` + (name) + `</td>
-              <td>` + (x.material) + `</td>
-              <td>` + (x.condition || '') + `</td>
-              <td class="center">` + (x.reading   || '0') + `</td>
-              <td>` + (x.result || ' ') + `</td>
-              <td>` + (x.type? x.type+', ': "") + (x.comments || ' ') + `</td>
+          table += `<tr style="font-size:12.5px; background-color:` + color + `">
+              <td style='white-space:nowrap'>` + (i+1) + `</td>
+              <td style='white-space:nowrap'>` + (x.unit|| '') + `</td>
+              <td style='white-space:nowrap'>` + (location + ' ' + x.room) + `</td>
+              <td style='white-space:nowrap'>` + (x.side|| '') + `</td>
+              <td style='white-space:nowrap'>` + (name) + `</td>
+              <td style='white-space:nowrap'>` + (x.material) + `</td>
+              <td style='white-space:nowrap'>` + (condition || '') + `</td>
+              <td style='white-space:nowrap' class="center">` + (reading   || '0') + `</td>
+              <td style='white-space:nowrap'>` + (x.result || ' ') + `</td>
+              <td style='white-space:nowrap'>` + (x.type? x.type+', ': "") + (x.comments || ' ') + `</td>
             </tr>`;
         }
       }
@@ -2168,7 +2459,7 @@ class Job extends Component {
       if( startIndex + landscapePageSize > report.length) {
         for(var i = 0; i < startIndex + landscapePageSize - report.length; i ++)
         {
-          table += '<tr class="blank">';
+          table += '<tr style="font-size:12.5px;" class="blank">';
           table += '<td>' + '&nbsp;' + '</td>';
           table += '</tr>';
         }
@@ -2193,9 +2484,9 @@ class Job extends Component {
 
 
 
-    var table = `<div class="filter-table-responsive"> <table class="table">
+    var table = `<div class="filter-table-responsive-cal"> <table class="table font-smaller">
       <thead>
-      <tr>
+      <tr style="font-size:12.5px;">
         <th>Sample</th>
         <th class="center">Side</th>
         <th>Testing Combination</th>
@@ -2216,8 +2507,22 @@ class Job extends Component {
           var x = report[i];
 
           let location;
+          let reading
+          let condition
           let color = "#fff";
 
+
+          if(x && x.condition == 'Deteriorated'){
+            condition = 'DETERIORATED'
+          } else {
+            condition = x.condition
+          }
+
+          if(x && x.reading == '1'){
+            reading = '1.0'
+          } else {
+            reading = x.reading
+          }
           if(x && x.result == 'POSITIVE'){
             color = '#acb5bc'
           }
@@ -2231,15 +2536,15 @@ class Job extends Component {
             location = 'Exterior'
           }
 
-          table += `<tr style="background-color:` + color + `">
-              <td>` + (i+1) + `</td>
-              <td class="center">` + (x.side|| '') + `</td>
-              <td>` + (x.name + ' ' + x.material) + `</td>
-              <td>` + (location + ' ' + x.room) + `</td>
-              <td class="center">` + (x.reading || '0') + `</td>
-              <td>` + (x.result || ' ') + `</td>
-              <td>` + (x.condition || '') + `</td>
-              <td>` + (x.type? x.type+', ': "") + (x.comments || ' ') + `</td>
+          table += `<tr style="font-size:12.5px; background-color:` + color + `">
+              <td style='white-space:nowrap'>` + (i+1) + `</td>
+              <td style='white-space:nowrap'class="center">` + (x.side|| '') + `</td>
+              <td style='white-space:nowrap'>` + (x.name + ' ' + x.material) + `</td>
+              <td style='white-space:nowrap'>` + (location + ' ' + x.room) + `</td>
+              <td style='white-space:nowrap' class="center">` + (reading || '0') + `</td>
+              <td style='white-space:nowrap'>` + (x.result || ' ') + `</td>
+              <td style='white-space:nowrap'>` + (condition || '') + `</td>
+              <td style='white-space:nowrap'>` + (x.type? x.type+', ': "") + (x.comments || ' ') + `</td>
             </tr>`;
         }
       }
@@ -2250,7 +2555,7 @@ class Job extends Component {
       if( startIndex + landscapePageSize > report.length) {
         for(var i = 0; i < startIndex + landscapePageSize - report.length; i ++)
         {
-          table += '<tr class="blank">';
+          table += '<tr style="font-size:12.5px;" class="blank">';
           table += '<td>' + '&nbsp;' + '</td>';
           table += '</tr>';
         }
@@ -2274,9 +2579,9 @@ class Job extends Component {
 
 
 
-    var table = `<div class="filter-table-responsive"> <table class="table">
+    var table = `<div class="filter-table-responsive-cal"> <table class="table font-smaller">
       <thead>
-      <tr>
+      <tr style="font-size:12.5px;">
         <th>Sample</th>
         <th class="center">Side</th>
         <th>Testing Combination</th>
@@ -2297,7 +2602,14 @@ class Job extends Component {
           var x = report[i];
 
           let location;
+          let reading
           let color = "#fff";
+
+          if(x && x.reading == '1'){
+            reading = '1.0'
+          } else {
+            reading = x.reading
+          }
 
           if(x && x.result == 'POSITIVE'){
             color = '#acb5bc'
@@ -2312,15 +2624,15 @@ class Job extends Component {
             location = 'Exterior'
           }
 
-          table += `<tr style="background-color:` + color + `">
-              <td>` + (i+1) + `</td>
-              <td class="center">` + (x.side|| '') + `</td>
-              <td>` + (x.name + ' ' + x.material) + `</td>
-              <td>` + (location + ' ' + x.room) + `</td>
-              <td class="center">` + (x.reading || '0') + `</td>
-              <td>` + (x.result || ' ') + `</td>
-              <td>` + (x.condition || '') + `</td>
-              <td>` + (x.type? x.type+', ': "") + (x.comments || ' ') + `</td>
+          table += `<tr style="font-size:12.5px; background-color:` + color + `">
+              <td style='white-space:nowrap'>` + (i+1) + `</td>
+              <td style='white-space:nowrap' class="center">` + (x.side|| '') + `</td>
+              <td style='white-space:nowrap'>` + (x.name + ' ' + x.material) + `</td>
+              <td style='white-space:nowrap'>` + (location + ' ' + x.room) + `</td>
+              <td style='white-space:nowrap' class="center">` + (reading || '0') + `</td>
+              <td style='white-space:nowrap'>` + (x.result || ' ') + `</td>
+              <td style='white-space:nowrap'>` + (x.condition || '') + `</td>
+              <td style='white-space:nowrap'>` + (x.type? x.type+', ': "") + (x.comments || ' ') + `</td>
             </tr>`;
         }
       }
@@ -2331,7 +2643,7 @@ class Job extends Component {
       if( startIndex + landscapePageSize > report.length) {
         for(var i = 0; i < startIndex + landscapePageSize - report.length; i ++)
         {
-          table += '<tr class="blank">';
+          table += '<tr style="font-size:12.5px;" class="blank">';
           table += '<td>' + '&nbsp;' + '</td>';
           table += '</tr>';
         }
@@ -2422,9 +2734,11 @@ class Job extends Component {
             <dd className="col-sm-3">
               <Button color="success" onClick={() => this.printSummary(this.state.jobInfo.id)}>Print Summary</Button>
             </dd>
-            <dd className="col-sm-2">
-              <Button color="success" onClick={() => this.print8552()}>Print 8552</Button>
-            </dd>
+            {
+            // <dd className="col-sm-2">
+            //   <Button color="success" onClick={() => this.print8552()}>Print 8552</Button>
+            // </dd>
+            }
             {this.state.jobInfo && this.state.jobInfo.inspected!=1 ?
               <dd className="col-sm-3">
                 <Button color="success" onClick={() => this.markInspected(this.state.jobInfo.id)}>Mark Inspected</Button>
@@ -2855,14 +3169,42 @@ class Job extends Component {
               ''
             }
 
+            { this.state.sampleModalStuff ?
+              <Modal
+                isOpen={this.state.sampleModalIsOpen}
+                onAfterOpen={this.afterOpenSampleModal}
+                onRequestClose={this.closeSampleModal}
+                style={customStyles}
+                contentLabel="Example Modal"
+              >
+              <h2 ref={subtitle => this.subtitle = subtitle}>Edit</h2>
+              <form>
+
+              <dl className="row">
+              <dd className="col-lg-3">Reading</dd>
+              <dt className="col-lg-6">
+                <Input value={ this.state.sampleModalStuff.R } onChange={(e) => {
+                  let sampleModalStuff = {...this.state.sampleModalStuff};
+                  sampleModalStuff.R = e.target.value
+                  this.setState({sampleModalStuff})
+                }}/>
+              </dt>
+              </dl>
+            </form>
+              <Button onClick={this.saveSampleModal}>Save Sample</Button>
+              </Modal>
+              :
+              ''
+            }
+
 
         </Row>
               {
                 this.state.samples ?
-                <Samples editSample={this.editSample()} data={this.state.samples}/>
+                <Samples editSample={this.openSampleModal} data={this.state.samples}/>
               :
               ''
-            }
+              }
 
               {this.state.rows ?
                 <div>

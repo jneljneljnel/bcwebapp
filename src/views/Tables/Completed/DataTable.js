@@ -7,8 +7,13 @@ import 'react-bootstrap-table/dist//react-bootstrap-table-all.min.css';
 import data from './_data';
 const axios = require('axios')
 const history = createBrowserHistory();
+const moment = require('moment');
 
 
+
+const dateFormatter = (cell, row) => {
+  return(<div style={{whiteSpace: "pre-wrap"}}>{moment(cell).format('MMMM Do YYYY')}</div>)
+}
 
 class DataTable extends Component {
   constructor(props) {
@@ -16,7 +21,10 @@ class DataTable extends Component {
     this.table = data.rows;
     this.uncomplete =this.uncomplete.bind(this)
     this.doneButton = this.doneButton.bind(this)
+    this.reportButton = this.reportButton.bind(this)
     this.goButton = this.goButton.bind(this)
+    this.comments = this.comments.bind(this)
+    this.phone = this.phone.bind(this)
     this.state = {
       data: []
     }
@@ -32,9 +40,12 @@ class DataTable extends Component {
 
   }
 
-
   doneButton(cell, row){
-     return (<div> <Button style={{padding:'3px'}} onClick={() => {this.getReport(row)}} color="danger">Report</Button> <Button style={{padding:'3px'}}  color="success" onClick={() => this.uncomplete(row.id)}>Uncomplete</Button></div>)
+     return (<div><Button style={{padding:'3px'}}  color="success" onClick={() => this.uncomplete(row.id)}>Uncomplete</Button></div>)
+  }
+
+  reportButton(cell, row){
+     return (<div> <Button style={{padding:'3px'}} onClick={() => {this.getReport(row)}} color="danger">Report</Button></div>)
   }
 
   goButton(cell, row){
@@ -42,13 +53,28 @@ class DataTable extends Component {
   }
 
   address(cell,row){
-       return (<div>{row.street +' '+ row.city}</div>)
+    return (<div style={{whiteSpace: "pre-wrap"}}>{row.street +' '+ row.city}</div>)
   }
+
+  jobName(cell, row){
+    return(<div style={{whiteSpace: "pre-wrap"}}>{row.name}</div>)
+  }
+
+  phone(cell, row){
+    return(<div style={{whiteSpace: "pre-wrap"}}>{row.siteNumber}</div>)
+  }
+
+  comments(cell, row){
+    return(<div style={{whiteSpace: "pre-wrap"}}>{cell}</div>)
+  }
+
+
 
   uncomplete(id){
      axios.get(`/api/jobs/uncomplete/${id}`).then( res => {
        console.log('send back')
-       window.location.reload();
+       this.props.history.push('/dashboard/');
+       this.props.history.push('/completed/');
      })
   }
 
@@ -66,17 +92,19 @@ class DataTable extends Component {
             <BootstrapTable data={this.props.data || this.table} version="4" striped hover pagination search options={this.options}>
             <TableHeaderColumn dataFormat={this.goButton}></TableHeaderColumn>
             <TableHeaderColumn isKey dataField="id" dataSort>JobId</TableHeaderColumn>
-            <TableHeaderColumn dataField="name">Job Name</TableHeaderColumn>
-            <TableHeaderColumn dataField="homeownerName">Homeowner Name</TableHeaderColumn>
+            <TableHeaderColumn dataField="name" dataFormat={this.jobName}>Job Name</TableHeaderColumn>
+            <TableHeaderColumn dataField="homeownerName"><div style={{fontSize:"10px", display:"inline"}}>Homeowner Name</div></TableHeaderColumn>
             <TableHeaderColumn dataField="contact" hidden={true}>Site Contact</TableHeaderColumn>
             <TableHeaderColumn dataField="cname" hidden={true}>Client Name</TableHeaderColumn>
             <TableHeaderColumn dataField="cphone" hidden={true}>Client Phone</TableHeaderColumn>
             <TableHeaderColumn dataField="street"hidden={true}>Street Address</TableHeaderColumn>
             <TableHeaderColumn dataField="cost" hidden={true}>cost</TableHeaderColumn>
+            <TableHeaderColumn dataField="inspectionDate" dataFormat={dateFormatter} dataSort><div style={{fontSize:"10px", display:"inline"}}>Inspection Date</div></TableHeaderColumn>
             <TableHeaderColumn dataFormat={this.address} dataSort>Address</TableHeaderColumn>
-            <TableHeaderColumn dataField='siteNumber' dataSort>Phone</TableHeaderColumn>
-            <TableHeaderColumn dataField="comments" dataSort>Comments</TableHeaderColumn>
+            <TableHeaderColumn dataField='siteNumber' dataFormat={this.phone} dataSort>Phone</TableHeaderColumn>
+            <TableHeaderColumn dataField="comments" dataFormat={this.comments} dataSort>Comments</TableHeaderColumn>
             <TableHeaderColumn dataFormat={this.doneButton}></TableHeaderColumn>
+            <TableHeaderColumn dataFormat={this.reportButton}></TableHeaderColumn>
             </BootstrapTable>
           </CardBody>
         </Card>

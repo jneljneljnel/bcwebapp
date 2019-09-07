@@ -129,6 +129,16 @@ class Create extends Component {
 
   post(){
     const { id } = this.props.match.params
+    const clientId = this.state.clientId
+    const actionLevel = this.state.actionLevel
+    if(!clientId){
+      alert('no client ID selected')
+      return
+    }
+    if(!actionLevel){
+      alert('no Action Level entered')
+      return
+    }
     if(id){
       console.log('CALLED UPDATE')
       axios.post('/api/jobs/update', {

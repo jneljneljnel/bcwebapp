@@ -33,6 +33,15 @@ class DataTable extends Component {
      return (<div><Button color="success" onClick={() =>  this.props.history.push('/create/'+row.id)}>Open</Button></div>)
   }
 
+  address(cell,row){
+       return (<div style={{whiteSpace: "pre-wrap", maxWidth: "190px"}}>{row.street +' '+ row.city}</div>)
+  }
+
+  jobName(cell, row){
+    return(<div style={{whiteSpace: "pre-wrap", maxWidth: "190px"}}>{row.name}</div>)
+  }
+
+
 
   render() {
 
@@ -46,11 +55,11 @@ class DataTable extends Component {
             <BootstrapTable data={this.props.data || this.table} version="4" striped hover pagination search options={this.options}>
             <TableHeaderColumn dataFormat={this.goButton}></TableHeaderColumn>
             <TableHeaderColumn isKey dataField="id" dataSort>JobId</TableHeaderColumn>
-            <TableHeaderColumn dataField="name"> Job Name</TableHeaderColumn>
+            <TableHeaderColumn dataField="name" dataFormat={this.jobName}> Job Name</TableHeaderColumn>
             <TableHeaderColumn dataField="client"> Client Name</TableHeaderColumn>
             <TableHeaderColumn dataField="cost"> Cost</TableHeaderColumn>
-            <TableHeaderColumn dataField="recievedDate"> Recieved Date</TableHeaderColumn>
-            <TableHeaderColumn dataField="address" dataSort>Address</TableHeaderColumn>
+            <TableHeaderColumn dataField="recievedDate" dataSort> Recieved Date</TableHeaderColumn>
+            <TableHeaderColumn dataFormat={this.address} dataSort>Address</TableHeaderColumn>
             <TableHeaderColumn dataField="comments" dataSort>Comments</TableHeaderColumn>
             </BootstrapTable>
           </CardBody>

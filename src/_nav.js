@@ -49,6 +49,11 @@ export default {
       name: 'Completed Jobs',
       url: '/completed',
       icon:'fa fa-calendar-check-o'
-    }
+    },
+    {
+      name: 'All Jobs',
+      url: '/all',
+      icon:'icon-layers'
+    },
   ]
 };

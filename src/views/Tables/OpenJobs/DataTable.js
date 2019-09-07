@@ -8,33 +8,35 @@ import { createBrowserHistory } from 'history';
 import { Route , withRouter} from 'react-router-dom';
 import { Document, Packer, Paragraph, TextRun, Media, File, StyleLevel, TableOfContents } from "docx";
 import FileBase64 from 'react-file-base64';
-
 import htmlDocx from 'html-docx-js/dist/html-docx';
 import { saveAs } from 'file-saver';
 import juice from 'juice';
 import domtoimage from 'dom-to-image';
 import jsPDF from "jspdf";
 
+const moment = require('moment');
 const fetch64 = require('fetch-base64');
 const axios = require('axios')
 const history = createBrowserHistory();
 
 const portraitPageSize = 13;
 
-
-
 class DataTable extends Component {
   constructor(props) {
     super(props);
     //console.log(props)
     this.table = data.rows;
+    this.completeButton = this.completeButton.bind(this)
     this.doneButton = this.doneButton.bind(this)
+    this.dateFormatter = this.dateFormatter.bind(this)
     this.markDone = this.markDone.bind(this)
     this.sendBack = this.sendBack.bind(this)
     this.backButton = this.backButton.bind(this)
     this.getOpenJobs = this.getOpenJobs.bind(this)
     this.getReport = this.getReport.bind(this)
     this.goButton = this.goButton.bind(this)
+    this.phone = this.phone.bind(this)
+    this.comments = this.comments.bind(this)
     this.state = {
       data:'',
       samples:'',
@@ -60,7 +62,7 @@ class DataTable extends Component {
       all[i].style.height = (strWidth / 595 * 842) + "px";
     }
   }
-  
+
   componentDidMount() {
     // window.addEventListener("resize", this.updateDimensions);
   }
@@ -72,14 +74,16 @@ class DataTable extends Component {
   sendBack(id){
      axios.get(`/api/jobs/sendBack/${id}`).then( res => {
        console.log('send back')
-       window.location.reload();
+       this.props.history.push('/dashboard/');
+       this.props.history.push('/inspected/')
      })
   }
 
   markDone(id){
      axios.get(`/api/jobs/markDone/${id}`).then( res => {
        console.log('done')
-       window.location.reload();
+       this.props.history.push('/dashboard/');
+       this.props.history.push('/inspected/')
      })
   }
 
@@ -623,15 +627,15 @@ async getReport(row){
         color: #ffc000;
       }
       .content-wrapper{
-        width: 100%; 
-        display: flex; 
-        justify-content: space-between; 
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
         padding-right: 20px;
         align-items: center;
       }
       .content-title{
-        white-space: nowrap; 
-        width: 99%; 
+        white-space: nowrap;
+        width: 99%;
         overflow: hidden;
       }
       .content-wrapper-padding{
@@ -774,7 +778,7 @@ async getReport(row){
         <p style="text-decoration: underline;font-weight:bold;">DESCRIPTION</p>
         <div>
           <p style="text-decoration: underline;text-align:center;font-weight:bold;">PAGE NO</p>
-        </div>    
+        </div>
       </div>
       <div class="content-wrapper">
         <span class="big-font content-title">1.0 Executive Summary-----------------------------------------------------------------------------------------------------</span>
@@ -1565,7 +1569,7 @@ async getReport(row){
     <br clear="all" style="page-break-before:always" ></br>    <br clear="all" style="page-break-before:always" ></br></div></div>
 
     `;
-    
+
     let b1, b2, b3, b4;
 
     await this.getBase64('/assets/img/attachments/b1.jpg').then((data)=>{
@@ -1652,7 +1656,7 @@ async getReport(row){
 
     console.log('----state----', this.state);
     content = juice.inlineContent(content, css);
-    
+
     this.setState({isPrintPreview: true});
     var node = document.querySelector('#printElement');
     node.innerHTML = content;
@@ -1677,7 +1681,7 @@ async getReport(row){
         <p style="text-decoration: underline;font-weight:bold;">DESCRIPTION</p>
         <div>
           <p style="text-decoration: underline;text-align:center;font-weight:bold;">PAGE NO</p>
-        </div>    
+        </div>
       </div>
       <div class="content-wrapper content-wrapper-padding">
         <span class="big-font content-title">1.0 INTRODUCTION-----------------------------------------------------------------------------------------------------------------------</span>
@@ -2178,8 +2182,8 @@ print() {
     let img = new Image();
     img.src = dataUrl;
     img.onload = () => {
-      let imgWidth = img.width; 
-      let imgHeight = img.height;      
+      let imgWidth = img.width;
+      let imgHeight = img.height;
       // let pdf = new jsPDF('p', 'pt', 'a4');
       let pdf = new jsPDF({orientation: 'portrait', unit: 'pt', format: [paperWidth, paperHeight]});
       var canvas = document.createElement("canvas");
@@ -3024,19 +3028,42 @@ get8552Content(jobInfo, image1, image2, image3) {
   });
 }
 
-  backButton(cell, row){
-    return (<div> <Button style={{padding:'3px'}} color="success" size="sm" onClick={() => this.sendBack(row.id)}>Send Back</Button>  <Button style={{padding:'3px'}}  size="sm" color="success" onClick={() => this.markDone(row.id)}>Complete</Button></div>)
+dateFormatter(cell, row){
+  return(<div style={{whiteSpace: "pre-wrap"}}>{moment(cell).format('MMMM Do YYYY')}</div>)
+}
+
+
+  completeButton(cell, row){
+    return (<div> <Button style={{padding:'3px'}} color="success" onClick={() => this.markDone(row.id)}>Complete</Button></div>)
   }
+
+  backButton(cell, row){
+    return (<div> <Button style={{padding:'3px'}} color="success" onClick={() => this.sendBack(row.id)}>Send Back</Button></div>)
+  }
+
   doneButton(cell, row){
      return (<div><Button onClick={() => {this.getReport(row)}} color="danger">Report</Button></div>)
   }
   goButton(cell, row){
-     return (<div><Button color="success" onClick={() =>  this.props.history.push('/jobs/'+row.id)}>Open</Button></div>)
+     return (<div><Button onClick={() =>  this.props.history.push('/jobs/'+row.id)}>Open</Button></div>)
   }
 
   address(cell,row){
-       return (<div>{row.street +' '+ row.city}</div>)
+       return (<div style={{whiteSpace: "pre-wrap"}}>{row.street +' '+ row.city}</div>)
   }
+
+  jobName(cell, row){
+    return(<div style={{whiteSpace: "pre-wrap"}}>{row.name}</div>)
+  }
+
+  phone(cell, row){
+    return(<div style={{whiteSpace: "pre-wrap"}}>{row.siteNumber}</div>)
+  }
+
+  comments(cell, row){
+    return(<div style={{whiteSpace: "pre-wrap"}}>{cell}</div>)
+  }
+
 
   siteNumber
   render() {
@@ -3051,14 +3078,19 @@ get8552Content(jobInfo, image1, image2, image3) {
             <BootstrapTable  data={this.props.data || this.table} version="4" striped hover pagination search options={this.options}>
             <TableHeaderColumn dataFormat={this.goButton}></TableHeaderColumn>
             <TableHeaderColumn isKey dataField="id" dataSort>JobId</TableHeaderColumn>
-            <TableHeaderColumn dataField="name">Job Name</TableHeaderColumn>
+            <TableHeaderColumn dataFormat={this.jobName} dataField="name">Job Name</TableHeaderColumn>
+            <TableHeaderColumn dataField="inspectionDate" dataFormat={this.dateFormatter} dataSort><div style={{fontSize:"10px", display:"inline" }}>Inspection Date</div></TableHeaderColumn>
             <TableHeaderColumn dataFormat={this.address} dataSort>Address</TableHeaderColumn>
-            <TableHeaderColumn dataField="siteNumber" dataSort>Phone</TableHeaderColumn>
-            <TableHeaderColumn dataField="comments" dataSort>Comments</TableHeaderColumn>
+            <TableHeaderColumn dataFormat={this.phone} dataSort>Phone</TableHeaderColumn>
+            <TableHeaderColumn dataField="comments" dataFormat={this.comments} dataSort>Comments</TableHeaderColumn>
             <TableHeaderColumn
               key={this.id}
              dataFormat={this.backButton}>
              </TableHeaderColumn>
+             <TableHeaderColumn
+               key={this.id}
+              dataFormat={this.completeButton}>
+              </TableHeaderColumn>
             <TableHeaderColumn dataFormat={this.doneButton}></TableHeaderColumn>
             </BootstrapTable>
           </CardBody>

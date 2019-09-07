@@ -11,7 +11,7 @@ class Samples extends Component {
 
   }
     editButton(cell, row) {
-      return  <Button onClick={this.props.editSample}>edit</Button>
+      return  <Button onClick={() => this.props.editSample(row)}>edit</Button>
     }
 
   render(){
@@ -27,7 +27,7 @@ class Samples extends Component {
               <TableHeaderColumn isKey dataField="title" dataSort>Title</TableHeaderColumn>
               <TableHeaderColumn  dataField="area" dataSort>area</TableHeaderColumn>
               <TableHeaderColumn  dataField="surface" dataSort>Surface</TableHeaderColumn>
-              <TableHeaderColumn  dataField="reading" dataSort>Reading</TableHeaderColumn>
+              <TableHeaderColumn  dataField="R" dataSort>Reading</TableHeaderColumn>
               <TableHeaderColumn  dataFormat={this.editButton} dataSort></TableHeaderColumn>
             </BootstrapTable>
           </CardBody>

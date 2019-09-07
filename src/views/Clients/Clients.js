@@ -75,19 +75,19 @@ class Clients extends Component {
 
   name(cell, row){
     if (row.name!=="undefined" && row.name !=="null"){
-      return row.name
+      return <div style={{whiteSpace:"pre-wrap"}}>{row.name}</div>
     }
   }
 
   company(cell, row){
     if (row.company!=="undefined" && row.company !=="null"){
-      return row.company
+      return <div style={{whiteSpace:"pre-wrap"}}>{row.company}</div>
     }
   }
 
   street(cell, row){
     if (row.street!=="undefined" && row.street !=="null"){
-      return row.street
+      return <div style={{whiteSpace:"pre-wrap"}}>{row.street + ' ' + row.city}</div>
     }
   }
 
@@ -105,7 +105,7 @@ class Clients extends Component {
 
   email(cell, row){
     if (row.email!=="undefined" && row.email !=="null"){
-      return row.email
+      return <div style={{whiteSpace:"pre-wrap"}}>{row.email}</div>
     }
   }
 
@@ -122,8 +122,7 @@ class Clients extends Component {
               <TableHeaderColumn dataFormat={this.goButton}></TableHeaderColumn>
                 <TableHeaderColumn isKey dataField="name" dataFormat={this.name}dataSort>Name</TableHeaderColumn>
                 <TableHeaderColumn dataField="company" dataFormat={this.company} dataSort>Company Name</TableHeaderColumn>
-                <TableHeaderColumn dataField="street" dataFormat={this.street} dataSort>Street</TableHeaderColumn>
-                <TableHeaderColumn dataField="city" dataFormat={this.city}dataSort>City</TableHeaderColumn>
+                <TableHeaderColumn dataField="street" dataFormat={this.street} dataSort>Address</TableHeaderColumn>
                 <TableHeaderColumn dataField="phone1" dataFormat={this.phone1}>Primary phone</TableHeaderColumn>
                 <TableHeaderColumn dataField="email" dataFormat={this.email}>Email</TableHeaderColumn>
               </BootstrapTable>

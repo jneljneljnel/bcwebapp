@@ -61,6 +61,7 @@ const User = React.lazy(() => import('./views/Users/User'));
 const Create = React.lazy(() => import('./views/Create/Create'));
 const Inspected = React.lazy(() => import('./views/Jobs/Inspected'));
 const Pending = React.lazy(() => import('./views/Jobs/Pending'));
+const All = React.lazy(() => import('./views/Jobs/All'));
 const Scheduled = React.lazy(() => import('./views/Jobs/Scheduled'));
 const Completed = React.lazy(() => import('./views/Jobs/Completed'));
 const Job = React.lazy(() => import('./views/Jobs/Job'));
@@ -79,6 +80,7 @@ const routes = [
   { path: '/create', exact: true, name: 'Create', component: Create },
   { path: '/create/:id', exact: true, name: 'Create', component: Create },
   { path: '/pending', name: 'Pending', component: Pending },
+  { path: '/all', name: 'All', component: All },
   { path: '/scheduled', name: 'Scheduled', component: Scheduled },
   { path: '/inspected', name: 'Inspected', component: Inspected },
   { path: '/Completed', name: 'Completed', component: Completed },

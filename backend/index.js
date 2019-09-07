@@ -27,6 +27,7 @@ connection.query('SELECT 1 + 1 AS solution', function (err, rows, fields) {
 let app = express();
 app.use(cors());
 app.options('*', cors());
+app.use(bodyParser({limit: '50mb'}));
 app.use(bodyParser.json())
 app.use(express.static(path.join(__dirname, 'dist')));
 app.use('/api', api);
@@ -89,6 +90,7 @@ app.post('/upload', function (req, res) {
   let jobid = req.body.jobid
   let state = req.body.state
   let sql = "SELECT * From bandc.inspections Where jobid="+jobid
+  console.log("bingo",jobid, sql, state)
   connection.query(sql, (err, rows) => {
     if (err) {
       return res.status(500).send(err);
