@@ -100,8 +100,8 @@ const groupBy = key => array =>
 
 const axios = require('axios')
 const history = createBrowserHistory();
-const portraitPageSize = 28;
-const landscapePageSize = 28;
+const portraitPageSize = 17;
+const landscapePageSize = 18 ;
 
 
 var MyBlobBuilder = function() {
@@ -1913,12 +1913,7 @@ class Job extends Component {
     var content = this.getInterior(page, datetime);
     page ++;
 
-    for ( var i = 0 ; i < intPageCount; i++)
-    {
-      console.log("int",intSumm, page, datetime, i * portraitPageSize)
-      content += this.getInterior2(intSumRows, page, datetime, i * portraitPageSize);
-      page++;
-    }
+  
 
 
     // Exterior Summary
@@ -2348,8 +2343,8 @@ class Job extends Component {
 
     return `
     <div class="footer">
-      <div style="margin:0px 20px"> ${this.state.actionLevel == 0.7? "LA County DHS action level for lead paint is 0.7" : `DHS action level for lead paint is ${this.state.actionLevel}`}</div>
-      <div style="margin:0px 20px"> Positive is defined as XRF sampling with levels at or above ${this.state.actionLevel} mg/cm2.</div>
+      <p style="margin:0px 20px; padding:0px; font-family:sans-serif"> ${this.state.actionLevel == 0.7? "LA County DHS action level for lead paint is 0.7" : `DHS action level for lead paint is ${this.state.actionLevel}`}</p>
+      <p style="margin:0px 20px; padding:0px; font-family:sans-serif"> Positive is defined as XRF sampling with levels at or above ${this.state.actionLevel} mg/cm2.</p>
       <hr style="width : 95%;">
 
       <div class="row" style="text-align:center;">
@@ -2438,7 +2433,7 @@ class Job extends Component {
           if( name.startsWith("Wall") )
             name = "Wall";
 
-          table += `<tr style="font-size:12.5px; background-color:` + color + `">
+          table += `<tr style="font-size:9.5px; background-color:` + color + `">
               <td style='white-space:nowrap'>` + (i+1) + `</td>
               <td style='white-space:nowrap'>` + (x.unit|| '') + `</td>
               <td style='white-space:nowrap'>` + (location + ' ' + x.room) + `</td>
@@ -2459,7 +2454,7 @@ class Job extends Component {
       if( startIndex + landscapePageSize > report.length) {
         for(var i = 0; i < startIndex + landscapePageSize - report.length; i ++)
         {
-          table += '<tr style="font-size:12.5px;" class="blank">';
+          table += '<tr style="font-size:9.5px;" class="blank">';
           table += '<td>' + '&nbsp;' + '</td>';
           table += '</tr>';
         }
@@ -2536,7 +2531,7 @@ class Job extends Component {
             location = 'Exterior'
           }
 
-          table += `<tr style="font-size:12.5px; background-color:` + color + `">
+          table += `<tr style="font-size:9.5px; background-color:` + color + `">
               <td style='white-space:nowrap'>` + (i+1) + `</td>
               <td style='white-space:nowrap'class="center">` + (x.side|| '') + `</td>
               <td style='white-space:nowrap'>` + (x.name + ' ' + x.material) + `</td>
@@ -2555,7 +2550,7 @@ class Job extends Component {
       if( startIndex + landscapePageSize > report.length) {
         for(var i = 0; i < startIndex + landscapePageSize - report.length; i ++)
         {
-          table += '<tr style="font-size:12.5px;" class="blank">';
+          table += '<tr style="font-size:9.5px;" class="blank">';
           table += '<td>' + '&nbsp;' + '</td>';
           table += '</tr>';
         }
@@ -2624,7 +2619,7 @@ class Job extends Component {
             location = 'Exterior'
           }
 
-          table += `<tr style="font-size:12.5px; background-color:` + color + `">
+          table += `<tr style="font-size:9.5px; background-color:` + color + `">
               <td style='white-space:nowrap'>` + (i+1) + `</td>
               <td style='white-space:nowrap' class="center">` + (x.side|| '') + `</td>
               <td style='white-space:nowrap'>` + (x.name + ' ' + x.material) + `</td>
@@ -2643,7 +2638,7 @@ class Job extends Component {
       if( startIndex + landscapePageSize > report.length) {
         for(var i = 0; i < startIndex + landscapePageSize - report.length; i ++)
         {
-          table += '<tr style="font-size:12.5px;" class="blank">';
+          table += '<tr style="font-size:9.5px;" class="blank">';
           table += '<td>' + '&nbsp;' + '</td>';
           table += '</tr>';
         }
