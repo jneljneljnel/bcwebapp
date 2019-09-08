@@ -65,6 +65,7 @@ class MarkerWithInfoWindow extends Component {
         <InfoWindow onCloseClick={this.toggle}>
         <div>
             <p>{location.title}</p>
+            <p>{location.jobId}</p>
             <p>{location.hname}</p>
             <p>{location.phone}</p>
           <NavLink href={location.www} target="_blank">
@@ -162,6 +163,7 @@ class Scheduled extends Component {
                         lng: result.data.results[0].geometry.location.lng,
                         hname: j.homeownerName,
                         label: label,
+                        jobId: j.id,
                         draggable: false,
                         title: j.name,
                         icon:image,
