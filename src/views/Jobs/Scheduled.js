@@ -153,6 +153,9 @@ class Scheduled extends Component {
          //label = 'K'
          image = 'http://maps.google.com/mapfiles/ms/icons/blue.png';
         }
+        if(j.inspector == '4'){
+          image = 'https://executiveedge.ie/wp-content/plugins/google-maps/assets/images/icons/blackmarker24.png';
+        }
         if(j.street){
           promises.push(
             axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${j.street + ' ' + j.city +' '+ j.state + '' + j.postal}&key=AIzaSyA3FkbIxQAgVDWNej22DnBn6XzhHjoK5nc`)

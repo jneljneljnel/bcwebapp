@@ -100,8 +100,8 @@ const groupBy = key => array =>
 
 const axios = require('axios')
 const history = createBrowserHistory();
-const portraitPageSize = 17;
-const landscapePageSize = 18 ;
+const portraitPageSize = 36;
+const landscapePageSize = 28 ;
 
 
 var MyBlobBuilder = function() {
@@ -1913,7 +1913,7 @@ class Job extends Component {
     var content = this.getInterior(page, datetime);
     page ++;
 
-  
+
 
 
     // Exterior Summary
@@ -1933,7 +1933,10 @@ class Job extends Component {
     page = 1;
     content = '';
 
-    var report = this.state.rows;
+    var report = this.state.rows.map((x,i) => {
+      x.sampleId = i+1
+      return x
+    });
 
     // Exterior Lead Containing Components List
     var exteriorReport = report.filter(function(x){
@@ -2016,8 +2019,9 @@ class Job extends Component {
       </tr>
       <tr style="width : 100%;">
         <td style="width : 70%;">
-            <span class="bold">Address : </span>
-            <span >` + (this.state.jobInfo? this.state.jobInfo.street + ' ' +this.state.jobInfo.city+', '+this.state.jobInfo.state: '') + `</span>
+              <div style='float:left; display:inline;height:190px' class="bold">Address : </div>
+              <div>` + (this.state.jobInfo? this.state.jobInfo.street: '') + `</div>
+              <div>` + (this.state.jobInfo? this.state.jobInfo.city+', '+this.state.jobInfo.state + ' ' +this.state.jobInfo.postal: '') + `</div>
         </td>
         <td style="width : 30px; text-align:right">
 
@@ -2098,22 +2102,22 @@ class Job extends Component {
           break;
 
             table += '<tr>';
-            table += '<td>' + x.component + '</td>';
-            table += '<td>' + x.number + '</td>';
-            table += '<td>' + x.numpos + '</td>';
-            table += '<td>' + show_percent(x.percentpos) + '</td>';
-            table += '<td>' + x.numneg + '</td>';
-            table += '<td>' + show_percent(x.percentneg) + '</td>';
+            table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + x.component + '</p></td>';
+            table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + x.number + '</p></td>';
+            table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + x.numpos + '</p></td>';
+            table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + show_percent(x.percentpos) + '</p></td>';
+            table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + x.numneg + '</p></td>';
+            table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + show_percent(x.percentneg) + '</p></td>';
             table += '</tr>';
             if (i == interior.length -1){
               table += '<tr class="blank">';
-              table += '<td class="bold" style="text-align:right;">Total</td>';
-              table += '<td class="bold">' + numberSum + '</td>';
-              table += '<td class="bold">' + numberposSum + '</td>';
-              table += '<td> </td>';
-              table += '<td class="bold">' + numbernegSum + '</td>';
-              table += '<td> </td>';
-              table += '</tr>';
+                table += `<td class="bold" style="text-align:right;"><p style='display:inline; margin: 0px; font-family:sans-serif'>Total</p></td>`;
+                table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberSum + '</p></td>';
+                table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberposSum + '</p></td>';
+                table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'></p></td>`;
+                table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numbernegSum + '</p></td>';
+                table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'></p></td>`;
+                table += '</tr>';
             }
       }
       if( startIndex + portraitPageSize > interior.length) {
@@ -2153,32 +2157,37 @@ class Job extends Component {
       </thead>
       <tbody>`;
       var numberSum = 0, numberposSum = 0, numbernegSum = 0 ;
+      interior = interior.sort( (a,b) => {
+       var textA = a.component.toUpperCase();
+       var textB = b.component.toUpperCase();
+       return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+      })
       interior.forEach( item => {
         numberSum += item.number;
         numberposSum += item.numpos;
         numbernegSum += item.numneg;
-        table += '<tr>';
-        table += '<td>' + item.component + '</td>';
-        table += '<td>' + item.number + '</td>';
-        table += '<td>' + item.numpos + '</td>';
-        table += '<td>' + show_percent(item.percentpos) + '</td>';
-        table += '<td>' + item.numneg + '</td>';
-        table += '<td>' + show_percent(item.percentneg) + '</td>';
+        table += `<tr style='font-size:10px'>`;
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.component + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.number + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.numpos + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + show_percent(item.percentpos) + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.numneg + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + show_percent(item.percentneg) + '</p></td>';
         table += '</tr>';
       })
-      table += '<tr class="blank">';
-        table += '<td class="bold" style="text-align:right;">Total</td>';
-        table += '<td class="bold">' + numberSum + '</td>';
-        table += '<td class="bold">' + numberposSum + '</td>';
-        table += '<td> </td>';
-        table += '<td class="bold">' + numbernegSum + '</td>';
-        table += '<td> </td>';
+      table += '<tr style="font-size:12px" class="blank">';
+        table += `<td class="bold" style="text-align:right;"><p style='display:inline; margin: 0px; font-family:sans-serif'>Total</p></td>`;
+        table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberSum + '</p></td>';
+        table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberposSum + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'></p></td>`;
+        table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numbernegSum + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'></p></td>`;
         table += '</tr>';
 
       for(var i = 0; i < portraitPageSize - interior.length; i ++)
       {
-        table += '<tr class="blank">';
-        table += '<td>' + '&nbsp;' + '</td>';
+        table += `<tr style='font-size:10px' class="blank">`;
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + '&nbsp;' + '</p></td>';
         table += '</tr>';
       }
       table += `</tbody>
@@ -2212,32 +2221,37 @@ class Job extends Component {
       </thead>
       <tbody>`;
       var numberSum = 0, numberposSum = 0, numbernegSum = 0 ;
+      exterior = exterior.sort( (a,b) => {
+       var textA = a.component.toUpperCase();
+       var textB = b.component.toUpperCase();
+       return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+      })
       exterior.forEach( item => {
         numberSum += item.number;
         numberposSum += item.numpos;
         numbernegSum += item.numneg;
-        table += '<tr>';
-        table += '<td>' + item.component + '</td>';
-        table += '<td>' + item.number + '</td>';
-        table += '<td>' + item.numpos + '</td>';
-        table += '<td>' + show_percent(item.percentpos) + '</td>';
-        table += '<td>' + item.numneg + '</td>';
-        table += '<td>' + show_percent(item.percentneg) + '</td>';
+        table += `<tr style='font-size:10px'>`;
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.component + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.number + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.numpos + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + show_percent(item.percentpos) + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.numneg + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + show_percent(item.percentneg) + '</p></td>';
         table += '</tr>';
       })
-      table += '<tr class="blank">';
-        table += '<td class="bold" style="text-align:right;">Total</td>';
-        table += '<td class="bold">' + numberSum + '</td>';
-        table += '<td class="bold">' + numberposSum + '</td>';
-        table += '<td> </td>';
-        table += '<td class="bold">' + numbernegSum + '</td>';
-        table += '<td> </td>';
+      table += '<tr style="font-size:12px" class="blank">';
+        table += `<td class="bold" style="text-align:right;"><p style='display:inline; margin: 0px; font-family:sans-serif'>Total</p></td>`;
+        table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberSum + '</p></td>';
+        table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberposSum + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'></p></td>`;
+        table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numbernegSum + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'></p></td>`;
         table += '</tr>';
 
       for(var i = 0; i < portraitPageSize - exterior.length; i ++)
       {
-        table += '<tr class="blank">';
-        table += '<td>' + '&nbsp;' + '</td>';
+        table += `<tr style='font-size:10px' class="blank">`;
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + '&nbsp;' + '</p></td>';
         table += '</tr>';
       }
       table += `</tbody>
@@ -2274,28 +2288,28 @@ class Job extends Component {
         numberSum += item.number;
         numberposSum += item.numpos;
         numbernegSum += item.numneg;
-        table += '<tr>';
-        table += '<td>' + item.component + '</td>';
-        table += '<td>' + item.number + '</td>';
-        table += '<td>' + item.numpos + '</td>';
-        table += '<td>' + show_percent(item.percentpos) + '</td>';
-        table += '<td>' + item.numneg + '</td>';
-        table += '<td>' + show_percent(item.percentneg) + '</td>';
+        table += `<tr style='font-size:10px'>`;
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.component + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.number + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.numpos + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + show_percent(item.percentpos) + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.numneg + '</td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + show_percent(item.percentneg) + '</p></td>';
         table += '</tr>';
       })
-      table += '<tr class="blank">';
-        table += '<td class="bold" style="text-align:right;">Total</td>';
-        table += '<td class="bold">' + numberSum + '</td>';
-        table += '<td class="bold">' + numberposSum + '</td>';
-        table += '<td> </td>';
-        table += '<td class="bold">' + numbernegSum + '</td>';
-        table += '<td> </td>';
+      table += '<tr style="font-size:12px" class="blank">';
+        table += `<td class="bold" style="text-align:right;"><p style='display:inline; margin: 0px; font-family:sans-serif'>Total</p></td>`;
+        table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberSum + '</p></td>';
+        table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberposSum + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'></p></td>`;
+        table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numbernegSum + '</p></td>';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'></p></td>`;
         table += '</tr>';
 
       for(var i = 0; i < portraitPageSize - calibration.length; i ++)
       {
-        table += '<tr class="blank">';
-        table += '<td>' + '&nbsp;' + '</td>';
+        table += '<tr style="font-size:10px" class="blank">';
+        table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + '&nbsp;' + '</p></td>';
         table += '</tr>';
       }
       table += `</tbody>
@@ -2308,6 +2322,16 @@ class Job extends Component {
   }
 
   getLandscapeHeader(header) {
+    let protocol
+    if(this.state.actionLevel == 0.7){
+      protocol = "LA County";
+    } else if(this.state.actionLevel == 0.5) {
+      protocol = "City of San Diegeo";
+    } else if (this.state.actionLevel == 1.0){
+      protocol = "HUD";
+    } else {
+      protocol = this.state.actionLevel;
+    }
     return `
     <div style="padding-top:10px" class="heading">
       <h3>` + header + `</h3>
@@ -2331,7 +2355,7 @@ class Job extends Component {
         </td>
         <td style="width : 50px;">
             <span class="bold">Protocol : </span>
-            <span >` + (this.state.jobInfo.actionLevel == 0.7? 'LA County' :this.state.jobInfo.actionLevel) + `</span>
+            <span >`+protocol+`</span>
         </td>
       </tr>
     </table>
@@ -2340,11 +2364,21 @@ class Job extends Component {
   }
 
   getLandscapeFooter(page, datetime) {
+    let text
+    if(this.state.actionLevel == 0.7){
+      text = "LA County DHS action level for lead paint is 0.7";
+    } else if(this.state.actionLevel == 0.5) {
+      text = "City of San Diegeo DHS action level for lead paint is 0.7";
+    } else if (this.state.actionLevel == 1.0){
+      text = "HUD DHS action level for lead paint is 1.0";
+    } else {
+      text = "DHS action level for lead paint is" + this.state.actionLevel;
+    }
 
     return `
-    <div class="footer">
-      <p style="margin:0px 20px; padding:0px; font-family:sans-serif"> ${this.state.actionLevel == 0.7? "LA County DHS action level for lead paint is 0.7" : `DHS action level for lead paint is ${this.state.actionLevel}`}</p>
-      <p style="margin:0px 20px; padding:0px; font-family:sans-serif"> Positive is defined as XRF sampling with levels at or above ${this.state.actionLevel} mg/cm2.</p>
+    <div class="footer" style="font-size:12px">
+      <p style="margin:0px 20px; padding:0px; font-family:sans-serif"> ${text}</p>
+      <p style="margin:0px 20px; padding:0px; font-family:sans-serif"> Positive is defined as XRF sampling with levels in excess of ${this.state.actionLevel} mg/cm2.</p>
       <hr style="width : 95%;">
 
       <div class="row" style="text-align:center;">
@@ -2433,17 +2467,17 @@ class Job extends Component {
           if( name.startsWith("Wall") )
             name = "Wall";
 
-          table += `<tr style="font-size:9.5px; background-color:` + color + `">
-              <td style='white-space:nowrap'>` + (i+1) + `</td>
-              <td style='white-space:nowrap'>` + (x.unit|| '') + `</td>
-              <td style='white-space:nowrap'>` + (location + ' ' + x.room) + `</td>
-              <td style='white-space:nowrap'>` + (x.side|| '') + `</td>
-              <td style='white-space:nowrap'>` + (name) + `</td>
-              <td style='white-space:nowrap'>` + (x.material) + `</td>
-              <td style='white-space:nowrap'>` + (condition || '') + `</td>
-              <td style='white-space:nowrap' class="center">` + (reading   || '0') + `</td>
-              <td style='white-space:nowrap'>` + (x.result || ' ') + `</td>
-              <td style='white-space:nowrap'>` + (x.type? x.type+', ': "") + (x.comments || ' ') + `</td>
+          table += `<tr style="font-size:11px; background-color:` + color + `">
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (i+1) + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.unit|| '') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (location + ' ' + x.room) + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.side|| '') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (name) + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.material) + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (condition || '') + `</p></td>
+              <td style='white-space:nowrap' class="center"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (reading   || '0') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.result || ' ') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.type? x.type+' ': "") + (x.comments || ' ') + `</p></td>
             </tr>`;
         }
       }
@@ -2454,8 +2488,8 @@ class Job extends Component {
       if( startIndex + landscapePageSize > report.length) {
         for(var i = 0; i < startIndex + landscapePageSize - report.length; i ++)
         {
-          table += '<tr style="font-size:9.5px;" class="blank">';
-          table += '<td>' + '&nbsp;' + '</td>';
+          table += '<tr style="font-size:11px;" class="blank">';
+          table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + '&nbsp;' + '</p></td>';
           table += '</tr>';
         }
       }
@@ -2531,15 +2565,15 @@ class Job extends Component {
             location = 'Exterior'
           }
 
-          table += `<tr style="font-size:9.5px; background-color:` + color + `">
-              <td style='white-space:nowrap'>` + (i+1) + `</td>
-              <td style='white-space:nowrap'class="center">` + (x.side|| '') + `</td>
-              <td style='white-space:nowrap'>` + (x.name + ' ' + x.material) + `</td>
-              <td style='white-space:nowrap'>` + (location + ' ' + x.room) + `</td>
-              <td style='white-space:nowrap' class="center">` + (reading || '0') + `</td>
-              <td style='white-space:nowrap'>` + (x.result || ' ') + `</td>
-              <td style='white-space:nowrap'>` + (condition || '') + `</td>
-              <td style='white-space:nowrap'>` + (x.type? x.type+', ': "") + (x.comments || ' ') + `</td>
+          table += `<tr style="font-size:11px; background-color:` + color + `">
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.sampleId|| '') + `</p></td>
+              <td style='white-space:nowrap'class="center"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.side|| '') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.name + ' ' + x.material) + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (location + ' ' + x.room) + `</p></td>
+              <td style='white-space:nowrap' class="center"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (reading || '0') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.result || ' ') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (condition || '') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.type? x.type+', ': "") + (x.comments || ' ') + `</p></td>
             </tr>`;
         }
       }
@@ -2550,8 +2584,8 @@ class Job extends Component {
       if( startIndex + landscapePageSize > report.length) {
         for(var i = 0; i < startIndex + landscapePageSize - report.length; i ++)
         {
-          table += '<tr style="font-size:9.5px;" class="blank">';
-          table += '<td>' + '&nbsp;' + '</td>';
+          table += '<tr style="font-size:11px;" class="blank">';
+          table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + '&nbsp;' + '</p></td>';
           table += '</tr>';
         }
       }
@@ -2619,15 +2653,15 @@ class Job extends Component {
             location = 'Exterior'
           }
 
-          table += `<tr style="font-size:9.5px; background-color:` + color + `">
-              <td style='white-space:nowrap'>` + (i+1) + `</td>
-              <td style='white-space:nowrap' class="center">` + (x.side|| '') + `</td>
-              <td style='white-space:nowrap'>` + (x.name + ' ' + x.material) + `</td>
-              <td style='white-space:nowrap'>` + (location + ' ' + x.room) + `</td>
-              <td style='white-space:nowrap' class="center">` + (reading || '0') + `</td>
-              <td style='white-space:nowrap'>` + (x.result || ' ') + `</td>
-              <td style='white-space:nowrap'>` + (x.condition || '') + `</td>
-              <td style='white-space:nowrap'>` + (x.type? x.type+', ': "") + (x.comments || ' ') + `</td>
+          table += `<tr style="font-size:11px; background-color:` + color + `">
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.sampleId|| '') + `</p></td>
+              <td style='white-space:nowrap' class="center"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.side|| '') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.name + ' ' + x.material) + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (location + ' ' + x.room) + `</p></td>
+              <td style='white-space:nowrap' class="center"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (reading || '0') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.result || ' ') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.condition || '') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.type? x.type+', ': "") + (x.comments || ' ') + `</p></td>
             </tr>`;
         }
       }
@@ -2638,8 +2672,8 @@ class Job extends Component {
       if( startIndex + landscapePageSize > report.length) {
         for(var i = 0; i < startIndex + landscapePageSize - report.length; i ++)
         {
-          table += '<tr style="font-size:9.5px;" class="blank">';
-          table += '<td>' + '&nbsp;' + '</td>';
+          table += '<tr style="font-size:11px;" class="blank">';
+          table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + '&nbsp;' + '</p></td>';
           table += '</tr>';
         }
       }

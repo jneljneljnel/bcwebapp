@@ -127,6 +127,34 @@ class Client extends Component {
     if(!this.state.name && this.state.companyName){
       this.state.name = this.state.companyName
     }
+    if(!this.state.name ){
+      alert("No name or Company name entered")
+      return
+    }
+    if(!this.state.email ){
+      alert("No email entered")
+      return
+    }
+    if(!this.state.phone1){
+      alert("No primary phone entered")
+      return
+    }
+    if(!this.state.street){
+      alert("No street address entered")
+      return
+    }
+    if(!this.state.city){
+      alert("No city entered")
+      return
+    }
+    if(!this.state.state){      
+      alert("No state entered")
+      return
+    }
+    if(!this.state.postal){
+      alert("No postal entered")
+      return
+    }
     if(this.props.match.params.id){
      axios.post('/api/clients/update', {
        id:this.props.match.params.id,

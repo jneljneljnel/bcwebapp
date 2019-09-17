@@ -179,6 +179,9 @@ class Dashboard extends Component {
       if(data.inspector == 3){
         color = '#20a8d8'
       }
+      if(data.inspector == 4){
+        color = '#787c7f'
+      }
       console.log('test',data.inspectionDate);
       console.log('DATE', moment(data.inspectionDate).format())
       let instime1 = moment(data.inspectionDate).format()
@@ -217,7 +220,7 @@ class Dashboard extends Component {
   }
 
   filterEvents(e){
-    if( e.target.value == 4){
+    if( e.target.value == 5){
       console.log("default")
       let newCalData = this.formatEvents(this.state.calRawData)
     }
@@ -255,7 +258,11 @@ class Dashboard extends Component {
                        <Label className="form-check-label" check htmlFor="inline-radio3">Keith</Label>
                      </FormGroup>
                      <FormGroup check inline>
-                       <Input className="form-check-input" type="radio" id="inline-radio4" name="inline-radios" value="4" onChange={this.filterEvents}/>
+                       <Input className="form-check-input" type="radio" id="inline-radio3" name="inline-radios" value="4" onChange={this.filterEvents}/>
+                       <Label className="form-check-label" check htmlFor="inline-radio3">Dana</Label>
+                     </FormGroup>
+                     <FormGroup check inline>
+                       <Input className="form-check-input" type="radio" id="inline-radio4" name="inline-radios" value="5" onChange={this.filterEvents}/>
                        <Label className="form-check-label" check htmlFor="inline-radio4">All</Label>
                      </FormGroup>
                    </Col>
