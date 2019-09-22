@@ -100,7 +100,7 @@ const groupBy = key => array =>
 
 const axios = require('axios')
 const history = createBrowserHistory();
-const portraitPageSize = 36;
+const portraitPageSize = 28;
 const landscapePageSize = 28 ;
 
 
@@ -246,6 +246,7 @@ class Job extends Component {
     this.getInterior = this.getInterior.bind(this);
     this.getInterior2 = this.getInterior2.bind(this);
     this.getExterior = this.getExterior.bind(this);
+    this.getExterior2 = this.getExterior2.bind(this);
     this.getCalibration = this.getCalibration.bind(this);
 
 
@@ -1882,6 +1883,7 @@ class Job extends Component {
     `;
     var converted = '';
     var page = 1;
+    var content;
 
     //Get current date time
     var now = new Date();
@@ -1895,7 +1897,7 @@ class Job extends Component {
                     + now.getDate()  + "/"
                     + now.getFullYear() + " "
                     + time;
-
+      // Interior Summary
     var intSumRows = this.state.rows
     var intSumm = intSumRows.filter(function(x){
       if(x.location == 'InsSheet' && x.component != 'Exterior Doorway' && x.component != 'Exterior Window' && x.component != 'Misc Exterior'){
@@ -1906,19 +1908,41 @@ class Job extends Component {
       }
       return x.result == "POSITIVE";
     });
-    var intPageCount = Math.floor( ( intSumm.length - 1) / portraitPageSize ) + 1 ;
 
-
-    // Interior Summary
     var content = this.getInterior(page, datetime);
     page ++;
 
+    var intPageCount = Math.floor( ( intSumm.length - 1) / portraitPageSize ) + 1 ;
+    for ( var i = 0 ; i < intPageCount; i++)
+    {
+      content += this.getInterior2(intSumRows, page, datetime, i * portraitPageSize);
+      page++;
+    }
 
 
+    ///EXT summ
+    var extSumRows = this.state.rows
+    var extSumm = extSumRows.filter(function(x){
+      if(x.location == 'InsSheet' && x.component != 'Exterior Doorway' && x.component != 'Exterior Window' && x.component != 'Misc Exterior'){
+        return false;
+      }
+      else if(x.unit == 'Calibration'){
+        return false;
+      }
+      return x.result == "POSITIVE";
+    });
 
     // Exterior Summary
     content += this.getExterior(page, datetime);
     page ++;
+
+    var extPageCount = Math.floor( ( extSumm.length - 1) / portraitPageSize ) + 1 ;
+    for ( var i = 0 ; i < extPageCount; i++)
+    {
+      content += this.getExterior2(extSumRows, page, datetime, i * portraitPageSize);
+      page++;
+    }
+
 
     // Calibration Summary
     content += this.getCalibration(page, datetime);
@@ -2101,7 +2125,7 @@ class Job extends Component {
         if(i >= startIndex + portraitPageSize)
           break;
 
-            table += '<tr>';
+              table += `<tr style='font-size:10px'>`;
             table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + x.component + '</p></td>';
             table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + x.number + '</p></td>';
             table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + x.numpos + '</p></td>';
@@ -2110,7 +2134,7 @@ class Job extends Component {
             table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + show_percent(x.percentneg) + '</p></td>';
             table += '</tr>';
             if (i == interior.length -1){
-              table += '<tr class="blank">';
+              table += `<tr style='font-size:12px'  class="blank">`;
                 table += `<td class="bold" style="text-align:right;"><p style='display:inline; margin: 0px; font-family:sans-serif'>Total</p></td>`;
                 table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberSum + '</p></td>';
                 table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberposSum + '</p></td>';
@@ -2123,7 +2147,7 @@ class Job extends Component {
       if( startIndex + portraitPageSize > interior.length) {
         for(var i = 0; i < startIndex + portraitPageSize - interior.length; i ++)
         {
-          table += '<tr class="blank">';
+          table += `<tr style='font-size:10px' class="blank">`;
           table += '<td>' + '&nbsp;' + '</td>';
           table += '</tr>';
         }
@@ -2166,7 +2190,7 @@ class Job extends Component {
         numberSum += item.number;
         numberposSum += item.numpos;
         numbernegSum += item.numneg;
-        table += `<tr style='font-size:10px'>`;
+        table += `<tr style='font-size:10px; margin-bottom:10px'>`;
         table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.component + '</p></td>';
         table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.number + '</p></td>';
         table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.numpos + '</p></td>';
@@ -2199,6 +2223,79 @@ class Job extends Component {
 
   }
 
+  getExterior2(report, page, datetime, startIndex) {
+
+    var header = this.getPortraitHeader('SUMMARY OF EXTERIOR');
+    var footer = this.getPortraitFooter(page, datetime);
+    var exterior = this.formatExtData(report);
+    exterior = exterior.sort( (a,b) => {
+     var textA = a.component.toUpperCase();
+     var textB = b.component.toUpperCase();
+     return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+    })
+    var charSet = ' '
+
+
+    var numberSum = 0, numberposSum = 0, numbernegSum = 0 ;
+    exterior.forEach( item => {
+      numberSum += item.number;
+      numberposSum += item.numpos;
+      numbernegSum += item.numneg;
+    })
+    var table = `<Table responsive>
+      <thead>
+      <tr>
+        <th>Component</th>
+        <th class="number">Number Tested</th>
+        <th class="number">Number Positive</th>
+        <th class="percent">Percent Positive</th>
+        <th class="number">Number Negative</th>
+        <th class="percent">Percent Negative</th>
+      </tr>
+      </thead>
+      <tbody>
+    `;
+
+    if(exterior) {
+      for( i = startIndex; i < exterior.length; i ++ ){
+        var x = exterior[i];
+        console.log("is",x)
+        if(i >= startIndex + portraitPageSize)
+          break;
+
+              table += `<tr style='font-size:10px'>`;
+            table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + x.component + '</p></td>';
+            table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + x.number + '</p></td>';
+            table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + x.numpos + '</p></td>';
+            table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + show_percent(x.percentpos) + '</p></td>';
+            table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + x.numneg + '</p></td>';
+            table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + show_percent(x.percentneg) + '</p></td>';
+            table += '</tr>';
+            if (i == exterior.length -1){
+              table += `<tr style='font-size:12px'  class="blank">`;
+                table += `<td class="bold" style="text-align:right;"><p style='display:inline; margin: 0px; font-family:sans-serif'>Total</p></td>`;
+                table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberSum + '</p></td>';
+                table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberposSum + '</p></td>';
+                table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'></p></td>`;
+                table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numbernegSum + '</p></td>';
+                table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'></p></td>`;
+                table += '</tr>';
+            }
+      }
+      if( startIndex + portraitPageSize > exterior.length) {
+        for(var i = 0; i < startIndex + portraitPageSize - exterior.length; i ++)
+        {
+          table += `<tr style='font-size:10px' class="blank">`;
+          table += '<td>' + '&nbsp;' + '</td>';
+          table += '</tr>';
+        }
+      }
+    }
+    table += `</tbody>
+    </table></div>`;
+    var content = charSet + header + table + footer;
+    return content;
+  }
 
   getExterior(page, datetime) {
     var exterior = this.formatExtData(this.state.rows);
