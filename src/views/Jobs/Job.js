@@ -2027,23 +2027,21 @@ class Job extends Component {
     return `
     <hr>
     <div class="heading">
-      <h1>` + header + `</h1>
+      <h2>` + header + `</h2>
     </div>
     <div class="row" style="text-align:center;">
-    <table style="width : 80%;">
+    <table style="width : 80%; font-size:12px">
       <tr style="width : 100%;">
-        <td style="width : 50%;">
-            <span class="bold">Project Name : </span>
-            <span >` + (this.state.jobInfo? this.state.jobInfo.name : '') + `</span>
+        <td style="width : 40%;">
+            <p style='display:inline; margin: 0px; font-family:sans-serif'><strong>Project Name:</strong>` + (this.state.jobInfo? this.state.jobInfo.name : '') + `</p>
         </td>
-        <td style="width : 50px; text-align:right">
-            <span class="bold">Project Number : </span>
-            <span >` + (this.state.jobInfo? this.state.jobInfo.id : '') + `</span>
+        <td style="width : 60%; text-align:right">
+            <span style='display:inline; margin: 0px; font-family:sans-serif'><strong>Project Number:</strong>`+ (this.state.jobInfo? this.state.jobInfo.id : '') + `</span>
         </td>
       </tr>
       <tr style="width : 100%;">
         <td style="width : 70%;">
-              <div style='float:left; display:inline;height:190px' class="bold">Address : </div>
+              <div style='float:left; display:inline;height:190px' class="bold"><strong>Address: </strong></div>
               <div style='margin:0px'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.street: '') + `</p></div>
               <div style='margin:0px'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.city+', '+this.state.jobInfo.state + ' ' +this.state.jobInfo.postal: '') + `</p></div>
         </td>
@@ -2459,13 +2457,13 @@ class Job extends Component {
     <div class="row" style="text-align:center;">
     <table style="width : 90%;">
       <tr style="width : 100%;">
-        <td style="width : 72%;">
+        <td style="width : 72%; margin: 0px;">
             <span class="bold">Project Name : </span>
-            <span >` + (this.state.jobInfo? this.state.jobInfo.name : '') + `</span>
+            <span >` + (this.state.jobInfo? this.state.jobInfo.name : '') + `</p></span>
         </td>
-        <td style="width : 50px;">
+        <td style="width : 50px; margin: 0px;">
             <span class="bold">Project Number : </span>
-            <span >` + (this.state.jobInfo? this.state.jobInfo.id : '') + `</span>
+            <span >` + (this.state.jobInfo? this.state.jobInfo.id : '') + `</p></span>
         </td>
       </tr>
       <tr style="width : 100%;">
@@ -2484,21 +2482,25 @@ class Job extends Component {
   }
 
   getLandscapeFooter(page, datetime) {
-    let text
-    if(this.state.actionLevel == 0.7){
-      text = "LA County DHS action level for lead paint is 0.7";
+    let text, text2
+    if(this.state.actionLevel == 0.8){
+      text = "LA County DHS action level for lead paint is 0.8.";
+      text2 = "Positive is defined as XRF sampling with levels at or above 0.8 mg/cm2.";
     } else if(this.state.actionLevel == 0.5) {
-      text = "City of San Diegeo DHS action level for lead paint is 0.7";
+      text = "City of San Diegeo DHS action level for lead paint is 0.5.";
+      text2 = "Positive is defined as XRF sampling with levels in excess of 0.5 mg/cm2.";
     } else if (this.state.actionLevel == 1.0){
-      text = "HUD DHS action level for lead paint is 1.0";
+      text = "HUD DHS action level for lead-based paint is 1.0 mg/cm2.";
+      text2 = "Positive is defined as XRF sampling with levels in excess of 1.0 mg/cm2.";
     } else {
-      text = "DHS action level for lead paint is" + this.state.actionLevel;
+      text = "DHS action level for lead paint is" + this.state.actionLevel+' mg/cm2.';
+      text2 = "Positive is defined as XRF sampling with levels in excess of" + this.state.actionLevel + " mg/cm2.";
     }
 
     return `
     <div class="footer" style="font-size:12px">
       <p style="margin:0px 20px; padding:0px; font-family:sans-serif"> ${text}</p>
-      <p style="margin:0px 20px; padding:0px; font-family:sans-serif"> Positive is defined as XRF sampling with levels in excess of ${this.state.actionLevel} mg/cm2.</p>
+      <p style="margin:0px 20px; padding:0px; font-family:sans-serif"> ${text2}</p>
       <hr style="width : 95%;">
 
       <div class="row" style="text-align:center;">
