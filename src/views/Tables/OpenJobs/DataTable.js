@@ -8,35 +8,33 @@ import { createBrowserHistory } from 'history';
 import { Route , withRouter} from 'react-router-dom';
 import { Document, Packer, Paragraph, TextRun, Media, File, StyleLevel, TableOfContents } from "docx";
 import FileBase64 from 'react-file-base64';
+
 import htmlDocx from 'html-docx-js/dist/html-docx';
 import { saveAs } from 'file-saver';
 import juice from 'juice';
 import domtoimage from 'dom-to-image';
 import jsPDF from "jspdf";
 
-const moment = require('moment');
 const fetch64 = require('fetch-base64');
 const axios = require('axios')
 const history = createBrowserHistory();
 
 const portraitPageSize = 13;
 
+
+
 class DataTable extends Component {
   constructor(props) {
     super(props);
     //console.log(props)
     this.table = data.rows;
-    this.completeButton = this.completeButton.bind(this)
     this.doneButton = this.doneButton.bind(this)
-    this.dateFormatter = this.dateFormatter.bind(this)
     this.markDone = this.markDone.bind(this)
     this.sendBack = this.sendBack.bind(this)
     this.backButton = this.backButton.bind(this)
     this.getOpenJobs = this.getOpenJobs.bind(this)
     this.getReport = this.getReport.bind(this)
     this.goButton = this.goButton.bind(this)
-    this.phone = this.phone.bind(this)
-    this.comments = this.comments.bind(this)
     this.state = {
       data:'',
       samples:'',
@@ -62,7 +60,7 @@ class DataTable extends Component {
       all[i].style.height = (strWidth / 595 * 842) + "px";
     }
   }
-
+  
   componentDidMount() {
     // window.addEventListener("resize", this.updateDimensions);
   }
@@ -74,16 +72,14 @@ class DataTable extends Component {
   sendBack(id){
      axios.get(`/api/jobs/sendBack/${id}`).then( res => {
        console.log('send back')
-       this.props.history.push('/dashboard/');
-       this.props.history.push('/inspected/')
+       window.location.reload();
      })
   }
 
   markDone(id){
      axios.get(`/api/jobs/markDone/${id}`).then( res => {
        console.log('done')
-       this.props.history.push('/dashboard/');
-       this.props.history.push('/inspected/')
+       window.location.reload();
      })
   }
 
@@ -242,7 +238,7 @@ async getReport(row){
   console.log('rows', rows);
   this.setState({samples:rows})
 
-  let css = `
+  this.css = `
       * {
         font-family: Times New Roman ;
       }
@@ -627,15 +623,15 @@ async getReport(row){
         color: #ffc000;
       }
       .content-wrapper{
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
+        width: 100%; 
+        display: flex; 
+        justify-content: space-between; 
         padding-right: 20px;
         align-items: center;
       }
       .content-title{
-        white-space: nowrap;
-        width: 99%;
+        white-space: nowrap; 
+        width: 99%; 
         overflow: hidden;
       }
       .content-wrapper-padding{
@@ -778,7 +774,7 @@ async getReport(row){
         <p style="text-decoration: underline;font-weight:bold;">DESCRIPTION</p>
         <div>
           <p style="text-decoration: underline;text-align:center;font-weight:bold;">PAGE NO</p>
-        </div>
+        </div>    
       </div>
       <div class="content-wrapper">
         <span class="big-font content-title">1.0 Executive Summary-----------------------------------------------------------------------------------------------------</span>
@@ -1569,7 +1565,7 @@ async getReport(row){
     <br clear="all" style="page-break-before:always" ></br>    <br clear="all" style="page-break-before:always" ></br></div></div>
 
     `;
-
+    
     let b1, b2, b3, b4;
 
     await this.getBase64('/assets/img/attachments/b1.jpg').then((data)=>{
@@ -1655,8 +1651,8 @@ async getReport(row){
     `;
 
     console.log('----state----', this.state);
-    content = juice.inlineContent(content, css);
-
+    content = juice.inlineContent(content, this.css);
+    
     this.setState({isPrintPreview: true});
     var node = document.querySelector('#printElement');
     node.innerHTML = content;
@@ -1681,7 +1677,7 @@ async getReport(row){
         <p style="text-decoration: underline;font-weight:bold;">DESCRIPTION</p>
         <div>
           <p style="text-decoration: underline;text-align:center;font-weight:bold;">PAGE NO</p>
-        </div>
+        </div>    
       </div>
       <div class="content-wrapper content-wrapper-padding">
         <span class="big-font content-title">1.0 INTRODUCTION-----------------------------------------------------------------------------------------------------------------------</span>
@@ -1752,7 +1748,7 @@ async getReport(row){
 
     <div style="text-transform: uppercase;">
       <h1 class="center italic bold" style="font-size:20pt;">LIMITED LEAD-BASED PAINT INSPECTION REPORT</h1>
-      <h1 class="center italic pink" style="font-size:20pt;">${typeInspection}</h1>
+      <h1 class="center italic bold" style="font-size:20pt;">${typeInspection}</h1>
       <p class="center bold" font> 1.0 Introduction </p>
     </div>
     <p class="left">
@@ -2152,7 +2148,7 @@ async getReport(row){
 
     console.log('----state----', this.state);
     console.log('----row----', row);
-    content = juice.inlineContent(content, css);
+    content = juice.inlineContent(content, this.css);
     this.setState({isPrintPreview: true});
     node = document.querySelector('#printElement');
     node.innerHTML = content;
@@ -2171,6 +2167,40 @@ async getReport(row){
 
 }
 
+exportToDocx() {
+  // this.convertImagesToBase64();
+  var contentDocument = document.querySelector('#printElement');
+  var content = '<!doctype html><html lang="en"><head>';
+  content += '<meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge">';
+  content += '<meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">';
+  content += '<meta name="description" content="Barr and Clark Environmental">';
+  content += '<meta name="author" content="Jeremy Nelson">';
+  content += '<style>' + this.css + '</style></head><body>' + contentDocument.outerHTML + '</body></html>';
+  content = juice.inlineContent(content, this.css);
+  var  converted = htmlDocx.asBlob(content, {orientation: 'portrait', margins: {top: 400, left : 600, right : 400, bottom: 400}});
+    saveAs(converted, `${this.state.pdfTitle}.docx` );
+
+}
+
+convertImagesToBase64 () {
+  var contentDocument = document.querySelector('#printElement');
+  var regularImages = contentDocument.querySelectorAll("img");
+  var canvas = document.createElement('canvas');
+  var ctx = canvas.getContext('2d');
+  [].forEach.call(regularImages, function (imgElement) {
+    // preparing canvas for drawing
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.width = imgElement.width;
+    canvas.height = imgElement.height;
+    ctx.drawImage(imgElement, 0, 0);
+    // by default toDataURL() produces png image, but you can also export to jpeg
+    // checkout function's documentation for more details
+    var dataURL = canvas.toDataURL();
+    imgElement.setAttribute('src', dataURL);
+  })
+  canvas.remove();
+}
+
 print() {
   const filename = this.state.pdfTitle;
   var node = document.querySelector('#printElement');
@@ -2182,8 +2212,8 @@ print() {
     let img = new Image();
     img.src = dataUrl;
     img.onload = () => {
-      let imgWidth = img.width;
-      let imgHeight = img.height;
+      let imgWidth = img.width; 
+      let imgHeight = img.height;      
       // let pdf = new jsPDF('p', 'pt', 'a4');
       let pdf = new jsPDF({orientation: 'portrait', unit: 'pt', format: [paperWidth, paperHeight]});
       var canvas = document.createElement("canvas");
@@ -3028,42 +3058,19 @@ get8552Content(jobInfo, image1, image2, image3) {
   });
 }
 
-dateFormatter(cell, row){
-  return(<div style={{whiteSpace: "pre-wrap"}}>{moment(cell).format('MMMM Do YYYY')}</div>)
-}
-
-
-  completeButton(cell, row){
-    return (<div> <Button style={{padding:'3px'}} color="success" onClick={() => this.markDone(row.id)}>Complete</Button></div>)
-  }
-
   backButton(cell, row){
-    return (<div> <Button style={{padding:'3px'}} color="success" onClick={() => this.sendBack(row.id)}>Send Back</Button></div>)
+    return (<div> <Button style={{padding:'3px'}} color="success" size="sm" onClick={() => this.sendBack(row.id)}>Send Back</Button>  <Button style={{padding:'3px'}}  size="sm" color="success" onClick={() => this.markDone(row.id)}>Complete</Button></div>)
   }
-
   doneButton(cell, row){
      return (<div><Button onClick={() => {this.getReport(row)}} color="danger">Report</Button></div>)
   }
   goButton(cell, row){
-     return (<div><Button onClick={() =>  this.props.history.push('/jobs/'+row.id)}>Open</Button></div>)
+     return (<div><Button color="success" onClick={() =>  this.props.history.push('/jobs/'+row.id)}>Open</Button></div>)
   }
 
   address(cell,row){
-       return (<div style={{whiteSpace: "pre-wrap"}}>{row.street +' '+ row.city}</div>)
+       return (<div>{row.street +' '+ row.city}</div>)
   }
-
-  jobName(cell, row){
-    return(<div style={{whiteSpace: "pre-wrap"}}>{row.name}</div>)
-  }
-
-  phone(cell, row){
-    return(<div style={{whiteSpace: "pre-wrap"}}>{row.siteNumber}</div>)
-  }
-
-  comments(cell, row){
-    return(<div style={{whiteSpace: "pre-wrap"}}>{cell}</div>)
-  }
-
 
   siteNumber
   render() {
@@ -3078,19 +3085,14 @@ dateFormatter(cell, row){
             <BootstrapTable  data={this.props.data || this.table} version="4" striped hover pagination search options={this.options}>
             <TableHeaderColumn dataFormat={this.goButton}></TableHeaderColumn>
             <TableHeaderColumn isKey dataField="id" dataSort>JobId</TableHeaderColumn>
-            <TableHeaderColumn dataFormat={this.jobName} dataField="name">Job Name</TableHeaderColumn>
-            <TableHeaderColumn dataField="inspectionDate" dataFormat={this.dateFormatter} dataSort><div style={{fontSize:"10px", display:"inline" }}>Inspection Date</div></TableHeaderColumn>
+            <TableHeaderColumn dataField="name">Job Name</TableHeaderColumn>
             <TableHeaderColumn dataFormat={this.address} dataSort>Address</TableHeaderColumn>
-            <TableHeaderColumn dataFormat={this.phone} dataSort>Phone</TableHeaderColumn>
-            <TableHeaderColumn dataField="comments" dataFormat={this.comments} dataSort>Comments</TableHeaderColumn>
+            <TableHeaderColumn dataField="siteNumber" dataSort>Phone</TableHeaderColumn>
+            <TableHeaderColumn dataField="comments" dataSort>Comments</TableHeaderColumn>
             <TableHeaderColumn
               key={this.id}
              dataFormat={this.backButton}>
              </TableHeaderColumn>
-             <TableHeaderColumn
-               key={this.id}
-              dataFormat={this.completeButton}>
-              </TableHeaderColumn>
             <TableHeaderColumn dataFormat={this.doneButton}></TableHeaderColumn>
             </BootstrapTable>
           </CardBody>
@@ -3100,7 +3102,7 @@ dateFormatter(cell, row){
         <Card>
           <CardHeader>
             <div style = {{display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%"}}>
-              <Button color="success" onClick={() =>  this.print()}>Export</Button>
+              <Button color="success" onClick={() =>  this.exportToDocx()}>Export</Button>
               <span style = {{fontWeight: "bold", fontSize: "20px"}}>Export Preview</span>
               <Button color="danger" onClick={() =>  this.setState({isPrintPreview: false})}>Close</Button>
             </div>
