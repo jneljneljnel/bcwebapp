@@ -2032,16 +2032,16 @@ class Job extends Component {
     <div class="row" style="text-align:center;">
     <table style="width : 80%; font-size:12px">
       <tr style="width : 100%;">
-        <td style="width : 40%;">
+        <td style="width : 40%; margin:0px">
             <p style='display:inline; margin: 0px; font-family:sans-serif'><strong>Project Name:</strong>` + (this.state.jobInfo? this.state.jobInfo.name : '') + `</p>
         </td>
-        <td style="width : 60%; text-align:right">
-            <span style='display:inline; margin: 0px; font-family:sans-serif'><strong>Project Number:</strong>`+ (this.state.jobInfo? this.state.jobInfo.id : '') + `</span>
+        <td style="width : 60%; text-align:right; margin:0px">
+            <p style='display:inline; margin: 0px; font-family:sans-serif'><strong>Project Number:</strong>`+ (this.state.jobInfo? this.state.jobInfo.id : '') + `</span>
         </td>
       </tr>
       <tr style="width : 100%;">
         <td style="width : 70%;">
-              <div style='float:left; display:inline;height:190px' class="bold"><strong>Address: </strong></div>
+              <div style='float:left; display:inline;font-family:sans-serif';height:190px' class="bold"><strong>Address: </strong></div>
               <div style='margin:0px'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.street: '') + `</p></div>
               <div style='margin:0px'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.city+', '+this.state.jobInfo.state + ' ' +this.state.jobInfo.postal: '') + `</p></div>
         </td>
@@ -2057,10 +2057,9 @@ class Job extends Component {
   getPortraitFooter(page, datetime) {
 
     return `
-    <div style="margin-top: 20px" class="footer">
+    <div style="margin-top: 20px;margin-bottom: 0px" class="footer">
       <span> Testing done in compliance with current L.A. County DHS guidelines for XRF</span>
-      <hr>
-
+      <hr style='margin:0px;height:0.5px;padding:0px'>
       <div class="row" style="text-align:center;">
       <table style="width : 100%;">
         <tr style="width : 100%;">
@@ -2082,8 +2081,7 @@ class Job extends Component {
     return `
     <div style="margin-top: 20px" class="footer">
       <span> Testing done in compliance with current L.A. County DHS guidelines for XRF</span>
-      <hr>
-
+      <hr style='margin:0px;height:0.5px;padding:0px'>
       <div class="row" style="text-align:center;">
       <table style="width : 100%;">
         <tr style="width : 100%;">
@@ -2458,22 +2456,21 @@ class Job extends Component {
     <table style="width : 90%;">
       <tr style="width : 100%;">
         <td style="width : 72%; margin: 0px;">
-            <span class="bold">Project Name : </span>
-            <span >` + (this.state.jobInfo? this.state.jobInfo.name : '') + `</p></span>
+        <p style='display:inline; margin: 0px; font-family:sans-serif'><strong>Project Name:</strong>` + (this.state.jobInfo? this.state.jobInfo.name : '') + `</p>
         </td>
         <td style="width : 50px; margin: 0px;">
-            <span class="bold">Project Number : </span>
-            <span >` + (this.state.jobInfo? this.state.jobInfo.id : '') + `</p></span>
+        <p style='display:inline; margin: 0px; font-family:sans-serif'><strong>Project Number:</strong>` + (this.state.jobInfo? this.state.jobInfo.id : '') + `</p>
+
         </td>
       </tr>
       <tr style="width : 100%;">
-        <td style="width : 72%;">
-            <span class="bold">Address : </span>
-            <span >` + (this.state.jobInfo? this.state.jobInfo.street + ' ' +this.state.jobInfo.city+', '+this.state.jobInfo.state: '') + `</span>
-        </td>
-        <td style="width : 50px;">
-            <span class="bold">Protocol : </span>
-            <span >`+protocol+`</span>
+      <td style="width : 72%;">
+            <div style='float:left; display:inline;font-family:sans-serif';height:190px' class="bold"><strong>Address: </strong></div>
+            <div style='margin:0px'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.street: '') + `</p></div>
+            <div style='margin:0px'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.city+', '+this.state.jobInfo.state + ' ' +this.state.jobInfo.postal: '') + `</p></div>
+      </td>
+        <td style="width : 50px; vertical-align:top;text-align:left">
+          <p style='display:inline; margin: 0px; font-family:sans-serif'><strong>Protocol:</strong>`+ protocol +`</p>
         </td>
       </tr>
     </table>
