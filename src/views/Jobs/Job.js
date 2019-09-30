@@ -100,7 +100,7 @@ const groupBy = key => array =>
 
 const axios = require('axios')
 const history = createBrowserHistory();
-const portraitPageSize = 28;
+const portraitPageSize = 34;
 const landscapePageSize = 28 ;
 
 
@@ -1883,7 +1883,7 @@ class Job extends Component {
     `;
     var converted = '';
     var page = 1;
-    var content;
+    var content='';
 
     //Get current date time
     var now = new Date();
@@ -1909,8 +1909,8 @@ class Job extends Component {
       return x.result == "POSITIVE";
     });
 
-    var content = this.getInterior(page, datetime);
-    page ++;
+    // var content = this.getInterior(page, datetime);
+    // page ++;
 
     var intPageCount = Math.floor( ( intSumm.length - 1) / portraitPageSize ) + 1 ;
     for ( var i = 0 ; i < intPageCount; i++)
@@ -1932,9 +1932,9 @@ class Job extends Component {
       return x.result == "POSITIVE";
     });
 
-    // Exterior Summary
-    content += this.getExterior(page, datetime);
-    page ++;
+    // // Exterior Summary
+    // content += this.getExterior(page, datetime);
+    // page ++;
 
     var extPageCount = Math.floor( ( extSumm.length - 1) / portraitPageSize ) + 1 ;
     for ( var i = 0 ; i < extPageCount; i++)
@@ -2044,8 +2044,8 @@ class Job extends Component {
       <tr style="width : 100%;">
         <td style="width : 70%;">
               <div style='float:left; display:inline;height:190px' class="bold">Address : </div>
-              <div>` + (this.state.jobInfo? this.state.jobInfo.street: '') + `</div>
-              <div>` + (this.state.jobInfo? this.state.jobInfo.city+', '+this.state.jobInfo.state + ' ' +this.state.jobInfo.postal: '') + `</div>
+              <div style='margin:0px'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.street: '') + `</p></div>
+              <div style='margin:0px'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.city+', '+this.state.jobInfo.state + ' ' +this.state.jobInfo.postal: '') + `</p></div>
         </td>
         <td style="width : 30px; text-align:right">
 
@@ -2059,7 +2059,7 @@ class Job extends Component {
   getPortraitFooter(page, datetime) {
 
     return `
-    <div class="footer">
+    <div style="margin-top: 20px" class="footer">
       <span> Testing done in compliance with current L.A. County DHS guidelines for XRF</span>
       <hr>
 
@@ -2078,6 +2078,29 @@ class Job extends Component {
        </table>
     </div>
     <br clear="all" style="page-break-before:always" >`;
+  }
+
+  getLastPortraitFooter(page, datetime) {
+    return `
+    <div style="margin-top: 20px" class="footer">
+      <span> Testing done in compliance with current L.A. County DHS guidelines for XRF</span>
+      <hr>
+
+      <div class="row" style="text-align:center;">
+      <table style="width : 100%;">
+        <tr style="width : 100%;">
+          <td style="width : 40%; text-align:left; font-style: italic">
+              <span class="bold">Barr & Clark Environmental (714) 894-5700</span>
+          </td>
+          <td style="width : 20%; text-align:center">
+          </td>
+          <td style="width : 40%; text-align:right">
+            ` + datetime + `
+          </td>
+        </tr>
+       </table>
+    </div>
+    `;
   }
 
   blankPageWithTitle(title) {
@@ -2148,7 +2171,7 @@ class Job extends Component {
         for(var i = 0; i < startIndex + portraitPageSize - interior.length; i ++)
         {
           table += `<tr style='font-size:10px' class="blank">`;
-          table += '<td>' + '&nbsp;' + '</td>';
+          table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + '&nbsp;' + '</p></td>';
           table += '</tr>';
         }
       }
@@ -2286,7 +2309,7 @@ class Job extends Component {
         for(var i = 0; i < startIndex + portraitPageSize - exterior.length; i ++)
         {
           table += `<tr style='font-size:10px' class="blank">`;
-          table += '<td>' + '&nbsp;' + '</td>';
+          table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + '&nbsp;' + '</p></td>';
           table += '</tr>';
         }
       }
@@ -2364,7 +2387,7 @@ class Job extends Component {
     var calibration = this.formatCommonData(this.state.rows);
 
     var header = this.getPortraitHeader('SUMMARY OF CALIBRATION');
-    var footer = this.getPortraitFooter(page, datetime);
+    var footer = this.getLastPortraitFooter(page, datetime);
 
     var charSet = ' ';
 
