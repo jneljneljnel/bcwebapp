@@ -100,8 +100,8 @@ const groupBy = key => array =>
 
 const axios = require('axios')
 const history = createBrowserHistory();
-const portraitPageSize = 34;
-const landscapePageSize = 28 ;
+const portraitPageSize = 42;
+const landscapePageSize = 29 ;
 
 
 var MyBlobBuilder = function() {
@@ -251,11 +251,13 @@ class Job extends Component {
 
 
     this.dataReport = this.dataReport.bind(this);
+    this.positiveInterior = this.positiveInterior.bind(this);
     this.positiveExterior = this.positiveExterior.bind(this);
     this.positiveCommon = this.positiveCommon.bind(this);
 
     this.getLandscapeHeader = this.getLandscapeHeader.bind(this);
     this.getLandscapeFooter = this.getLandscapeFooter.bind(this);
+    this.getLastLandscapeFooter = this.getLastLandscapeFooter.bind(this);
     this.blankPageWithTitle = this.blankPageWithTitle.bind(this);
 
     // print 8552 Related Functions
@@ -1962,6 +1964,23 @@ class Job extends Component {
       return x
     });
 
+    // Interior Lead Containing Components List
+    var interiorReport = report.filter(function(x){
+      if(x.location == 'ExtSheet' || x.component == 'Exterior Doorway' || x.component == 'Exterior Window' || x.component == 'Misc Exterior'){
+        return false;
+      }
+      else if(x.unit == 'Calibration'){
+        return false;
+      }
+      return x.result == "POSITIVE";
+    });
+
+    if(interiorReport.length > 0)
+    {
+      content += this.positiveInterior(interiorReport, page, datetime, 0);
+      page ++;
+    }
+
     // Exterior Lead Containing Components List
     var exteriorReport = report.filter(function(x){
       if(x.location == 'InsSheet' && x.component != 'Exterior Doorway' && x.component != 'Exterior Window' && x.component != 'Misc Exterior'){
@@ -2055,10 +2074,20 @@ class Job extends Component {
   }
 
   getPortraitFooter(page, datetime) {
+    let text
+    if(this.state.actionLevel == 0.8){
+      text = "Testing done in compliance with current L.A. County DHS guidelines for XRF";
+    } else if(this.state.actionLevel == 0.5) {
+      text = "Testing done in compliance with current City of San Diego guidelines for XRF";
+    } else if (this.state.actionLevel == 1.0){
+      text = "Testing done in compliance with current HUD guidelines for XRF";
+    } else {
+      text = "Testing done in compliance with current guidelines for XRF";
+    }
 
     return `
     <div style="margin-top: 20px;margin-bottom: 0px" class="footer">
-      <span> Testing done in compliance with current L.A. County DHS guidelines for XRF</span>
+      <div><p style='display:inline; margin: 0px; font-family:sans-serif'>${text}</p></div>
       <hr style='margin:0px;height:0.5px;padding:0px'>
       <div class="row" style="text-align:center;">
       <table style="width : 100%;">
@@ -2518,11 +2547,52 @@ class Job extends Component {
     <br clear="all" style="page-break-before:always" >`;
   }
 
+  getLastLandscapeFooter(page, datetime) {
+    let text, text2
+    if(this.state.actionLevel == 0.8){
+      text = "LA County DHS action level for lead paint is 0.8.";
+      text2 = "Positive is defined as XRF sampling with levels at or above 0.8 mg/cm2.";
+    } else if(this.state.actionLevel == 0.5) {
+      text = "City of San Diegeo DHS action level for lead paint is 0.5.";
+      text2 = "Positive is defined as XRF sampling with levels in excess of 0.5 mg/cm2.";
+    } else if (this.state.actionLevel == 1.0){
+      text = "HUD DHS action level for lead-based paint is 1.0 mg/cm2.";
+      text2 = "Positive is defined as XRF sampling with levels in excess of 1.0 mg/cm2.";
+    } else {
+      text = "DHS action level for lead paint is" + this.state.actionLevel+' mg/cm2.';
+      text2 = "Positive is defined as XRF sampling with levels in excess of" + this.state.actionLevel + " mg/cm2.";
+    }
+
+    return `
+    <div class="footer" style="font-size:12px">
+      <p style="margin:0px 20px; padding:0px; font-family:sans-serif">last ${text}</p>
+      <p style="margin:0px 20px; padding:0px; font-family:sans-serif"> ${text2}</p>
+      <hr style="width : 95%;">
+
+      <div class="row" style="text-align:center;">
+      <table style="width : 95%;">
+        <tr style="width : 95%;">
+          <td style="width : 40%; text-align:left; font-style: italic">
+              <span style="margin:30px" class="bold">Barr & Clark Environmental (714) 894-5700</span>
+          </td>
+          <td style="width : 20%; text-align:center">
+            ` + page +
+          `</td>
+          <td style="width : 40%; text-align:right">
+            ` + datetime + `
+          </td>
+        </tr>
+       </table>
+    </div>`;
+  }
+
   dataReport(report, page, datetime, startIndex) { // data, page_number, current datetime, start index in the array
 
     var charSet = ' ';
+    var last = false
     var landscapeHeader = this.getLandscapeHeader('FIELD DATA REPORT');
     var landscapeFooter = this.getLandscapeFooter(page, datetime);
+    var lastlandscapeFooter = this.getLastLandscapeFooter(page, datetime);
 
     var table = `<div class="filter-table-responsive"> <table class="table font-smaller">
       <thead>
@@ -2605,6 +2675,106 @@ class Job extends Component {
       }
 
       if( startIndex + landscapePageSize > report.length) {
+        last = true
+        for(var i = 0; i < startIndex + landscapePageSize - report.length; i ++)
+        {
+          table += '<tr style="font-size:11px;" class="blank">';
+          table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + '&nbsp;' + '</p></td>';
+          table += '</tr>';
+        }
+      }
+      table += `</tbody>
+    </table></div>`;
+
+    var content
+    if(last){
+      content = charSet + landscapeHeader + table + lastlandscapeFooter;
+    } else {
+      content = charSet + landscapeHeader + table + landscapeFooter;
+    }
+
+    return content;
+
+
+  }
+
+
+  positiveInterior(report, page, datetime, startIndex) { // data, page_number, current datetime, start index in the array
+    var charSet = ' ';
+    var landscapeHeader = this.getLandscapeHeader('Interior Lead Containing Components List');
+    var landscapeFooter = this.getLandscapeFooter(page, datetime);
+
+
+
+    var table = `<div class="filter-table-responsive-cal"> <table class="table font-smaller">
+      <thead>
+      <tr style="font-size:12.5px;">
+        <th>Sample</th>
+        <th class="center">Side</th>
+        <th>Testing Combination</th>
+        <th>Room Equivalent</th>
+        <th class="center">Lead</th>
+        <th>Results</th>
+        <th>Condition</th>
+        <th>Comments</th>
+      </tr>
+      </thead>
+      <tbody>`;
+
+      if(report) {
+        for( i = startIndex; i < report.length; i ++ )
+        {
+          if(i >= startIndex + landscapePageSize)
+            break;
+          var x = report[i];
+
+          let location;
+          let reading
+          let condition
+          let color = "#fff";
+
+
+          if(x && x.condition == 'Deteriorated'){
+            condition = 'DETERIORATED'
+          } else {
+            condition = x.condition
+          }
+
+          if(x && x.reading == '1'){
+            reading = '1.0'
+          } else {
+            reading = x.reading
+          }
+          if(x && x.result == 'POSITIVE'){
+            color = '#acb5bc'
+          }
+          if(x.location == 'InsSheet' && x.component != 'Exterior Doorway' && x.component != 'Exterior Window' && x.component != 'Misc Exterior'){
+            location = 'Interior'
+          }
+          else if(x.unit == 'Calibration'){
+            location = 'Calibration'
+          }
+          else {
+            location = 'Exterior'
+          }
+
+          table += `<tr style="font-size:11px; background-color:` + color + `">
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.sampleId|| '') + `</p></td>
+              <td style='white-space:nowrap'class="center"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.side|| '') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.name + ' ' + x.material) + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (location + ' ' + x.room) + `</p></td>
+              <td style='white-space:nowrap' class="center"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (reading || '0') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.result || ' ') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (condition || '') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.type? x.type+', ': "") + (x.comments || ' ') + `</p></td>
+            </tr>`;
+        }
+      }
+      else {
+        table += `<tr><td>"No Inspection Data"</td></tr>`;
+      }
+
+      if( startIndex + landscapePageSize > report.length) {
         for(var i = 0; i < startIndex + landscapePageSize - report.length; i ++)
         {
           table += '<tr style="font-size:11px;" class="blank">';
@@ -2619,8 +2789,6 @@ class Job extends Component {
     var content = charSet + landscapeHeader + table + landscapeFooter;
 
     return content;
-
-
   }
 
   positiveExterior(report, page, datetime, startIndex) { // data, page_number, current datetime, start index in the array
