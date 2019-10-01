@@ -100,7 +100,7 @@ const groupBy = key => array =>
 
 const axios = require('axios')
 const history = createBrowserHistory();
-const portraitPageSize = 42;
+const portraitPageSize = 34;
 const landscapePageSize = 29 ;
 
 
@@ -1902,8 +1902,8 @@ class Job extends Component {
       // Interior Summary
     var intSumRows = this.state.rows
     var intSumm = intSumRows.filter(function(x){
-      if(x.location == 'InsSheet' && x.component != 'Exterior Doorway' && x.component != 'Exterior Window' && x.component != 'Misc Exterior'){
-        return true;
+      if(x.location == 'ExtSheet' || x.component == 'Exterior Doorway' || x.component == 'Exterior Window' || x.component == 'Misc Exterior'){
+        return false;
       }
       else if(x.unit == 'Calibration'){
         return false;
