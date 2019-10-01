@@ -2088,7 +2088,7 @@ class Job extends Component {
     return `
     <div style="margin-top: 20px;margin-bottom: 0px;font-size:12px" class="footer">
       <p style="margin:0px 20px; padding:0px; font-family:sans-serif"> ${text}</p>
-      <hr style="width : 95%;">
+      <hr style="width : 100%;">
 
       <table style="width : 100%;">
         <tr style="width : 100%;">
@@ -2107,11 +2107,22 @@ class Job extends Component {
   }
 
   getLastPortraitFooter(page, datetime) {
+    let text
+    if(this.state.actionLevel == 0.8){
+      text = "Testing done in compliance with current L.A. County DHS guidelines for XRF";
+    } else if(this.state.actionLevel == 0.5) {
+      text = "Testing done in compliance with current City of San Diego guidelines for XRF";
+    } else if (this.state.actionLevel == 1.0){
+      text = "Testing done in compliance with current HUD guidelines for XRF";
+    } else {
+      text = "Testing done in compliance with current guidelines for XRF";
+    }
+
     return `
-    <div style="margin-top: 20px" class="footer">
-      <span> Testing done in compliance with current L.A. County DHS guidelines for XRF</span>
-      <hr style='margin:0px;height:0.5px;padding:0px'>
-      <div class="row" style="text-align:center;">
+    <div style="margin-top: 20px;margin-bottom: 0px;font-size:12px" class="footer">
+      <p style="margin:0px 20px; padding:0px; font-family:sans-serif"> ${text}</p>
+      <hr style="width : 100%;">
+
       <table style="width : 100%;">
         <tr style="width : 100%;">
           <td style="width : 40%; text-align:left; font-style: italic">
@@ -2124,8 +2135,7 @@ class Job extends Component {
           </td>
         </tr>
        </table>
-    </div>
-    `;
+    </div>`;
   }
 
   blankPageWithTitle(title) {
@@ -2565,7 +2575,7 @@ class Job extends Component {
 
     return `
     <div class="footer" style="font-size:12px">
-      <p style="margin:0px 20px; padding:0px; font-family:sans-serif">last ${text}</p>
+      <p style="margin:0px 20px; padding:0px; font-family:sans-serif"> ${text}</p>
       <p style="margin:0px 20px; padding:0px; font-family:sans-serif"> ${text2}</p>
       <hr style="width : 95%;">
 
@@ -2589,7 +2599,7 @@ class Job extends Component {
   dataReport(report, page, datetime, startIndex) { // data, page_number, current datetime, start index in the array
 
     var charSet = ' ';
-    var last = false
+    var last = false;
     var landscapeHeader = this.getLandscapeHeader('FIELD DATA REPORT');
     var landscapeFooter = this.getLandscapeFooter(page, datetime);
     var lastlandscapeFooter = this.getLastLandscapeFooter(page, datetime);
@@ -2617,8 +2627,11 @@ class Job extends Component {
         for( i = startIndex; i < report.length; i ++ )
         {
           console.log("ss",x)
-          if(i >= startIndex + landscapePageSize)
-            break;
+          if(i >= startIndex + landscapePageSize){
+          last = true
+          break;
+          }
+
           var x = report[i];
 
           let location;
@@ -2675,7 +2688,6 @@ class Job extends Component {
       }
 
       if( startIndex + landscapePageSize > report.length) {
-        last = true
         for(var i = 0; i < startIndex + landscapePageSize - report.length; i ++)
         {
           table += '<tr style="font-size:11px;" class="blank">';
@@ -2687,7 +2699,7 @@ class Job extends Component {
     </table></div>`;
 
     var content
-    if(last){
+    if(last != true){
       content = charSet + landscapeHeader + table + lastlandscapeFooter;
     } else {
       content = charSet + landscapeHeader + table + landscapeFooter;
