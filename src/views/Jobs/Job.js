@@ -2086,10 +2086,10 @@ class Job extends Component {
     }
 
     return `
-    <div style="margin-top: 20px;margin-bottom: 0px" class="footer">
-      <div><p style='display:inline; margin: 0px; font-family:sans-serif'>${text}</p></div>
-      <hr style='margin:0px;height:0.5px;padding:0px'>
-      <div class="row" style="text-align:center;">
+    <div style="margin-top: 20px;margin-bottom: 0px;font-size:12px" class="footer">
+      <p style="margin:0px 20px; padding:0px; font-family:sans-serif"> ${text}</p>
+      <hr style="width : 95%;">
+
       <table style="width : 100%;">
         <tr style="width : 100%;">
           <td style="width : 40%; text-align:left; font-style: italic">
