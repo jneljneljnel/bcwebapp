@@ -2183,7 +2183,7 @@ class Job extends Component {
         if(i >= startIndex + portraitPageSize)
           break;
 
-              table += `<tr style='font-size:10px'>`;
+              table += `<tr style='font-size:12.5px'>`;
             table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + x.component + '</p></td>';
             table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + x.number + '</p></td>';
             table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + x.numpos + '</p></td>';
@@ -2192,7 +2192,7 @@ class Job extends Component {
             table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + show_percent(x.percentneg) + '</p></td>';
             table += '</tr>';
             if (i == interior.length -1){
-              table += `<tr style='font-size:12px'  class="blank">`;
+              table += `<tr style='font-size:14px' class="blank">`;
                 table += `<td class="bold" style="text-align:right;"><p style='display:inline; margin: 0px; font-family:sans-serif'>Total</p></td>`;
                 table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberSum + '</p></td>';
                 table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberposSum + '</p></td>';
@@ -2205,7 +2205,7 @@ class Job extends Component {
       if( startIndex + portraitPageSize > interior.length) {
         for(var i = 0; i < startIndex + portraitPageSize - interior.length; i ++)
         {
-          table += `<tr style='font-size:10px' class="blank">`;
+          table += `<tr style='font-size:12.5px' class="blank">`;
           table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + '&nbsp;' + '</p></td>';
           table += '</tr>';
         }
@@ -2248,7 +2248,7 @@ class Job extends Component {
         numberSum += item.number;
         numberposSum += item.numpos;
         numbernegSum += item.numneg;
-        table += `<tr style='font-size:10px; margin-bottom:10px'>`;
+        table += `<tr style='font-size:12.5px; margin-bottom:10px'>`;
         table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.component + '</p></td>';
         table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.number + '</p></td>';
         table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.numpos + '</p></td>';
@@ -2257,7 +2257,7 @@ class Job extends Component {
         table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + show_percent(item.percentneg) + '</p></td>';
         table += '</tr>';
       })
-      table += '<tr style="font-size:12px" class="blank">';
+      table += '<tr style="font-size:14px" class="blank">';
         table += `<td class="bold" style="text-align:right;"><p style='display:inline; margin: 0px; font-family:sans-serif'>Total</p></td>`;
         table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberSum + '</p></td>';
         table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberposSum + '</p></td>';
@@ -2268,7 +2268,7 @@ class Job extends Component {
 
       for(var i = 0; i < portraitPageSize - interior.length; i ++)
       {
-        table += `<tr style='font-size:10px' class="blank">`;
+        table += `<tr style='font-size:12.5px' class="blank">`;
         table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + '&nbsp;' + '</p></td>';
         table += '</tr>';
       }
@@ -2321,7 +2321,7 @@ class Job extends Component {
         if(i >= startIndex + portraitPageSize)
           break;
 
-              table += `<tr style='font-size:10px'>`;
+              table += `<tr style='font-size:12.5px'>`;
             table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + x.component + '</p></td>';
             table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + x.number + '</p></td>';
             table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + x.numpos + '</p></td>';
@@ -2330,7 +2330,7 @@ class Job extends Component {
             table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + show_percent(x.percentneg) + '</p></td>';
             table += '</tr>';
             if (i == exterior.length -1){
-              table += `<tr style='font-size:12px'  class="blank">`;
+              table += `<tr style='font-size:14px'  class="blank">`;
                 table += `<td class="bold" style="text-align:right;"><p style='display:inline; margin: 0px; font-family:sans-serif'>Total</p></td>`;
                 table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberSum + '</p></td>';
                 table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberposSum + '</p></td>';
@@ -2343,7 +2343,7 @@ class Job extends Component {
       if( startIndex + portraitPageSize > exterior.length) {
         for(var i = 0; i < startIndex + portraitPageSize - exterior.length; i ++)
         {
-          table += `<tr style='font-size:10px' class="blank">`;
+          table += `<tr style='font-size:12.5px' class="blank">`;
           table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + '&nbsp;' + '</p></td>';
           table += '</tr>';
         }
@@ -2443,7 +2443,7 @@ class Job extends Component {
         numberSum += item.number;
         numberposSum += item.numpos;
         numbernegSum += item.numneg;
-        table += `<tr style='font-size:10px'>`;
+        table += `<tr style='font-size:12.5px'>`;
         table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.component + '</p></td>';
         table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.number + '</p></td>';
         table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + item.numpos + '</p></td>';
@@ -2452,7 +2452,7 @@ class Job extends Component {
         table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + show_percent(item.percentneg) + '</p></td>';
         table += '</tr>';
       })
-      table += '<tr style="font-size:12px" class="blank">';
+      table += '<tr style="font-size:14px" class="blank">';
         table += `<td class="bold" style="text-align:right;"><p style='display:inline; margin: 0px; font-family:sans-serif'>Total</p></td>`;
         table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberSum + '</p></td>';
         table += `<td class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + numberposSum + '</p></td>';
@@ -2463,7 +2463,7 @@ class Job extends Component {
 
       for(var i = 0; i < portraitPageSize - calibration.length; i ++)
       {
-        table += '<tr style="font-size:10px" class="blank">';
+        table += '<tr style="font-size:12.5px" class="blank">';
         table += `<td><p style='display:inline; margin: 0px; font-family:sans-serif'>` + '&nbsp;' + '</p></td>';
         table += '</tr>';
       }
