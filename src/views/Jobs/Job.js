@@ -1901,20 +1901,11 @@ class Job extends Component {
                     + time;
       // Interior Summary
     var intSumRows = this.state.rows
-    var intSumm = intSumRows.filter(function(x){
-      if(x.location == 'ExtSheet' || x.component == 'Exterior Doorway' || x.component == 'Exterior Window' || x.component == 'Misc Exterior'){
-        return false;
-      }
-      else if(x.unit == 'Calibration'){
-        return false;
-      }
-      return x.result == "POSITIVE";
-    });
+    var intSumm = this.formatIntData(intSumRows)
+     // var content = this.getInterior(page, datetime);
+     // page ++;
 
-    // var content = this.getInterior(page, datetime);
-    // page ++;
-
-    var intPageCount = Math.floor( ( intSumm.length - 1) / portraitPageSize ) + 1 ;
+    var intPageCount = Math.floor(( intSumm.length - 1) / portraitPageSize ) + 1;
     for ( var i = 0 ; i < intPageCount; i++)
     {
       content += this.getInterior2(intSumRows, page, datetime, i * portraitPageSize);
@@ -1925,20 +1916,20 @@ class Job extends Component {
     ///EXT summ
     var extSumRows = this.state.rows
     var extSumm = extSumRows.filter(function(x){
-      if(x.location == 'InsSheet' && x.component != 'Exterior Doorway' && x.component != 'Exterior Window' && x.component != 'Misc Exterior'){
+      if(x.location == 'InsSheet' || x.component == 'Interior Doorway' || x.component == 'Interior Window' || x.component == 'Misc Interior'){
         return false;
       }
       else if(x.unit == 'Calibration'){
         return false;
       }
-      return x.result == "POSITIVE";
+      return x
     });
 
     // // Exterior Summary
     // content += this.getExterior(page, datetime);
     // page ++;
 
-    var extPageCount = Math.floor( ( extSumm.length - 1) / portraitPageSize ) + 1 ;
+    var extPageCount = Math.floor( ( extSumm.length - 1) / portraitPageSize ) + 1;
     for ( var i = 0 ; i < extPageCount; i++)
     {
       content += this.getExterior2(extSumRows, page, datetime, i * portraitPageSize);
@@ -2059,11 +2050,11 @@ class Job extends Component {
         </td>
       </tr>
       <tr style="width : 100%;">
-        <td style="width : 70%;">
-              <div style='float:left; display:inline;font-family:sans-serif';height:190px' class="bold"><strong>Address: </strong></div>
-              <div style='margin:0px'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.street: '') + `</p></div>
-              <div style='margin:0px'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.city+', '+this.state.jobInfo.state + ' ' +this.state.jobInfo.postal: '') + `</p></div>
-        </td>
+      <td style="width : 70%;">
+            <div style='float:left; display:inline;font-family:sans-serif;margin:0px;' class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>Address:</p></div>
+            <div style='display:inline; margin: 0px;'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.street: '') + `</p></div>
+            <div style='display:inline; margin: 0px;'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.city+', '+this.state.jobInfo.state + ' ' +this.state.jobInfo.postal: '') + `</p></div>
+      </td>
         <td style="width : 30px; text-align:right">
 
         </td>
@@ -2076,13 +2067,13 @@ class Job extends Component {
   getPortraitFooter(page, datetime) {
     let text
     if(this.state.actionLevel == 0.8){
-      text = "Testing done in compliance with current L.A. County DHS guidelines for XRF";
+      text = "Testing done in compliance with current L.A. County DHS guidelines for XRF.";
     } else if(this.state.actionLevel == 0.5) {
-      text = "Testing done in compliance with current City of San Diego guidelines for XRF";
+      text = "Testing done in compliance with current City of San Diego guidelines for XRF.";
     } else if (this.state.actionLevel == 1.0){
-      text = "Testing done in compliance with current HUD guidelines for XRF";
+      text = "Testing done in compliance with current HUD guidelines for XRF.";
     } else {
-      text = "Testing done in compliance with current guidelines for XRF";
+      text = "Testing done in compliance with current guidelines for XRF.";
     }
 
     return `
@@ -2109,13 +2100,13 @@ class Job extends Component {
   getLastPortraitFooter(page, datetime) {
     let text
     if(this.state.actionLevel == 0.8){
-      text = "Testing done in compliance with current L.A. County DHS guidelines for XRF";
+      text = "Testing done in compliance with current L.A. County DHS guidelines for XRF.";
     } else if(this.state.actionLevel == 0.5) {
-      text = "Testing done in compliance with current City of San Diego guidelines for XRF";
+      text = "Testing done in compliance with current City of San Diego guidelines for XRF.";
     } else if (this.state.actionLevel == 1.0){
-      text = "Testing done in compliance with current HUD guidelines for XRF";
+      text = "Testing done in compliance with current HUD guidelines for XRF.";
     } else {
-      text = "Testing done in compliance with current guidelines for XRF";
+      text = "Testing done in compliance with current guidelines for XRF.";
     }
 
     return `
@@ -2157,6 +2148,11 @@ class Job extends Component {
 
 
     var numberSum = 0, numberposSum = 0, numbernegSum = 0 ;
+    interior = interior.sort( (a,b) => {
+     var textA = a.component.toUpperCase();
+     var textB = b.component.toUpperCase();
+     return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+    })
     interior.forEach( item => {
       numberSum += item.number;
       numberposSum += item.numpos;
@@ -2295,6 +2291,11 @@ class Job extends Component {
 
 
     var numberSum = 0, numberposSum = 0, numbernegSum = 0 ;
+    exterior = exterior.sort( (a,b) => {
+     var textA = a.component.toUpperCase();
+     var textB = b.component.toUpperCase();
+     return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+    })
     exterior.forEach( item => {
       numberSum += item.number;
       numberposSum += item.numpos;
@@ -2478,7 +2479,7 @@ class Job extends Component {
 
   getLandscapeHeader(header) {
     let protocol
-    if(this.state.actionLevel == 0.7){
+    if(this.state.actionLevel == 0.8){
       protocol = "LA County";
     } else if(this.state.actionLevel == 0.5) {
       protocol = "City of San Diegeo";
@@ -2504,9 +2505,9 @@ class Job extends Component {
       </tr>
       <tr style="width : 100%;">
       <td style="width : 72%;">
-            <div style='float:left; display:inline;font-family:sans-serif';height:190px' class="bold"><strong>Address: </strong></div>
-            <div style='margin:0px'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.street: '') + `</p></div>
-            <div style='margin:0px'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.city+', '+this.state.jobInfo.state + ' ' +this.state.jobInfo.postal: '') + `</p></div>
+            <div style='float:left; display:inline;font-family:sans-serif;margin:0px;' class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>Address:</p></div>
+            <div style='display:inline; margin: 0px;'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.street: '') + `</p></div>
+            <div style='display:inline; margin: 0px;'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.city+', '+this.state.jobInfo.state + ' ' +this.state.jobInfo.postal: '') + `</p></div>
       </td>
         <td style="width : 50px; vertical-align:top;text-align:left">
           <p style='display:inline; margin: 0px; font-family:sans-serif'><strong>Protocol:</strong>`+ protocol +`</p>
@@ -2520,14 +2521,14 @@ class Job extends Component {
   getLandscapeFooter(page, datetime) {
     let text, text2
     if(this.state.actionLevel == 0.8){
-      text = "LA County DHS action level for lead paint is 0.8.";
-      text2 = "Positive is defined as XRF sampling with levels at or above 0.8 mg/cm2.";
+      text = "LA Municipal Code 11.28.120(c) defines dangerous levels of lead paint as levels in excess of 0.7 mg/cm2";
+      text2 = "Positive is defined as XRF sampling with levels in excess of 0.7 mg/cm2.";
     } else if(this.state.actionLevel == 0.5) {
-      text = "City of San Diegeo DHS action level for lead paint is 0.5.";
-      text2 = "Positive is defined as XRF sampling with levels in excess of 0.5 mg/cm2.";
+      text = "The action level for lead paint in San Diegeo is 0.5 mg/cm2";
+      text2 = "Positive is defined as XRF sampling with levels at or above 0.5 mg/cm2.";
     } else if (this.state.actionLevel == 1.0){
-      text = "HUD DHS action level for lead-based paint is 1.0 mg/cm2.";
-      text2 = "Positive is defined as XRF sampling with levels in excess of 1.0 mg/cm2.";
+      text = "The HUD action level for lead-based paint is 1.0 mg/cm2.";
+      text2 = "Positive is defined as XRF sampling with levels at or above of 1.0 mg/cm2.";
     } else {
       text = "DHS action level for lead paint is" + this.state.actionLevel+' mg/cm2.';
       text2 = "Positive is defined as XRF sampling with levels in excess of" + this.state.actionLevel + " mg/cm2.";
@@ -2778,7 +2779,7 @@ class Job extends Component {
               <td style='white-space:nowrap' class="center"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (reading || '0') + `</p></td>
               <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.result || ' ') + `</p></td>
               <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (condition || '') + `</p></td>
-              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.type? x.type+', ': "") + (x.comments || ' ') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.type? x.type+' ': "") + (x.comments || ' ') + `</p></td>
             </tr>`;
         }
       }
@@ -2872,7 +2873,7 @@ class Job extends Component {
               <td style='white-space:nowrap' class="center"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (reading || '0') + `</p></td>
               <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.result || ' ') + `</p></td>
               <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (condition || '') + `</p></td>
-              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.type? x.type+', ': "") + (x.comments || ' ') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.type? x.type+' ': "") + (x.comments || ' ') + `</p></td>
             </tr>`;
         }
       }
@@ -2960,7 +2961,7 @@ class Job extends Component {
               <td style='white-space:nowrap' class="center"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (reading || '0') + `</p></td>
               <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.result || ' ') + `</p></td>
               <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.condition || '') + `</p></td>
-              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.type? x.type+', ': "") + (x.comments || ' ') + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.type? x.type+' ': "") + (x.comments || ' ') + `</p></td>
             </tr>`;
         }
       }
