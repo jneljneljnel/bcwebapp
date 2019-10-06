@@ -2050,10 +2050,11 @@ class Job extends Component {
         </td>
       </tr>
       <tr style="width : 100%;">
-      <td style="width : 70%;">
-            <div style='float:left; display:inline;font-family:sans-serif;margin:0px;' class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>Address:</p></div>
-            <div style='display:inline; margin: 0px;'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.street: '') + `</p></div>
-            <div style='display:inline; margin: 0px;'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.city+', '+this.state.jobInfo.state + ' ' +this.state.jobInfo.postal: '') + `</p></div>
+      <td style="width : 72%;">
+            <div style='float:left; display:inline;font-family:sans-serif;margin:0px;' >
+              <span class="bold" style='display:inline; margin: 0px; font-family:sans-serif'>Address:</span><span>` + (this.state.jobInfo? this.state.jobInfo.street: '') +`</span>
+            </div>
+            <div style='display:inline; margin: 0px;'><p style='display:inline; margin: 0px; font-family:sans-serif'>  <span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span>` + (this.state.jobInfo? this.state.jobInfo.city+', '+this.state.jobInfo.state + ' ' +this.state.jobInfo.postal: '') + `</p></div>
       </td>
         <td style="width : 30px; text-align:right">
 
@@ -2505,9 +2506,10 @@ class Job extends Component {
       </tr>
       <tr style="width : 100%;">
       <td style="width : 72%;">
-            <div style='float:left; display:inline;font-family:sans-serif;margin:0px;' class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>Address:</p></div>
-            <div style='display:inline; margin: 0px;'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.street: '') + `</p></div>
-            <div style='display:inline; margin: 0px;'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.city+', '+this.state.jobInfo.state + ' ' +this.state.jobInfo.postal: '') + `</p></div>
+            <div style='float:left; display:inline;font-family:sans-serif;margin:0px;' >
+              <span class="bold" style='display:inline; margin: 0px; font-family:sans-serif'>Address:</span><span>` + (this.state.jobInfo? this.state.jobInfo.street: '') +`</span>
+            </div>
+            <div style='display:inline; margin: 0px;'><p style='display:inline; margin: 0px; font-family:sans-serif'>  <span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span>` + (this.state.jobInfo? this.state.jobInfo.city+', '+this.state.jobInfo.state + ' ' +this.state.jobInfo.postal: '') + `</p></div>
       </td>
         <td style="width : 50px; vertical-align:top;text-align:left">
           <p style='display:inline; margin: 0px; font-family:sans-serif'><strong>Protocol:</strong>`+ protocol +`</p>
