@@ -84,6 +84,7 @@
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
+    "dotenv": "^8.1.0",
     "mutationobserver-shim": "^0.3.2",
     "react-scripts": "^2.1.1"
   },

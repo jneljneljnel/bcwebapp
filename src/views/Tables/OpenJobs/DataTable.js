@@ -60,7 +60,7 @@ class DataTable extends Component {
       all[i].style.height = (strWidth / 595 * 842) + "px";
     }
   }
-  
+
   componentDidMount() {
     // window.addEventListener("resize", this.updateDimensions);
   }
@@ -72,14 +72,16 @@ class DataTable extends Component {
   sendBack(id){
      axios.get(`/api/jobs/sendBack/${id}`).then( res => {
        console.log('send back')
-       window.location.reload();
+       this.props.history.push('/dashboard/');
+       this.props.history.push('/inspected/');
      })
   }
 
   markDone(id){
      axios.get(`/api/jobs/markDone/${id}`).then( res => {
        console.log('done')
-       window.location.reload();
+       this.props.history.push('/dashboard/');
+       this.props.history.push('/inspected/');
      })
   }
 
@@ -623,15 +625,15 @@ async getReport(row){
         color: #ffc000;
       }
       .content-wrapper{
-        width: 100%; 
-        display: flex; 
-        justify-content: space-between; 
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
         padding-right: 20px;
         align-items: center;
       }
       .content-title{
-        white-space: nowrap; 
-        width: 99%; 
+        white-space: nowrap;
+        width: 99%;
         overflow: hidden;
       }
       .content-wrapper-padding{
@@ -774,7 +776,7 @@ async getReport(row){
         <p style="text-decoration: underline;font-weight:bold;">DESCRIPTION</p>
         <div>
           <p style="text-decoration: underline;text-align:center;font-weight:bold;">PAGE NO</p>
-        </div>    
+        </div>
       </div>
       <div class="content-wrapper">
         <span class="big-font content-title">1.0 Executive Summary-----------------------------------------------------------------------------------------------------</span>
@@ -1565,7 +1567,7 @@ async getReport(row){
     <br clear="all" style="page-break-before:always" ></br>    <br clear="all" style="page-break-before:always" ></br></div></div>
 
     `;
-    
+
     let b1, b2, b3, b4;
 
     await this.getBase64('/assets/img/attachments/b1.jpg').then((data)=>{
@@ -1652,7 +1654,7 @@ async getReport(row){
 
     console.log('----state----', this.state);
     content = juice.inlineContent(content, this.css);
-    
+
     this.setState({isPrintPreview: true});
     var node = document.querySelector('#printElement');
     node.innerHTML = content;
@@ -1677,7 +1679,7 @@ async getReport(row){
         <p style="text-decoration: underline;font-weight:bold;">DESCRIPTION</p>
         <div>
           <p style="text-decoration: underline;text-align:center;font-weight:bold;">PAGE NO</p>
-        </div>    
+        </div>
       </div>
       <div class="content-wrapper content-wrapper-padding">
         <span class="big-font content-title">1.0 INTRODUCTION-----------------------------------------------------------------------------------------------------------------------</span>
@@ -2212,8 +2214,8 @@ print() {
     let img = new Image();
     img.src = dataUrl;
     img.onload = () => {
-      let imgWidth = img.width; 
-      let imgHeight = img.height;      
+      let imgWidth = img.width;
+      let imgHeight = img.height;
       // let pdf = new jsPDF('p', 'pt', 'a4');
       let pdf = new jsPDF({orientation: 'portrait', unit: 'pt', format: [paperWidth, paperHeight]});
       var canvas = document.createElement("canvas");

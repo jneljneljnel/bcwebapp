@@ -55,5 +55,10 @@ export default {
       url: '/all',
       icon:'icon-layers'
     },
+    {
+      name: 'update mail merge',
+      url: '/mailmerge',
+      icon:'fa fa-envelope'
+    }
   ]
 };

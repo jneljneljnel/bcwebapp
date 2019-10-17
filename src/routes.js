@@ -65,6 +65,7 @@ const All = React.lazy(() => import('./views/Jobs/All'));
 const Scheduled = React.lazy(() => import('./views/Jobs/Scheduled'));
 const Completed = React.lazy(() => import('./views/Jobs/Completed'));
 const Job = React.lazy(() => import('./views/Jobs/Job'));
+const MailMerge = React.lazy(() => import('./views/mailmerge/mailmerge'));
 const Clients= React.lazy(() => import('./views/Clients/Clients'));
 const Client= React.lazy(() => import('./views/Clients/Client'));
 const CreateClient= React.lazy(() => import('./views/Clients/CreateClient'));
@@ -130,6 +131,7 @@ const routes = [
   { path: '/notifications/badges', name: 'Badges', component: Badges },
   { path: '/notifications/modals', name: 'Modals', component: Modals },
   { path: '/notifications/toastr', name: 'Toastr', component: Toastr },
+  { path: '/mailmerge', name: 'mailmerge', component: MailMerge },
   { path: '/plugins', name: 'Plugins', component: Calendar, exact: true },
   { path: '/plugins/calendar', name: 'Calendar', component: Calendar },
   { path: '/plugins/draggable', name: 'Draggable Cards', component: Draggable },

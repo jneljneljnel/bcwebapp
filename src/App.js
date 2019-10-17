@@ -55,7 +55,7 @@ class Auth extends Component {
     fail:''
   }
   login = () => {
-    if(this.state.un == "admin" && this.state.pw =="pass12word"){
+    if(this.state.un == process.env.REACT_APP_UN && this.state.pw == process.env.REACT_APP_PW){
       fakeAuth.authenticate(() => {
         this.setState(() => ({
           redirectToReferrer: true

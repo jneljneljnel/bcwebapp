@@ -1,0 +1,21 @@
+INSERT INTO mailmergeDB ( PROJECT_NAME, PROJECT_ID, PROJECT_INFOADDRESS, PROJECT_INFOCITY,  PROJECT_INFOSTATE, client_id, COMPANY, WordProjectInfoCOMPANYADDRESS, WordProjectInfoCOMPANYCITY, WordProjectInfoCOMPANYSTATE, WordProjectInfoCOMPANYZIP, INSPECTION_START, INSPECTOR_1, CONTACT_1, Project_infophone, Project_infozip, BILLING_CONTACT  )
+SELECT
+	j.name as PROJECT_NAME,
+    j.id as PROJECT_ID,
+    j.street as PROJECT_INFOADDRESS,
+    j.city as  PROJECT_INFOCITY,
+    j.state as PROJECT_INFOSTATE,
+    c.id as client_id,
+    c.name as COMPANY,
+    c.street as WordProjectInfoCOMPANYADDRESS,
+    c.city as WordProjectInfoCOMPANYCITY,
+    c.state as WordProjectInfoCOMPANYSTATE,
+    c.postal as WordProjectInfoCOMPANYZIP,
+    j.inspectionDate as INSPECTION_START,
+    j.inspector as INSPECTOR_1,
+    j.homeownerName as CONTACT_1,
+    j.homeownerNumber as Project_infophone,
+    j.postal as Project_infozip,
+    j.billingName as BILLING_CONTACT
+FROM
+	jobs j JOIN clients c ON j.clientid = c.id

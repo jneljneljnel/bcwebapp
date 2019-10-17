@@ -507,12 +507,14 @@ class Create extends Component {
                     </Col>
                   </FormGroup>
                   <FormGroup row>
-                    <Col md="3">
-                      <Label htmlFor="text-input">Billing Name</Label>
-                    </Col>
-                    <Col xs="12" md="9">
-                      <Input type="text" id="text-input" name="text-input" value={this.state.billingName} onChange={(e)=>this.setState({billingName:e.target.value})}/>
-                    </Col>
+                    {
+                    // <Col md="3">
+                    //   <Label htmlFor="text-input">Billing Name</Label>
+                    // </Col>
+                    // <Col xs="12" md="9">
+                    //   <Input type="text" id="text-input" name="text-input" value={this.state.billingName} onChange={(e)=>this.setState({billingName:e.target.value})}/>
+                    // </Col>
+                    }
                   </FormGroup>
                   <FormGroup row>
                     <Col md="3">

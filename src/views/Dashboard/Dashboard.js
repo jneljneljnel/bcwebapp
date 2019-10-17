@@ -193,7 +193,7 @@ class Dashboard extends Component {
           instime2 =  moment(data.inspectionDate+' '+data.inspectionTimeEnd).format()
       }
       return {
-        title: data.name || 'inspection',
+        title: (data.name + ' -' +  data.street + ' ' +data.city+', '+data.state) || 'inspection',
         jobId: data.id,
         color:color,
         allDay: false,

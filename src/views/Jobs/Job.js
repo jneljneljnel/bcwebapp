@@ -55,10 +55,10 @@ const defaultCenter = {lat: 37.431489, lng: -122.163719};
 const customStyles = {
   content : {
     top                   : '50%',
-    left                  : '50%',
+    left                  : '52%',
     right                 : 'auto',
     bottom                : 'auto',
-    marginRight           : '-50%',
+    marginRight           : '-40%',
     transform             : 'translate(-50%, -50%)'
   }
 };
@@ -481,7 +481,6 @@ class Job extends Component {
   savePropModal() {
     console.log(this.state.property_detail)
     let { bathnums,
-    bay,
     bednums,
     brick,
     buildings,
@@ -509,7 +508,17 @@ class Job extends Component {
     type,
     units,
     unitstories,
-    year } = this.state.propModalStuff
+    year,
+    framed,
+    casement,
+    dblhung,
+    fixed,
+    horz,
+    louvered,
+    transom,
+    vinyl,
+    bay,
+    garden} = this.state.propModalStuff
     console.log('pm save newstuff',this.state.propModalStuff)
     console.log('pm save data',this.state.data)
     let inspectionId
@@ -548,6 +557,16 @@ class Job extends Component {
         sheet.units = units
         sheet.unitstories = unitstories
         sheet.year = year
+        sheet.framed = framed
+        sheet.casement = casement
+        sheet.dblhung = dblhung
+        sheet.fixed = fixed
+        sheet.horz = horz
+        sheet.louvered = louvered
+        sheet.transom = transom
+        sheet.vinyl = vinyl
+        sheet.bay = bay
+        sheet.garden= garden
       }
     })
     axios(
@@ -735,6 +754,9 @@ class Job extends Component {
         if(d.name == "Wall A" || d.name == "Wall B" || d.name == "Wall C" || d.name == "Wall D"){
           d.name = 'Wall'
         }
+        if(d.component=="Exterior Doorway" && d.location=="InsSheet"){
+          d.location='ExtSheet'
+        }
         return d
       })
     const groupBylocation= groupBy('location');
@@ -765,6 +787,15 @@ class Job extends Component {
         if(d.name == "A - Wall" || d.name == "B - Wall" || d.name == "C - Wall" || d.name == "D - Wall" ){
           d.name = 'Wall'
         }
+        if(d.location == "PermitSheet"){
+          d.location = "ExtSheet"
+        }
+        if(d.component=="Exterior Doorway" && d.location=="InsSheet"){
+          d.location='ExtSheet'
+        }
+        if(d.component == "Exterior Doorway" && d.name == 'Frame'){
+          d.name = "Door Frame"
+        }
         return d
       })
     const groupBylocation= groupBy('location');
@@ -785,21 +816,21 @@ class Job extends Component {
        })
       })
     }
-    if(groupBylocation(fdat).PermitSheet){
-      let material = groupByMaterial(groupBylocation(fdat).PermitSheet)
-      //console.log('BIGINS', material)
-      Object.keys(material).map( m => {
-       //console.log('BIGINS COmp', groupByName(material[m]))
-       let mat = groupByName(material[m])
-       Object.keys(groupByName(material[m])).map(k => {
-         let pos = []
-         let neg = []
-         mat[k].map( x => x.result == 'Negative'? neg.push(x): pos.push(x))
-         final.push({component:mat[k][0].material + ' '+ k, material: mat[k][0].material, number:mat[k].length, numpos:pos.length, numneg:neg.length, percentpos:((pos.length * 100) / mat[k].length).toFixed(2), percentneg:((neg.length * 100) / mat[k].length).toFixed(2)})
-         //console.log('BIGDATA fin', final)
-       })
-      })
-    }
+    // if(groupBylocation(fdat).PermitSheet){
+    //   let material = groupByMaterial(groupBylocation(fdat).PermitSheet)
+    //   //console.log('BIGINS', material)
+    //   Object.keys(material).map( m => {
+    //    //console.log('BIGINS COmp', groupByName(material[m]))
+    //    let mat = groupByName(material[m])
+    //    Object.keys(groupByName(material[m])).map(k => {
+    //      let pos = []
+    //      let neg = []
+    //      mat[k].map( x => x.result == 'Negative'? neg.push(x): pos.push(x))
+    //      final.push({component:mat[k][0].material + ' '+ k, material: mat[k][0].material, number:mat[k].length, numpos:pos.length, numneg:neg.length, percentpos:((pos.length * 100) / mat[k].length).toFixed(2), percentneg:((neg.length * 100) / mat[k].length).toFixed(2)})
+    //      //console.log('BIGDATA fin', final)
+    //    })
+    //   })
+    // }
     return final
   }
 
@@ -835,21 +866,27 @@ class Job extends Component {
                 that.state.jobInfo.clientInfo = res2
                 that.setState({jobInfo:that.state.jobInfo})
           })
+          if(res.data[0].inspector == 1) {
+           res.data[0].inspectorName ='Matthew Crochet'
+           image = 'http://maps.google.com/mapfiles/ms/icons/green.png';
+          }
+          if(res.data[0].inspector == 2) {
+            res.data[0].inspectorName = 'Jeremy Nguyen'
+
+           image = 'http://maps.google.com/mapfiles/ms/icons/red.png';
+          }
+          if(res.data[0].inspector == 3) {
+           res.data[0].inspectorName = 'Keith Piner'
+           image = 'http://maps.google.com/mapfiles/ms/icons/blue.png';
+          }
+          if(res.data[0].inspector == 4){
+           res.data[0].inspectorName = 'Dana Williams'
+          }
         //console.log('at this point',this.state.actionLevel, res.data[0].actionLevel)
         that.setState({jobInfo:res.data[0]})
         console.log(res.data[0])
         console.log(res.data[0].street)
         let image
-        if(res.data[0].inspector == 1) {
-
-         image = 'http://maps.google.com/mapfiles/ms/icons/green.png';
-        }
-        if(res.data[0].inspector == 2) {
-         image = 'http://maps.google.com/mapfiles/ms/icons/red.png';
-        }
-        if(res.data[0].inspector == 3) {
-         image = 'http://maps.google.com/mapfiles/ms/icons/blue.png';
-        }
         ////action level async isue
         that.setState({actionLevel:res.data[0].actionLevel})
         resolve('setActionlvl')
@@ -883,145 +920,154 @@ class Job extends Component {
         id: this.props.match.params.id
       }
     }).then( res => {
-      let states = res.data.map( i => {
-        let state = JSON.parse(i.state)
-        state.inspectionId = i.id
-        console.log('res', state)
-        return state
-      })
+      let states;
+      if(res.data.length){
+        states = res.data.map( i => {
+          let state = JSON.parse(i.state)
+          state.inspectionId = i.id
+          console.log('res', state)
+          return state
+        })
+      }
       console.log(states)
       this.setState({data:states})
       let rows = [];
       let samples = [];
       let calibrationStart = []
       let calibrationEnd = []
-      states.map((x,i) => {
-        let inspectionId = x.inspectionId;
-        let stateId = i
-        x.data.map( checklist => {
-          if(checklist.type=='calibration'){
-            if( checklist.startone){
-              let result = (Math.round(checklist.startone * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-              rows.push({reading: checklist.startone || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Calibration', room: 'Start of Job', side:' ', condition:'Intact'})
-            }
-            if( checklist.starttwo){
-              let result = (Math.round(checklist.starttwo * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-              rows.push({reading: checklist.starttwo || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Calibration',  room: 'Start of Job', side:' ', condition:'Intact'})
-            }
-            if( checklist.startthree){
-              let result = (Math.round(checklist.startthree * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-              rows.push({reading: checklist.startthree || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Calibration', room: 'Start of Job', side:' ', condition:'Intact'})
-            }
-          }
-          if(checklist.type == "property details"){
-            console.log("property details", checklist)
-            this.setState({
-              property_detail : checklist
-            })
-          }
-          if(checklist.type == "5.0"){
-            console.log("5.0", checklist)
-          }
-          if(checklist.type == "5.1"){
-            console.log("5.1", checklist)
-          }
-        })
-        //console.log("sheets and checklists", x)
-        let sample = {};
-        x.insSheets.map((s, i) => {
-          let sheetIndex = i
-          let room = s.name
-          let location = s.type
-          let extSide;
-          let extDirecton;
-          let unit
-          let sheetId = s.id
-          if(s.type == "ExtSheet"){
-            extSide = s.data[0].side
-            room = s.data[0].direction || ""
-          }
-//          console.log('sheet', s)
-          s.data.map(d => {
-            let itemId = d.id
-            let comments = d.comments
-            let side
-
-            if(s.type == "ExtSheet"){
-               side = extSide
-            }
-            else{
-               side = d.side
-            }
-            if(d.title == 'Sheet Details' || d.title =='Exterior Sheet Details' ){
-              unit = d.unit + ' ' + d.building
-              if(s.type == "ExtSheet"){
-                unit = unit + ' '+ s.name
+      if(states && states.length){
+        states.map((x,i) => {
+          let inspectionId = x.inspectionId;
+          let stateId = i
+          x.data.map( checklist => {
+            if(checklist.type=='calibration'){
+              if( checklist.startone){
+                let result = (Math.round(checklist.startone * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
+                rows.push({reading: checklist.startone || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Calibration', room: 'Start of Job', side:' ', condition:'Intact'})
+              }
+              if( checklist.starttwo){
+                let result = (Math.round(checklist.starttwo * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
+                rows.push({reading: checklist.starttwo || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Calibration',  room: 'Start of Job', side:' ', condition:'Intact'})
+              }
+              if( checklist.startthree){
+                let result = (Math.round(checklist.startthree * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
+                rows.push({reading: checklist.startthree || 'n/a', result: result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Calibration', room: 'Start of Job', side:' ', condition:'Intact'})
               }
             }
-
-            let component = d.title
-            let type = d.doorType || d.type
-            //console.log("Dee",d )
-            if(d.title == 'Other Item'){
-              d.other.name = d.comments
-            }
-
-            if (d.title !='Exterior Sheet Details' && d.title != 'Sheet Details' && d.title !='Soil Sample Details' && d.title !='Dust Sample Details' && d.type !='sample'){
-              Object.keys(d).map( obj => {
-                if (obj != 'id' && obj != 'loc' && obj != 'doorType' && obj != 'comments' && obj != 'side' &&  obj != 'type' && obj != 'expanded' && obj != 'done' && obj != 'title' && obj != 'leadsTo' && obj != 'windowType'
-              && obj != 'unit'){
-                  let item = obj
-                  let property = obj
-                  let material
-                    if(d[obj] && d[obj].M){
-                     material = d[obj].M
-                    }
-                    else{
-                     //console.log('no material' , d, obj)
-                     material = null
-                    }
-                    if(d[obj] && d[obj].S){
-                     side = d[obj].S
-                    }
-                  let condition = d[obj].I? 'Intact':'Deteriorated'
-                  let reading = d[obj].R
-                  let name = d[obj].name
-                  if(reading != null){
-                    console.log('action.level',this.state.actionLevel, reading)
-                    let result = (Math.round(reading * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-                    //console.log(item, material, condition, reading, side, result, room, name,location, component, comments, type, unit, sheetId)
-                    //console.log('r', reading)
-                    rows.push({item, property, material, condition, reading, result, side, room, name, location, component, comments, type, unit, extDirecton, inspectionId, stateId, sheetId, sheetIndex, itemId})
-                  }
-
-                }
+            if(checklist.type == "property details"){
+              console.log("property details", checklist)
+              this.setState({
+                property_detail : checklist
               })
             }
-            else if(d.type == 'sample'){
-              d.inspectionId = inspectionId
-              console.log('sample', d)
-              samples.push(d)
+            if(checklist.type == "5.0"){
+              console.log("5.0", checklist)
+            }
+            if(checklist.type == "5.1"){
+              console.log("5.1", checklist)
+            }
+          })
+          //console.log("sheets and checklists", x)
+          let sample = {};
+          x.insSheets.map((s, i) => {
+            let sheetIndex = i
+            let room = s.name
+            let location = s.type
+            let extSide;
+            let extDirecton;
+            let unit
+            let sheetId = s.id
+            if(s.type == "ExtSheet"){
+              extSide = s.data[0].side
+              room = s.data[0].direction || ""
+            }
+
+  //          console.log('sheet', s)
+            s.data.map(d => {
+              let itemId = d.id
+              let comments = d.comments
+              let side
+
+              if(s.type == "ExtSheet"){
+                 side = extSide
+              }
+              else{
+                 side = d.side
+              }
+              if(d.title == 'Sheet Details' || d.title =='Exterior Sheet Details' ){
+                unit = d.unit + ' ' + d.building
+                if(s.type == "ExtSheet"){
+                  unit = unit + ' '+ s.name
+                }
+              }
+
+              let component = d.title
+              let type = d.doorType || d.type
+              //console.log("Dee",d )
+              if(d.title == 'Other Item'){
+                d.other.name = d.comments
+              }
+
+              if (d.title !='Exterior Sheet Details' && d.title != 'Sheet Details' && d.title !='Soil Sample Details' && d.title !='Dust Sample Details' && d.type !='sample'){
+                Object.keys(d).map( obj => {
+                  if (obj != 'id' && obj != 'loc' && obj != 'doorType' && obj != 'comments' && obj != 'side' &&  obj != 'type' && obj != 'expanded' && obj != 'done' && obj != 'title' && obj != 'leadsTo' && obj != 'windowType'
+                && obj != 'unit'){
+                    let item = obj
+                    let property = obj
+                    let material
+                      if(d[obj] && d[obj].M){
+                       material = d[obj].M
+                      }
+                      else{
+                       //console.log('no material' , d, obj)
+                       material = null
+                      }
+                      if(d[obj] && d[obj].S){
+                       side = d[obj].S
+                       if(s.type == "PermitSheet"){
+                         console.log('derp',d, side)
+                       }
+                      }
+                    let condition = d[obj].I? 'Intact':'Deteriorated'
+                    let reading = d[obj].R
+                    let name = d[obj].name
+                    if(reading != null){
+                      //console.log('action.level',this.state.actionLevel, reading)
+                      let result = (Math.round(reading * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
+                      //console.log(item, material, condition, reading, side, result, room, name,location, component, comments, type, unit, sheetId)
+                      //console.log('r', reading)
+                      rows.push({item, property, material, condition, reading, result, side, room, name, location, component, comments, type, unit, extDirecton, inspectionId, stateId, sheetId, sheetIndex, itemId})
+                    }
+
+                  }
+                })
+              }
+              else if(d.type == 'sample'){
+                d.inspectionId = inspectionId
+                console.log('sample', d)
+                samples.push(d)
+              }
+            })
+          })
+          x.data.map( checklist => {
+            if(checklist.type=='calibration'){
+              if(checklist.endone){
+                let result = (Math.round(checklist.endone * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
+                rows.push({reading: checklist.endone, result:result,  name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Calibration',  room: 'End of Job', side:' ', condition:'Intact'})
+              }
+              if(checklist.endtwo){
+                let result = (Math.round(checklist.endtwo* 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
+                rows.push({reading: checklist.endtwo, result:result,  name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Calibration',  room: 'End of Job', side:' ', condition:'Intact'})
+              }
+              if(checklist.endthree){
+                let result = (Math.round(checklist.endthree * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
+                rows.push({reading: checklist.endthree, result:result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Calibration', room: 'End of Job', side:' ', condition:'Intact'})
+
+              }
             }
           })
         })
-        x.data.map( checklist => {
-          if(checklist.type=='calibration'){
-            if(checklist.endone){
-              let result = (Math.round(checklist.endone * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-              rows.push({reading: checklist.endone, result:result,  name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Calibration',  room: 'End of Job', side:' ', condition:'Intact'})
-            }
-            if(checklist.endtwo){
-              let result = (Math.round(checklist.endtwo* 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-              rows.push({reading: checklist.endtwo, result:result,  name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Calibration',  room: 'End of Job', side:' ', condition:'Intact'})
-            }
-            if(checklist.endthree){
-              let result = (Math.round(checklist.endthree * 100) >= Math.round(this.state.actionLevel * 100)) ? 'POSITIVE': 'Negative'
-              rows.push({reading: checklist.endthree, result:result, name: '1.0 mg/cm2 Standard', material: "Wood", unit: 'Calibration', location:'Calibration', room: 'End of Job', side:' ', condition:'Intact'})
-
-            }
-          }
-        })
-      })
+      }
       //console.log(rows)
       this.setState({rows:rows, samples:samples})
       //console.log(this.state.rows)
@@ -1915,20 +1961,11 @@ class Job extends Component {
 
     ///EXT summ
     var extSumRows = this.state.rows
-    var extSumm = extSumRows.filter(function(x){
-      if(x.location == 'InsSheet' || x.component == 'Interior Doorway' || x.component == 'Interior Window' || x.component == 'Misc Interior'){
-        return false;
-      }
-      else if(x.unit == 'Calibration'){
-        return false;
-      }
-      return x
-    });
+    var extSumm = this.formatExtData(extSumRows)
 
     // // Exterior Summary
     // content += this.getExterior(page, datetime);
     // page ++;
-
     var extPageCount = Math.floor( ( extSumm.length - 1) / portraitPageSize ) + 1;
     for ( var i = 0 ; i < extPageCount; i++)
     {
@@ -1966,11 +2003,13 @@ class Job extends Component {
       return x.result == "POSITIVE";
     });
 
-    if(interiorReport.length > 0)
+    var int_page_count = Math.floor( (interiorReport.length - 1) / landscapePageSize ) + 1 ;
+    for ( let i = 0 ; i < int_page_count; i ++)
     {
-      content += this.positiveInterior(interiorReport, page, datetime, 0);
-      page ++;
+      content += this.positiveInterior(interiorReport, page, datetime, i * landscapePageSize);
+      page++;
     }
+
 
     // Exterior Lead Containing Components List
     var exteriorReport = report.filter(function(x){
@@ -1983,10 +2022,11 @@ class Job extends Component {
       return x.result == "POSITIVE";
     });
 
-    if(exteriorReport.length > 0)
+    var ext_page_count = Math.floor( (exteriorReport.length - 1) / landscapePageSize ) + 1 ;
+    for ( let i = 0 ; i < ext_page_count; i ++)
     {
-      content += this.positiveExterior(exteriorReport, page, datetime, 0);
-      page ++;
+      content += this.positiveExterior(exteriorReport, page, datetime, i * landscapePageSize);
+      page++;
     }
 
     // Common Lead Containing Components List
@@ -2011,7 +2051,7 @@ class Job extends Component {
     // FIELD DATA REPORT
     var page_count = Math.floor( (report.length - 1) / landscapePageSize ) + 1 ;
 
-    for ( var i = 0 ; i < page_count; i ++)
+    for ( let i = 0 ; i < page_count; i ++)
     {
       content += this.dataReport(report, page, datetime, i * landscapePageSize);
       page++;
@@ -2050,11 +2090,10 @@ class Job extends Component {
         </td>
       </tr>
       <tr style="width : 100%;">
-      <td style="width : 72%;">
-            <div style='float:left; display:inline;font-family:sans-serif;margin:0px;' >
-              <span class="bold" style='display:inline; margin: 0px; font-family:sans-serif'>Address:</span><span>` + (this.state.jobInfo? this.state.jobInfo.street: '') +`</span>
-            </div>
-            <div style='display:inline; margin: 0px;'><p style='display:inline; margin: 0px; font-family:sans-serif'>  <span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span>` + (this.state.jobInfo? this.state.jobInfo.city+', '+this.state.jobInfo.state + ' ' +this.state.jobInfo.postal: '') + `</p></div>
+      <td style="width : 70%;">
+            <div style='float:left; display:inline;font-family:sans-serif;margin:0px;' class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>Address:</p></div>
+            <div style='display:inline; margin: 0px;'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.street: '') + `</p></div>
+            <div style='display:inline; margin: 0px;'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.city+', '+this.state.jobInfo.state + ' ' +this.state.jobInfo.postal: '') + `</p></div>
       </td>
         <td style="width : 30px; text-align:right">
 
@@ -2283,6 +2322,7 @@ class Job extends Component {
     var header = this.getPortraitHeader('SUMMARY OF EXTERIOR');
     var footer = this.getPortraitFooter(page, datetime);
     var exterior = this.formatExtData(report);
+    console.log('extINSIDE', exterior.length)
     exterior = exterior.sort( (a,b) => {
      var textA = a.component.toUpperCase();
      var textB = b.component.toUpperCase();
@@ -2483,7 +2523,7 @@ class Job extends Component {
     if(this.state.actionLevel == 0.8){
       protocol = "LA County";
     } else if(this.state.actionLevel == 0.5) {
-      protocol = "City of San Diegeo";
+      protocol = "City of San Diego";
     } else if (this.state.actionLevel == 1.0){
       protocol = "HUD";
     } else {
@@ -2506,10 +2546,9 @@ class Job extends Component {
       </tr>
       <tr style="width : 100%;">
       <td style="width : 72%;">
-            <div style='float:left; display:inline;font-family:sans-serif;margin:0px;' >
-              <span class="bold" style='display:inline; margin: 0px; font-family:sans-serif'>Address:</span><span>` + (this.state.jobInfo? this.state.jobInfo.street: '') +`</span>
-            </div>
-            <div style='display:inline; margin: 0px;'><p style='display:inline; margin: 0px; font-family:sans-serif'>  <span>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span>` + (this.state.jobInfo? this.state.jobInfo.city+', '+this.state.jobInfo.state + ' ' +this.state.jobInfo.postal: '') + `</p></div>
+            <div style='float:left; display:inline;font-family:sans-serif;margin:0px;' class="bold"><p style='display:inline; margin: 0px; font-family:sans-serif'>Address:</p></div>
+            <div style='display:inline; margin: 0px;'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.street: '') + `</p></div>
+            <div style='display:inline; margin: 0px;'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (this.state.jobInfo? this.state.jobInfo.city+', '+this.state.jobInfo.state + ' ' +this.state.jobInfo.postal: '') + `</p></div>
       </td>
         <td style="width : 50px; vertical-align:top;text-align:left">
           <p style='display:inline; margin: 0px; font-family:sans-serif'><strong>Protocol:</strong>`+ protocol +`</p>
@@ -2526,7 +2565,7 @@ class Job extends Component {
       text = "LA Municipal Code 11.28.120(c) defines dangerous levels of lead paint as levels in excess of 0.7 mg/cm2";
       text2 = "Positive is defined as XRF sampling with levels in excess of 0.7 mg/cm2.";
     } else if(this.state.actionLevel == 0.5) {
-      text = "The action level for lead paint in San Diegeo is 0.5 mg/cm2";
+      text = "The action level for lead paint in San Diego is 0.5 mg/cm2";
       text2 = "Positive is defined as XRF sampling with levels at or above 0.5 mg/cm2.";
     } else if (this.state.actionLevel == 1.0){
       text = "The HUD action level for lead-based paint is 1.0 mg/cm2.";
@@ -2563,14 +2602,14 @@ class Job extends Component {
   getLastLandscapeFooter(page, datetime) {
     let text, text2
     if(this.state.actionLevel == 0.8){
-      text = "LA County DHS action level for lead paint is 0.8.";
-      text2 = "Positive is defined as XRF sampling with levels at or above 0.8 mg/cm2.";
+      text = "LA Municipal Code 11.28.120(c) defines dangerous levels of lead paint as levels in excess of 0.7 mg/cm2";
+      text2 = "Positive is defined as XRF sampling with levels in excess of 0.7 mg/cm2.";
     } else if(this.state.actionLevel == 0.5) {
-      text = "City of San Diegeo DHS action level for lead paint is 0.5.";
-      text2 = "Positive is defined as XRF sampling with levels in excess of 0.5 mg/cm2.";
+      text = "The action level for lead paint in San Diego is 0.5 mg/cm2";
+      text2 = "Positive is defined as XRF sampling with levels at or above 0.5 mg/cm2.";
     } else if (this.state.actionLevel == 1.0){
-      text = "HUD DHS action level for lead-based paint is 1.0 mg/cm2.";
-      text2 = "Positive is defined as XRF sampling with levels in excess of 1.0 mg/cm2.";
+      text = "The HUD action level for lead-based paint is 1.0 mg/cm2.";
+      text2 = "Positive is defined as XRF sampling with levels at or above of 1.0 mg/cm2.";
     } else {
       text = "DHS action level for lead paint is" + this.state.actionLevel+' mg/cm2.';
       text2 = "Positive is defined as XRF sampling with levels in excess of" + this.state.actionLevel + " mg/cm2.";
@@ -2609,7 +2648,7 @@ class Job extends Component {
 
     var table = `<div class="filter-table-responsive"> <table class="table font-smaller">
       <thead>
-      <tr style="font-size:12.5px;">
+      <tr style="font-size:16.5px;">
         <th>Sample</th>
         <th>Unit ID/Location</th>
         <th>Room Equivalent</th>
@@ -2723,7 +2762,7 @@ class Job extends Component {
 
     var table = `<div class="filter-table-responsive-cal"> <table class="table font-smaller">
       <thead>
-      <tr style="font-size:12.5px;">
+      <tr style="font-size:16.5px;">
         <th>Sample</th>
         <th class="center">Side</th>
         <th>Testing Combination</th>
@@ -2776,7 +2815,7 @@ class Job extends Component {
           table += `<tr style="font-size:11px; background-color:` + color + `">
               <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.sampleId|| '') + `</p></td>
               <td style='white-space:nowrap'class="center"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.side|| '') + `</p></td>
-              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.name + ' ' + x.material) + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.material + ' ' + x.name) + `</p></td>
               <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (location + ' ' + x.room) + `</p></td>
               <td style='white-space:nowrap' class="center"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (reading || '0') + `</p></td>
               <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.result || ' ') + `</p></td>
@@ -2817,7 +2856,7 @@ class Job extends Component {
 
     var table = `<div class="filter-table-responsive-cal"> <table class="table font-smaller">
       <thead>
-      <tr style="font-size:12.5px;">
+      <tr style="font-size:16.5px;">
         <th>Sample</th>
         <th class="center">Side</th>
         <th>Testing Combination</th>
@@ -2870,7 +2909,7 @@ class Job extends Component {
           table += `<tr style="font-size:11px; background-color:` + color + `">
               <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.sampleId|| '') + `</p></td>
               <td style='white-space:nowrap'class="center"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.side|| '') + `</p></td>
-              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.name + ' ' + x.material) + `</p></td>
+              <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + ( x.material+ ' ' + x.name) + `</p></td>
               <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (location + ' ' + x.room) + `</p></td>
               <td style='white-space:nowrap' class="center"><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (reading || '0') + `</p></td>
               <td style='white-space:nowrap'><p style='display:inline; margin: 0px; font-family:sans-serif'>` + (x.result || ' ') + `</p></td>
@@ -2912,7 +2951,7 @@ class Job extends Component {
 
     var table = `<div class="filter-table-responsive-cal"> <table class="table font-smaller">
       <thead>
-      <tr style="font-size:12.5px;">
+      <tr style="font-size:16.5px;">
         <th>Sample</th>
         <th class="center">Side</th>
         <th>Testing Combination</th>
@@ -3023,6 +3062,8 @@ class Job extends Component {
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.homeownerNumber : ''}</dt>
               <dd className="col-sm-3">Client</dd>
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.clientInfo? this.state.jobInfo.clientInfo.data[0].name:'' : ''}</dt>
+              <dd className="col-sm-3">Billing Name</dd>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.clientInfo? this.state.jobInfo.clientInfo.data[0].bname:'' : ''}</dt>
               <dd className="col-sm-3">Address</dd>
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.street + ' ' +this.state.jobInfo.city+', '+this.state.jobInfo.state: ''}</dt>
               <dd className="col-sm-3">Site Contact</dd>
@@ -3032,7 +3073,7 @@ class Job extends Component {
               <dd className="col-sm-3">Intake notes</dd>
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.comments : ''}</dt>
               <dd className="col-sm-3">Inspector</dd>
-              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.inspector : ''}</dt>
+              <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.inspectorName : ''}</dt>
               <dd className="col-sm-3">Inspection Type</dd>
               <dt className="col-sm-9">{this.state.jobInfo? this.state.jobInfo.jobtype : ''}</dt>
               <dd className="col-sm-3">Arrive early</dd>
@@ -3314,9 +3355,8 @@ class Job extends Component {
                 <form>
 
                 <dl className="row">
-
                   <dd className="col-lg-1">Type of dwelling</dd>
-                  <dt className="col-lg-3">
+                  <dt className="col-lg-2">
                     <Input value={ this.state.propModalStuff.dwelling } onChange={(e) => {
                       let propModalStuff = {...this.state.propModalStuff};
                       propModalStuff.dwelling = e.target.value
@@ -3325,7 +3365,7 @@ class Job extends Component {
                   </dt>
 
                   <dd className="col-lg-1">Year Build</dd>
-                  <dt className="col-lg-3">
+                  <dt className="col-lg-2">
                     <Input type="number" value={ this.state.propModalStuff.year } onChange={(e) => {
                       let propModalStuff = {...this.state.propModalStuff};
                       propModalStuff.year = e.target.value
@@ -3334,27 +3374,27 @@ class Job extends Component {
                   </dt>
 
                   <dd className="col-lg-1">Built over</dd>
-                  <dt className="col-lg-3">
+                  <dt className="col-lg-2">
                     <Input value={ this.state.propModalStuff.builtover } onChange={(e) => {
                       let propModalStuff = {...this.state.propModalStuff};
                       propModalStuff.builtover = e.target.value
                       this.setState({propModalStuff})
                     }}/>
                   </dt>
-                </dl>
 
-                <dl className="row">
                   <dd className="col-lg-1">Type of Payment</dd>
-                  <dt className="col-lg-3">
+                  <dt className="col-lg-2">
                     <Input value={ this.state.propModalStuff.payment } onChange={(e) => {
                       let propModalStuff = {...this.state.propModalStuff};
                       propModalStuff.payment = e.target.value
                       this.setState({propModalStuff})
                     }}/>
                   </dt>
+                </dl>
 
+                <dl className="row">
                   <dd className="col-lg-1">Number of units</dd>
-                  <dt className="col-lg-3">
+                  <dt className="col-lg-2">
                     <Input value={ this.state.propModalStuff.units } onChange={(e) => {
                       let propModalStuff = {...this.state.propModalStuff};
                       propModalStuff.units = e.target.value
@@ -3362,28 +3402,37 @@ class Job extends Component {
                     }}/>
                   </dt>
 
+                  <dd className="col-lg-1">Number of buildings</dd>
+                  <dt className="col-lg-2">
+                    <Input value={ this.state.propModalStuff.buildings } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.buildings = e.target.value
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+
                   <dd className="col-lg-1">Number of stories</dd>
-                  <dt className="col-lg-3">
+                  <dt className="col-lg-2">
                     <Input value={ this.state.propModalStuff.stories } onChange={(e) => {
                       let propModalStuff = {...this.state.propModalStuff};
                       propModalStuff.stories = e.target.value
                       this.setState({propModalStuff})
                     }}/>
                   </dt>
-                </dl>
 
-                <dl className="row">
                   <dd className="col-lg-1">Number of laundry</dd>
-                  <dt className="col-lg-3">
+                  <dt className="col-lg-2">
                     <Input value={ this.state.propModalStuff.laundry } onChange={(e) => {
                       let propModalStuff = {...this.state.propModalStuff};
                       propModalStuff.laundry = e.target.value
                       this.setState({propModalStuff})
                     }}/>
                   </dt>
+                </dl>
 
+                <dl className="row">
                   <dd className="col-lg-1">Number of garages</dd>
-                  <dt className="col-lg-3">
+                  <dt className="col-lg-2">
                     <Input value={ this.state.propModalStuff.garages } onChange={(e) => {
                       let propModalStuff = {...this.state.propModalStuff};
                       propModalStuff.garages = e.target.value
@@ -3392,48 +3441,46 @@ class Job extends Component {
                   </dt>
 
                   <dd className="col-lg-1">garage</dd>
-                  <dt className="col-lg-3">
+                  <dt className="col-lg-2">
                     <Input value={ this.state.propModalStuff.garage } onChange={(e) => {
                       let propModalStuff = {...this.state.propModalStuff};
                       propModalStuff.garage = e.target.value
                       this.setState({propModalStuff})
                     }}/>
                   </dt>
+
+                   <dd className="col-lg-1">Units accessed via</dd>
+                   <dt className="col-lg-2">
+                     <Input value={ this.state.propModalStuff.exterior } onChange={(e) => {
+                       let propModalStuff = {...this.state.propModalStuff};
+                       propModalStuff.exterior = e.target.value
+                       this.setState({propModalStuff})
+                     }}/>
+                   </dt>
+
+
+                   <dd className="col-lg-1">Areas not accessable</dd>
+                   <dt className="col-lg-2">
+                     <Input value={ this.state.propModalStuff.noaccess } onChange={(e) => {
+                       let propModalStuff = {...this.state.propModalStuff};
+                       propModalStuff.noaccess = e.target.value
+                       this.setState({propModalStuff})
+                     }}/>
+                   </dt>
                 </dl>
 
-               <dl className="row">
-                  <dd className="col-lg-1">Units accessed via</dd>
-                  <dt className="col-lg-3">
-                    <Input value={ this.state.propModalStuff.exterior } onChange={(e) => {
-                      let propModalStuff = {...this.state.propModalStuff};
-                      propModalStuff.exterior = e.target.value
-                      this.setState({propModalStuff})
-                    }}/>
-                  </dt>
-
-
-                  <dd className="col-lg-1">Areas not accessable</dd>
-                  <dt className="col-lg-3">
-                    <Input value={ this.state.propModalStuff.noaccess } onChange={(e) => {
-                      let propModalStuff = {...this.state.propModalStuff};
-                      propModalStuff.noaccess = e.target.value
-                      this.setState({propModalStuff})
-                    }}/>
-                  </dt>
-
+              <dl className="row">
                   <dd className="col-lg-1">Number of stories in building</dd>
-                  <dt className="col-lg-3">
+                  <dt className="col-lg-2">
                     <Input value={ this.state.propModalStuff.buildingstories } onChange={(e) => {
                       let propModalStuff = {...this.state.propModalStuff};
                       propModalStuff.buildingstories = e.target.value
                       this.setState({propModalStuff})
                     }}/>
                   </dt>
-                </dl>
 
-              <dl className="row">
                   <dd className="col-lg-1">Number of stories in unit</dd>
-                  <dt className="col-lg-3">
+                  <dt className="col-lg-2">
                     <Input value={ this.state.propModalStuff.unitstories } onChange={(e) => {
                       let propModalStuff = {...this.state.propModalStuff};
                       propModalStuff.unitstories = e.target.value
@@ -3442,7 +3489,7 @@ class Job extends Component {
                   </dt>
 
                   <dd className="col-lg-1">Number of beds</dd>
-                  <dt className="col-lg-3">
+                  <dt className="col-lg-2">
                     <Input value={ this.state.propModalStuff.bednums } onChange={(e) => {
                       let propModalStuff = {...this.state.propModalStuff};
                       propModalStuff.bednums = e.target.value
@@ -3451,7 +3498,7 @@ class Job extends Component {
                   </dt>
 
                   <dd className="col-lg-1">Number of baths</dd>
-                  <dt className="col-lg-3">
+                  <dt className="col-lg-2">
                     <Input value={ this.state.propModalStuff.bathnums } onChange={(e) => {
                       let propModalStuff = {...this.state.propModalStuff};
                       propModalStuff.bathnums = e.target.value
@@ -3462,7 +3509,7 @@ class Job extends Component {
 
                 <dl className="row">
                   <dd className="col-lg-1">Number of dust samples</dd>
-                  <dt className="col-lg-3">
+                  <dt className="col-lg-2">
                     <Input value={ this.state.propModalStuff.dustnums } onChange={(e) => {
                       let propModalStuff = {...this.state.propModalStuff};
                       propModalStuff.dustnums = e.target.value
@@ -3471,7 +3518,7 @@ class Job extends Component {
                   </dt>
 
                   <dd className="col-lg-1">Number of soil samples</dd>
-                  <dt className="col-lg-3">
+                  <dt className="col-lg-2">
                     <Input value={ this.state.propModalStuff.soilnums } onChange={(e) => {
                       let propModalStuff = {...this.state.propModalStuff};
                       propModalStuff.soilnums = e.target.value
@@ -3480,15 +3527,108 @@ class Job extends Component {
                   </dt>
 
                   <dd className="col-lg-1">Do children live in the home</dd>
-                  <dt className="col-lg-3">
+                  <dt className="col-lg-1">
                     <Input value={ this.state.propModalStuff.children } onChange={(e) => {
                       let propModalStuff = {...this.state.propModalStuff};
                       propModalStuff.children = e.target.value
                       this.setState({propModalStuff})
                     }}/>
                   </dt>
+
+                  <dd className="col-lg-1">Aluminum</dd>
+                  <dt className="col-lg-1">
+                    <Input type='Checkbox' defaultChecked={ this.state.propModalStuff.framed } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.framed = e.target.checked
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+
+                  <dd className="col-lg-1">Casement</dd>
+                  <dt className="col-lg-1">
+                    <Input type='Checkbox' defaultChecked={ this.state.propModalStuff.casement } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.casement = e.target.checked
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
                 </dl>
 
+                <dl className="row">
+                  <dd className="col-lg-1">Double Hung Sash</dd>
+                  <dt className="col-lg-1">
+                    <Input type='Checkbox' defaultChecked={ this.state.propModalStuff.dblhung } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.dblhung = e.target.checked
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+
+                  <dd className="col-lg-1">Fixed</dd>
+                  <dt className="col-lg-1">
+                    <Input type='Checkbox' defaultChecked={ this.state.propModalStuff.fixed } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.fixed = e.target.checked
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+
+                <dd className="col-lg-1">Horizontal Siding</dd>
+                <dt className="col-lg-1">
+                  <Input type='Checkbox' defaultChecked={ this.state.propModalStuff.horz } onChange={(e) => {
+                    let propModalStuff = {...this.state.propModalStuff};
+                    propModalStuff.horz = e.target.checked
+                    this.setState({propModalStuff})
+                  }}/>
+                </dt>
+
+                <dd className="col-lg-1">Louvered</dd>
+                <dt className="col-lg-1">
+                  <Input type='Checkbox' defaultChecked={ this.state.propModalStuff.louvered } onChange={(e) => {
+                    let propModalStuff = {...this.state.propModalStuff};
+                    propModalStuff.louvered = e.target.checked
+                    this.setState({propModalStuff})
+                  }}/>
+                </dt>
+
+                <dd className="col-lg-1">Transom</dd>
+                <dt className="col-lg-1">
+                  <Input type='Checkbox' defaultChecked={ this.state.propModalStuff.transom } onChange={(e) => {
+                    let propModalStuff = {...this.state.propModalStuff};
+                    propModalStuff.transom = e.target.checked
+                    this.setState({propModalStuff})
+                  }}/>
+                </dt>
+
+                <dd className="col-lg-1">Vinyl</dd>
+                <dt className="col-lg-1">
+                  <Input type='Checkbox' defaultChecked={ this.state.propModalStuff.vinyl } onChange={(e) => {
+                    let propModalStuff = {...this.state.propModalStuff};
+                    propModalStuff.vinyl = e.target.checked
+                    this.setState({propModalStuff})
+                  }}/>
+                </dt>
+              </dl>
+
+                <dl className="row">
+                  <dd className="col-lg-1">Bay Window</dd>
+                  <dt className="col-lg-1">
+                    <Input type='Checkbox' defaultChecked={ this.state.propModalStuff.bay } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.bay = e.target.checked
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+
+                  <dd className="col-lg-1">Garden Window</dd>
+                  <dt className="col-lg-1">
+                    <Input type='Checkbox' defaultChecked={ this.state.propModalStuff.garden } onChange={(e) => {
+                      let propModalStuff = {...this.state.propModalStuff};
+                      propModalStuff.garden = e.target.checked
+                      this.setState({propModalStuff})
+                    }}/>
+                  </dt>
+                </dl>
                 </form>
                 <Button onClick={this.savePropModal}>Save</Button>
                 {
